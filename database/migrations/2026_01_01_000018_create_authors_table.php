@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('authors', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->bigInteger('serial_number')->autoIncrement()->unique();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('bio')->nullable();
+            
+            // بيانات إضافية
+            $table->string('madhab')->nullable()->index(); // المذهب
+            $table->string('original_region')->nullable()->index(); // البلد/الإقليم
+            $table->string('century_lived')->nullable()->index(); // قرن الوفاة
+
+            $table->integer('birth_year')->nullable();
+            $table->integer('death_year')->nullable();
+            
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('authors');
+    }
+};

@@ -1,0 +1,500 @@
+<script setup>
+import { ref, watch, onBeforeUnmount } from 'vue'
+import { useEditor, EditorContent } from '@tiptap/vue-3'
+import { Extension } from '@tiptap/core'
+import { useEditorStore } from '@/Technologies/Store/EditorStore'
+import { useTiptapStore } from './TiptapStore'
+import StarterKit from '@tiptap/starter-kit'
+import Underline from '@tiptap/extension-underline'
+import TextAlign from '@tiptap/extension-text-align'
+import Placeholder from '@tiptap/extension-placeholder'
+import Link from '@tiptap/extension-link'
+import Image from '@tiptap/extension-image'
+import { Table } from '@tiptap/extension-table'
+import { TableCell } from '@tiptap/extension-table-cell'
+import { TableHeader } from '@tiptap/extension-table-header'
+import { TableRow } from '@tiptap/extension-table-row'
+import Subscript from '@tiptap/extension-subscript'
+import Superscript from '@tiptap/extension-superscript'
+import Highlight from '@tiptap/extension-highlight'
+import { Color } from '@tiptap/extension-color'
+import { TextStyle } from '@tiptap/extension-text-style'
+
+import HeritagePoetry from '../Extensions/Poetry/PoetryExtension'
+import QuranicVerse from '../Extensions/Quran/QuranExtension'
+import ScientificFootnote from '../Extensions/Footnotes/FootnoteExtension'
+
+// Commands (Slash Menu)
+import { CommandExtension } from '../Extensions/Commands/CommandExtension'
+import suggestionUtils from '../Extensions/Commands/SuggestionUtils'
+
+// Drag & Drop
+import FileNode from '../Nodes/File/FileNode'
+import { DragAndDrop } from '../Extensions/DragAndDrop/DragAndDropExtension'
+
+// Drag Handle
+import { DragHandleExtension } from '../Extensions/DragHandle/DragHandleExtension'
+
+// Interactive Segments
+import { SegmentLink } from '../Extensions/SegmentLink'
+import { useMediaStore } from '@/Technologies/Store/MediaStore'
+import Heading from '@tiptap/extension-heading'
+
+const CustomHeading = Heading.extend({
+    name: 'heading',
+    addAttributes() {
+        return {
+            ...this.parent?.(),
+            class: {
+                default: null,
+                parseHTML: element => element.getAttribute('class'),
+                renderHTML: attributes => {
+                    if (!attributes.class) return {}
+                    return { class: attributes.class }
+                }
+            },
+            'data-id': {
+                default: null,
+                parseHTML: element => element.getAttribute('data-id'),
+                renderHTML: attributes => {
+                    if (!attributes['data-id']) return {}
+                    return { 'data-id': attributes['data-id'] }
+                }
+            },
+            'data-type': {
+                default: null,
+                parseHTML: element => element.getAttribute('data-type'),
+                renderHTML: attributes => {
+                    if (!attributes['data-type']) return {}
+                    return { 'data-type': attributes['data-type'] }
+                }
+            }
+        }
+    },
+    parseHTML() {
+        return [
+            {
+                tag: 'h1, h2, h3, h4, h5, h6',
+                getAttrs: element => ({ 
+                    level: parseInt(element.tagName.substring(1)),
+                    class: element.getAttribute('class'),
+                    'data-id': element.getAttribute('data-id'),
+                    'data-type': element.getAttribute('data-type')
+                }),
+                priority: 2000,
+            }
+        ]
+    }
+})
+
+import Paragraph from '@tiptap/extension-paragraph'
+
+const CustomParagraph = Paragraph.extend({
+    name: 'paragraph',
+    addAttributes() {
+        return {
+            ...this.parent?.(),
+            class: {
+                default: null,
+                parseHTML: element => element.getAttribute('class'),
+                renderHTML: attributes => {
+                    if (!attributes.class) return {}
+                    return { class: attributes.class }
+                }
+            },
+            'data-id': {
+                default: null,
+                parseHTML: element => element.getAttribute('data-id'),
+                renderHTML: attributes => {
+                    if (!attributes['data-id']) return {}
+                    return { 'data-id': attributes['data-id'] }
+                }
+            },
+            'data-type': {
+                default: null,
+                parseHTML: element => element.getAttribute('data-type'),
+                renderHTML: attributes => {
+                    if (!attributes['data-type']) return {}
+                    return { 'data-type': attributes['data-type'] }
+                }
+            }
+        }
+    },
+    parseHTML() {
+        return [
+            {
+                tag: 'p',
+                getAttrs: element => ({
+                    class: element.getAttribute('class'),
+                    'data-id': element.getAttribute('data-id'),
+                    'data-type': element.getAttribute('data-type')
+                }),
+                priority: 1000,
+            }
+        ]
+    }
+})
+
+const ContentNodeCommands = Extension.create({
+    name: 'contentNodeCommands',
+    addCommands() {
+        return {
+            insertStructureNode: (type, title, level) => ({ commands }) => {
+                return commands.insertContent([
+                        {
+                            type: 'heading',
+                            attrs: { level },
+                            content: [{ type: 'text', text: title }]
+                        },
+                        { type: 'paragraph' }
+                    ])
+            },
+            insertMarkerNode: (type, title, metadata = {}) => ({ commands }) => {
+                // Header Signature: <h4 class="structure-marker" data-segment-link="true" ...>TITLE:</h4>
+                return commands.insertContent([
+                        {
+                            type: 'heading',
+                            attrs: { 
+                                level: metadata.level || 4,
+                                class: 'structure-marker',
+                                'data-segment-link': 'true',
+                                'data-type': type,
+                                'data-start-time': metadata?.time || 0,
+                                'data-folio': metadata?.folio || null,
+                                'data-page': metadata?.page || null
+                            },
+                            content: [
+                                { type: 'text', text: title + ':' }
+                            ]
+                        },
+                        { type: 'paragraph' }
+                    ])
+            }
+        }
+    }
+})
+
+// UI Components will be added in the next step
+// import EditorBubbleMenu from '../UI/EditorBubbleMenu.vue'
+
+const props = defineProps({
+    modelValue: {
+        type: [String, Array, Object],
+        default: ''
+    },
+    editable: {
+        type: Boolean,
+        default: true
+    }
+})
+
+const emit = defineEmits(['update:modelValue', 'setEditor', 'navigate'])
+const tiptapStore = useTiptapStore()
+
+const editor = useEditor({
+    content: props.modelValue,
+    editable: props.editable,
+    extensions: [
+        StarterKit.configure({
+            heading: false,
+            paragraph: false
+        }),
+        CustomHeading.configure({
+            levels: [1, 2, 3, 4, 5, 6]
+        }),
+        CustomParagraph,
+        // Underline, // Potentially duplicated
+        TextAlign.configure({
+            types: ['heading', 'paragraph'],
+            alignments: ['left', 'center', 'right', 'justify'],
+            defaultAlignment: 'right'
+        }),
+        Placeholder.configure({
+            placeholder: 'ابدأ الكتابة هنا...'
+        }),
+        // Link.configure({
+        //     openOnClick: false
+        // }),
+        Image,
+        Table.configure({
+            resizable: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
+        Subscript,
+        Superscript,
+        Highlight,
+        TextStyle,
+        Color,
+        HeritagePoetry,
+        QuranicVerse,
+        ScientificFootnote,
+        FileNode,  // Register new node
+        DragAndDrop, // Register extension
+        CommandExtension.configure({
+            suggestion: suggestionUtils
+        }),
+        DragHandleExtension,
+        SegmentLink,
+        ContentNodeCommands,
+    ],
+    editorProps: {
+        attributes: {
+            class: 'prose prose-lg max-w-none focus:outline-none min-h-[800px] p-10 lg:p-14',
+            dir: 'rtl'
+        },
+        handleClick: (view, pos, event) => {
+            const mediaStore = useMediaStore()
+
+            // 1. Explicit SegmentLink check (Manually marked)
+            if (event.target.closest('.segment-link')) {
+                const node = view.state.doc.nodeAt(pos)
+                const mark = node?.marks.find(m => m.type.name === 'segmentLink') || 
+                            view.state.selection.$from.marks().find(m => m.type.name === 'segmentLink')
+                
+                if (mark && mark.attrs.startTime !== null) {
+                    mediaStore.requestSeek(parseFloat(mark.attrs.startTime))
+                    
+                    if (mark.attrs.segmentId) {
+                        emit('navigate', mark.attrs.segmentId)
+                    }
+                    return true
+                }
+            }
+
+            // 2. Smart Detection: Check if clicked text/header matches a segment title
+            const clickedElement = event.target
+            const isHeader = ['H1', 'H2', 'H3', 'H4', 'H5', 'STRONG', 'B'].includes(clickedElement.tagName)
+            
+            if (isHeader || clickedElement.closest('h1, h2, h3, h4, strong')) {
+                const targetText = clickedElement.innerText?.trim() || clickedElement.textContent?.trim()
+                
+                if (targetText && mediaStore.segments.length > 0) {
+                    // Try to find a segment that matches this text
+                    const matchedSegment = mediaStore.segments.find(s => 
+                        (s.title && s.title.trim() === targetText) || 
+                        (s.label && s.label.trim() === targetText)
+                    )
+
+                    if (matchedSegment) {
+                        const seekTime = matchedSegment.start || matchedSegment.start_time || 0
+                        mediaStore.requestSeek(parseFloat(seekTime))
+                        // Also navigate if we have an ID/Slug
+                        if (matchedSegment.id || matchedSegment.slug) {
+                             emit('navigate', matchedSegment.id || matchedSegment.slug)
+                        }
+                        return true
+                    }
+                }
+            }
+
+            if (event.target.closest('.scientific-footnote')) {
+                const node = view.state.doc.nodeAt(pos)
+                const mark = node?.marks.find(m => m.type.name === 'scientificFootnote') || 
+                            view.state.selection.$from.marks().find(m => m.type.name === 'scientificFootnote')
+                
+                if (mark) {
+                    const store = useEditorStore() // We might need FootnoteStore here, but let's dynamic import or use prop
+                    // Actually, importing useFootnoteStore is cleaner
+                    import('../Extensions/Footnotes/FootnoteStore').then(({ useFootnoteStore }) => {
+                        const footnoteStore = useFootnoteStore()
+                        footnoteStore.openEditor(
+                            editor.value,
+                            mark.attrs.id,
+                            mark.attrs.type,
+                            mark.attrs.content_json
+                        )
+                    })
+                    return true
+                }
+            }
+            return false
+        }
+    },
+    onUpdate: ({ editor }) => {
+        window.editor = editor
+        emit('update:modelValue', editor.getHTML())
+    },
+    onCreate: ({ editor }) => {
+        window.editor = editor
+        emit('setEditor', editor)
+        tiptapStore.setEditor(editor)
+    }
+})
+
+watch(() => props.modelValue, (value) => {
+    if (editor.value && value !== editor.value.getHTML()) {
+        console.log('[TiptapEditor] Updating content from props. Length:', value?.length);
+        if (value && value.includes('Title from Player')) {
+            console.log('[TiptapEditor] NEW TITLE DETECTED IN PROPS');
+        }
+        editor.value.commands.setContent(value, false)
+    }
+})
+
+watch(() => props.editable, (value) => {
+    if (editor.value) {
+        editor.value.setEditable(value)
+    }
+})
+
+onBeforeUnmount(() => {
+    if (editor.value) {
+        editor.value.destroy()
+    }
+})
+</script>
+
+<template>
+  <div class="tiptap-editor">
+    <EditorContent :editor="editor" />
+  </div>
+</template>
+
+<style>
+/* Tiptap Editor Styles */
+.tiptap-editor {
+    font-family: 'Amiri', 'Traditional Arabic', serif;
+    line-height: 2;
+    direction: rtl;
+}
+
+.ProseMirror {
+    min-height: 800px;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: right;
+    color: #adb5bd;
+    pointer-events: none;
+    height: 0;
+}
+
+.ProseMirror:focus {
+    outline: none;
+}
+
+/* Arabic Typography */
+.ProseMirror p {
+    margin-bottom: 1em;
+    text-align: right;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4 {
+    font-weight: 700;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    text-align: right;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror strong {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.ProseMirror h1:hover,
+.ProseMirror h2:hover,
+.ProseMirror h3:hover,
+.ProseMirror h4:hover,
+.ProseMirror strong:hover {
+    color: #2563eb; /* Blue-600 */
+}
+
+/* Constitutional Structural Markers */
+.ProseMirror h4.structure-marker {
+    color: #2563eb; /* Blue-600 */
+    border-bottom: 1px dotted rgba(37, 99, 235, 0.2);
+    display: block;
+    width: 100%;
+}
+
+.ProseMirror h4.structure-marker:hover {
+    color: #1d4ed8; /* Blue-700 */
+    border-bottom: 1px solid #2563eb;
+}
+
+.ProseMirror h1 {
+    font-size: 2em;
+}
+
+.ProseMirror h2 {
+    font-size: 1.5em;
+}
+
+.ProseMirror h3 {
+    font-size: 1.25em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+    padding-right: 2em;
+    margin-bottom: 1em;
+}
+
+.ProseMirror strong {
+    font-weight: 700;
+}
+
+.ProseMirror em {
+    font-style: italic;
+}
+
+.ProseMirror u {
+    text-decoration: underline;
+}
+
+/* Drag Handle Styles */
+.ProseMirror p,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+    position: relative;
+}
+
+.ProseMirror p:hover::before,
+.ProseMirror h1:hover::before,
+.ProseMirror h2:hover::before,
+.ProseMirror h3:hover::before,
+.ProseMirror h4:hover::before,
+.ProseMirror h5:hover::before,
+.ProseMirror h6:hover::before {
+    content: '⋮⋮';
+    position: absolute;
+    right: calc(100% + 0.5rem);
+    top: 0.25rem;
+    color: #9CA3AF;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: grab;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.ProseMirror p:hover::before:hover,
+.ProseMirror h1:hover::before:hover,
+.ProseMirror h2:hover::before:hover,
+.ProseMirror h3:hover::before:hover,
+.ProseMirror h4:hover::before:hover,
+.ProseMirror h5:hover::before:hover,
+.ProseMirror h6:hover::before:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #4B5563;
+}
+
+
+
+</style>
