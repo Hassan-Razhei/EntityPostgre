@@ -18,7 +18,7 @@ class EntityWorkflowTest extends TestCase
 
     public function test_authenticated_user_can_create_video_with_files()
     {
-        Storage::fake('public');
+        Storage::fake('media');
         /** @var \App\Models\User $user */
         $user = User::factory()->create();
 
@@ -44,13 +44,13 @@ class EntityWorkflowTest extends TestCase
         $this->assertNotNull($video->cover_path);
         $this->assertNotNull($video->file_path);
 
-        Storage::disk('public')->assertExists($video->cover_path);
-        Storage::disk('public')->assertExists($video->file_path);
+        Storage::disk('media')->assertExists($video->cover_path);
+        Storage::disk('media')->assertExists($video->file_path);
     }
 
     public function test_authenticated_user_can_update_video_with_files()
     {
-        Storage::fake('public');
+        Storage::fake('media');
         /** @var \App\Models\User $user */
         $user = User::factory()->create();
         $video = Video::factory()->create(['title' => 'Old Video']);
@@ -68,12 +68,12 @@ class EntityWorkflowTest extends TestCase
         $video->refresh();
         $this->assertEquals('Updated Video', $video->title);
         $this->assertNotNull($video->cover_path);
-        Storage::disk('public')->assertExists($video->cover_path);
+        Storage::disk('media')->assertExists($video->cover_path);
     }
 
     public function test_authenticated_user_can_create_audio_with_files()
     {
-        Storage::fake('public');
+        Storage::fake('media');
         /** @var \App\Models\User $user */
         $user = User::factory()->create();
 
@@ -90,12 +90,12 @@ class EntityWorkflowTest extends TestCase
 
         $audio = Audio::where('title', 'My Podcast')->first();
         $this->assertNotNull($audio->file_path);
-        Storage::disk('public')->assertExists($audio->file_path);
+        Storage::disk('media')->assertExists($audio->file_path);
     }
 
     public function test_authenticated_user_can_create_manuscript_with_files()
     {
-        Storage::fake('public');
+        Storage::fake('media');
         /** @var \App\Models\User $user */
         $user = User::factory()->create();
 
@@ -112,6 +112,6 @@ class EntityWorkflowTest extends TestCase
 
         $manuscript = Manuscript::where('title', 'Ancient Text')->first();
         $this->assertNotNull($manuscript->file_path);
-        Storage::disk('public')->assertExists($manuscript->file_path);
+        Storage::disk('media')->assertExists($manuscript->file_path);
     }
 }

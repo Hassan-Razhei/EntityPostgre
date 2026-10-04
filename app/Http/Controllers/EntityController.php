@@ -618,13 +618,22 @@ abstract class EntityController extends Controller
     /**
      * Handle file uploads and add paths to data array
      */
+    /**
+     * Storage disk for file uploads (defaults to 'media' for media entities)
+     */
+    protected function getStorageDisk(): string
+    {
+        return 'media';
+    }
+
     protected function handleFileUploads(Request $request, array &$data): void
     {
         $fileUploads = $this->getFileUploads();
+        $disk = $this->getStorageDisk();
 
         foreach ($fileUploads as $field => $directory) {
             if ($request->hasFile($field)) {
-                $data["{$field}_path"] = $request->file($field)->store($directory, 'public');
+                $data["{$field}_path"] = $request->file($field)->store($directory, $disk);
             }
         }
     }

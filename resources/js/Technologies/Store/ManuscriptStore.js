@@ -66,7 +66,7 @@ export const useManuscriptStore = defineStore('manuscript', {
             if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('/') || rawUrl.startsWith('blob:')) {
                 return rawUrl;
             }
-            return '/storage/' + rawUrl;
+            return '/media/' + rawUrl;
         },
 
         getVersionShot: (state) => (versionId) => {

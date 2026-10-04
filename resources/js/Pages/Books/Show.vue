@@ -32,8 +32,8 @@ const tabs = [
         <div class="absolute inset-0 bg-emerald-950/90 z-10" />
         <img 
           v-if="book.versions?.[0]?.cover_path || book.cover_path"
-          :src="'/storage/' + (book.versions?.[0]?.cover_path || book.cover_path)" 
-          class="w-full h-full object-cover filter blur-3xl opacity-40 scale-110 grayscale-[0.2]"
+          :src="book.cover_url || book.versions?.[0]?.cover_url || ('/media/' + (book.versions?.[0]?.cover_path || book.cover_path))"
+class="w-full h-full object-cover filter blur-3xl opacity-40 scale-110 grayscale-[0.2]"
         >
         <div
           v-else
@@ -51,8 +51,8 @@ const tabs = [
               <div class="relative w-64 aspect-[2/3] rounded-xl shadow-2xl transition-transform duration-500 transform group-hover:rotate-y-6 group-hover:rotate-x-6 preserve-3d">
                 <img 
                   v-if="book.versions?.[0]?.cover_path || book.cover_path"
-                  :src="'/storage/' + (book.versions?.[0]?.cover_path || book.cover_path)"
-                  class="w-full h-full object-cover rounded-xl shadow-black/50 ring-1 ring-lime-400/30"
+                  :src="book.cover_url || book.versions?.[0]?.cover_url || ('/media/' + (book.versions?.[0]?.cover_path || book.cover_path))"
+class="w-full h-full object-cover rounded-xl shadow-black/50 ring-1 ring-lime-400/30"
                 >
                 <div
                   v-else
@@ -283,8 +283,8 @@ const tabs = [
               </h3>
               <a 
                 v-if="book.versions?.[0]?.file_path || book.file_path" 
-                :href="'/storage/' + (book.versions?.[0]?.file_path || book.file_path)"
-                target="_blank"
+                :href="book.file_url || book.versions?.[0]?.file_url || ('/media/' + (book.versions?.[0]?.file_path || book.file_path))"
+target="_blank"
                 class="flex items-center justify-between w-full p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 hover:bg-emerald-100 dark:hover:bg-emerald-800/20 border border-emerald-100 dark:border-emerald-500/10 transition-all group cursor-pointer"
               >
                 <div class="flex items-center gap-4">

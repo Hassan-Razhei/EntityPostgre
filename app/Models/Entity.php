@@ -82,7 +82,7 @@ abstract class Entity extends Model
     /**
      * الخصائص المشتركة
      */
-    protected $appends = ['type', 'formatted_serial_number'];
+    protected $appends = ['type', 'formatted_serial_number', 'cover_url', 'file_url'];
 
     public function getTypeAttribute(): string
     {
@@ -92,6 +92,34 @@ abstract class Entity extends Model
     public function getFormattedSerialNumberAttribute(): string
     {
         return '#' . str_pad($this->serial_number, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function getCoverUrlAttribute(): ?string
+    {
+        $path = $this->cover_path;
+        if (empty($path)) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('media')->url($path);
+    }
+
+    public function getFileUrlAttribute(): ?string
+    {
+        $path = $this->file_path;
+        if (empty($path)) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('media')->url($path);
     }
 
     public static function getCached($id)

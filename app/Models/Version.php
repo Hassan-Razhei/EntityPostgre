@@ -77,8 +77,31 @@ class Version extends Model
         return $this->belongsTo(Shelf::class);
     }
 
-    public function getFileUrlAttribute()
+    protected $appends = ['file_url', 'cover_url'];
+
+    public function getFileUrlAttribute(): ?string
     {
-        return $this->file_path ? asset('storage/' . $this->file_path) : null;
+        if (empty($this->file_path)) {
+            return null;
+        }
+
+        if (str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://')) {
+            return $this->file_path;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('media')->url($this->file_path);
+    }
+
+    public function getCoverUrlAttribute(): ?string
+    {
+        if (empty($this->cover_path)) {
+            return null;
+        }
+
+        if (str_starts_with($this->cover_path, 'http://') || str_starts_with($this->cover_path, 'https://')) {
+            return $this->cover_path;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('media')->url($this->cover_path);
     }
 }

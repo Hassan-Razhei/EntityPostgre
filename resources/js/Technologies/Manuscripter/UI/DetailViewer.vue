@@ -24,7 +24,7 @@ const versions = computed(() => {
     if (rawUrl) {
         const formattedUrl = (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('/') || rawUrl.startsWith('blob:'))
             ? rawUrl 
-            : '/storage/' + rawUrl
+            : '/media/' + rawUrl
         return [{
             id: 'node-view',
             title: props.currentNode?.title || 'المعاينة الحالية',

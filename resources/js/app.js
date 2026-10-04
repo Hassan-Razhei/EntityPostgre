@@ -16,6 +16,10 @@ import InputLabel from './Components/InputLabel.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+if (typeof window !== 'undefined') {
+    Ziggy.url = window.location.origin;
+}
+
 window.Ziggy = Ziggy;
 window.route = route;
 
