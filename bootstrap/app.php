@@ -23,6 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Redirect unauthenticated users to login page
         $middleware->redirectGuestsTo('/login');
+
+        $middleware->alias([
+            'active' => \App\Http\Middleware\EnsureUserIsActive::class,
+            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, \Illuminate\Http\Request $request) {

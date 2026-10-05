@@ -9,6 +9,7 @@
 |:---:|---|---|:---:|:---:|:---:|:---:|
 | **1** | **طبقة البيانات والموديلات (Data & Models)** | `tests/Unit/Auth/UserRoleAndModelTest.php` | 4 Failed, 1 Passed | 5 Passed (70 Assertions) | **328 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **2** | **استنبات الحسابات وأمر المدير العام (Provisioning & CLI)** | `tests/Feature/Auth/UserProvisioningTest.php` | 4 Failed | 4 Passed (70 Assertions) | **332 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
+| **3** | **حواجز المسارات (Route Middlewares: EnsureUserHasRole & EnsureUserIsActive)** | `tests/Feature/Auth/RoleAndActiveMiddlewareTest.php` | 6 Failed | 6 Passed (13 Assertions) | **338 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 
 ---
 
@@ -166,4 +167,84 @@
 ### 4. القرارات المعمارية الموثقة في الدورة:
 1. **الأمان في بيئة الإنتاج:** حظر وضع كلمات مرور المشرفين في الكود المصدري أو ملفات الترحيل، واستبدال ذلك بأمر تفاعلي مشفر (`secret()`) يُشغل مباشرة على الخادم.
 2. **عزل حسابات الأدوار الـ 12:** تخصيص بريد إلكتروني واضح لكل دور (`{role}@archive.org`) لتسهيل عمليات الاختبارات الوظيفية وأتمتة الـ QA.
+
+---
+
+## 🔹 الدورة 3: حواجز المسارات (Route Middlewares: EnsureUserHasRole & EnsureUserIsActive)
+
+- **تاريخ الإنجاز:** 2026-10-05
+- **الهدف المعماري:**  
+  بناء المستوى الأول من خط الدفاع الثلاثي؛ بتطوير حراس المداخل في المنظومة:
+  1. `EnsureUserIsActive`: فحص نشاط الحساب ومصادرة الجلسة الحية للحسابات المجمدة فورياً.
+  2. `EnsureUserHasRole`: فحص الرتب المفردة والمتعددة مع دعم الفصل بالفواصل (`role:editor,chief_editor,super_admin`) وتوجيه الزوار لصفحة الدخول.
+  3. تسجيل الأسماء المستعارة (`active` و `role`) رسمياً في `bootstrap/app.php`.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`tests/Feature/Auth/RoleAndActiveMiddlewareTest.php`](file:///home/a/Project-test/EntityPostgre/tests/Feature/Auth/RoleAndActiveMiddlewareTest.php)
+- **الحالات التي تم اختبارها:**
+  1. `it_allows_active_authenticated_users`: نفاذ المستخدم النشط المصرح له بنجاح (HTTP 200).
+  2. `it_blocks_inactive_users_and_invalidates_session`: طرد الحساب المجمد ومصادرة جلسته فوراً ورفضه بـ (HTTP 403).
+  3. `it_allows_user_with_exact_required_role`: نفاذ المستخدم المطابق للرتبة المفردة (`role:editor`).
+  4. `it_denies_user_without_required_role_with_informative_403`: حظر المستخدم الذي لا يملك الرتبة المطلوبة برمز 403 ورسالة عربية مفسرة.
+  5. `it_allows_any_matching_role_in_multiple_role_middleware`: دعم الرتب المتعددة والسماح لأي رتبة مطابقة وحجب غيرها.
+  6. `it_redirects_unauthenticated_guests_to_login`: إعادة توجيه الزائر غير المسجل لصفحة `/login` برمز (302).
+- **نتيجة التشغيل الأولى (RED):**
+  ```text
+  FAIL  Tests\Feature\Auth\RoleAndActiveMiddlewareTest
+  ⨯ it allows active authenticated users
+  ⨯ it blocks inactive users and invalidates session
+  ⨯ it allows user with exact required role
+  ⨯ it denies user without required role with informative 403
+  ⨯ it allows any matching role in multiple role middleware
+  ⨯ it redirects unauthenticated guests to login
+
+  Error: Target class [active] does not exist.
+  Tests: 6 failed (0 assertions)
+  Duration: 2.89s
+  ```
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. **ميدلوير النشاط وإبطال الجلسات:** [`app/Http/Middleware/EnsureUserIsActive.php`](file:///home/a/Project-test/EntityPostgre/app/Http/Middleware/EnsureUserIsActive.php)  
+     - طرد الجلسة فورياً عبر `Auth::logout()` و `$request->session()->invalidate()` و `$request->session()->regenerateToken()`.
+  2. **ميدلوير فحص الرتب:** [`app/Http/Middleware/EnsureUserHasRole.php`](file:///home/a/Project-test/EntityPostgre/app/Http/Middleware/EnsureUserHasRole.php)  
+     - دعم مرن للرتب المفردة والمتعددة والفصل بالفواصل.
+  3. **تسجيل الـ Aliases:** [`bootstrap/app.php`](file:///home/a/Project-test/EntityPostgre/bootstrap/app.php)  
+     - تسجيل `active` و `role` تحت `$middleware->alias(...)`.
+- **نتيجة تشغيل اختبار الميزة بعد كتابة الكود (GREEN):**
+  ```text
+  PASS  Tests\Feature\Auth\RoleAndActiveMiddlewareTest
+  ✓ it allows active authenticated users                                 0.78s  
+  ✓ it blocks inactive users and invalidates session                     0.07s  
+  ✓ it allows user with exact required role                              0.04s  
+  ✓ it denies user without required role with informative 403            0.05s  
+  ✓ it allows any matching role in multiple role middleware              0.06s  
+  ✓ it redirects unauthenticated guests to login                         0.04s  
+
+  Tests: 6 passed (13 assertions)
+  Duration: 1.10s
+  ```
+
+---
+
+### 3. تطبيق فحص عدم الانكسار 🛡️ (Zero Regression Immunity - القاعدة 3):
+- **الأمر المنفذ:** `php artisan test`
+- **النتيجة الرسمية:**
+  ```text
+  Tests: 1 incomplete, 338 passed (1981 assertions)
+  Duration: 37.06s
+  ```
+  *(نجاح كامل بنسبة 100% لجميع اختبارات المشروع السابقة والجديدة، وارتفاع إجمالي الاختبارات الناجحة إلى 338 اختباراً)*.
+
+---
+
+### 4. القرارات المعمارية الموثقة في الدورة:
+1. **الردع التفسيري (Informative Denial):** إرجاع رسائل رفض عربية واضحة ومحددة عند الـ 403 لتمكين الواجهة ومستخدميها من معرفة سبب الحظر.
+2. **الفصل الصارم للجلسات الحية (Session Invalidation):** عدم الاكتفاء بالرفض البرمجي عند تجميد الحساب، بل إلغاء التوكن وإبطال الجلسة الأمنية فوراً لمنع أي استغلال للجلسة المفتوحة مسبقاً.
+
 
