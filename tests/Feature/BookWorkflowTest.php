@@ -16,7 +16,7 @@ class BookWorkflowTest extends TestCase
     public function test_authenticated_user_can_create_book_with_files()
     {
         Storage::fake('media');
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $author = \App\Models\Author::factory()->create(['name' => 'Test Author']);
 
         $cover = UploadedFile::fake()->image('cover.jpg');
@@ -70,7 +70,7 @@ class BookWorkflowTest extends TestCase
     public function test_authenticated_user_can_update_book_with_files()
     {
         Storage::fake('media');
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $author = \App\Models\Author::factory()->create(['name' => 'Old Author']);
         $book = Book::factory()->create(['title' => 'Old Title']);
         $book->authors()->attach($author);

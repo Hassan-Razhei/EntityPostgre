@@ -18,7 +18,7 @@ class PolymorphicSaveTest extends TestCase
     #[Test]
     public function can_save_book_content(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $book = Book::factory()->create(['title' => 'Polymorphic Book']);
         $chapter = $book->nodes()->create([
             'type' => 'chapter',
@@ -43,7 +43,7 @@ class PolymorphicSaveTest extends TestCase
     #[Test]
     public function can_save_manuscript_transcription(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $manuscript = Manuscript::factory()->create(['title' => 'Polymorphic Manuscript']);
         $folio = $manuscript->nodes()->create([
             'type' => 'folio',
@@ -67,7 +67,7 @@ class PolymorphicSaveTest extends TestCase
     #[Test]
     public function can_save_media_transcription(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $audio = Audio::factory()->create(['title' => 'Polymorphic Audio']);
         $segment = $audio->nodes()->create([
             'type' => 'segment',

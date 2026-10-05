@@ -18,7 +18,7 @@ class CategoryAndTagControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->superAdmin()->create();
         $this->actingAs($this->user);
     }
 

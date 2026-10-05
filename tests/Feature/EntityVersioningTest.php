@@ -86,7 +86,7 @@ class EntityVersioningTest extends TestCase
         $mSibling = Manuscript::create(['title' => 'Sibling Copy', 'slug' => 'sibling-' . uniqid(), 'code' => $code]);
 
         // 2. act as user
-        $user = \App\Models\User::factory()->create();
+        $user = \App\Models\User::factory()->superAdmin()->create();
         
         // 3. Make Request to Show Page
         $response = $this->actingAs($user)->get(route('manuscripts.show', $mMain->slug));

@@ -16,7 +16,7 @@ class SmartSplitterTest extends TestCase
     #[Test]
     public function full_view_aggregates_segments_with_markers(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $audio = Audio::firstOrCreate(
             ['slug' => 'audio-smart-test'],
             ['title' => 'شرح صوتي اختباري', 'duration' => 3600]
@@ -83,7 +83,7 @@ class SmartSplitterTest extends TestCase
     #[Test]
     public function full_view_save_fragments_to_segments(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $audio = Audio::firstOrCreate(
             ['slug' => 'audio-split-save-test'],
             ['title' => 'شرح تجزئة الصوت', 'duration' => 3600]
@@ -159,7 +159,7 @@ class SmartSplitterTest extends TestCase
     #[Test]
     public function segment_links_preserved_during_split(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $audio = Audio::firstOrCreate(
             ['slug' => 'audio-segment-link-test'],
             ['title' => 'شرح روابط المقاطع', 'duration' => 3600]

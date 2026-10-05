@@ -34,7 +34,7 @@ class User extends Authenticatable
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'role' => UserRole::RESEARCHER->value,
+        'role' => UserRole::GUEST->value,
         'is_active' => true,
     ];
 

@@ -14,7 +14,7 @@ class EditorRoutingTest extends TestCase
 
     public function test_editor_opens_in_book_mode()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $book = Book::factory()->create();
         // Assuming a child/chapter exists
         $child = $book->children()->create(['title' => 'First Chapter', 'slug' => 'first-chapter']);
@@ -32,7 +32,7 @@ class EditorRoutingTest extends TestCase
 
     public function test_editor_opens_in_manuscript_mode_with_resource()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $manuscript = Manuscript::factory()->create(); // Requires Manuscript model factory
         // Assuming manuscript has children/pages
         $child = $manuscript->children()->create(['title' => 'Page 1', 'slug' => 'page-1']);

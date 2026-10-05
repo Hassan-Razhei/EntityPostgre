@@ -62,7 +62,7 @@ class MediaStorageAndUploadTest extends TestCase
      */
     public function test_book_upload_stores_files_in_media_disk_with_relative_paths()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $fakePdf = UploadedFile::fake()->create('sample_book_' . uniqid() . '.pdf', 50, 'application/pdf');
         $fakeCover = UploadedFile::fake()->image('book_cover_' . uniqid() . '.jpg', 200, 300);
@@ -109,7 +109,7 @@ class MediaStorageAndUploadTest extends TestCase
      */
     public function test_manuscript_upload_stores_cover_in_media_disk_with_relative_path()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $fakeCover = UploadedFile::fake()->image('ms_cover_' . uniqid() . '.jpg', 300, 400);
 
@@ -139,7 +139,7 @@ class MediaStorageAndUploadTest extends TestCase
      */
     public function test_audio_upload_stores_file_in_media_disk()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $fakeAudio = UploadedFile::fake()->create('sample_audio_' . uniqid() . '.mp3', 100, 'audio/mpeg');
         $fakeCover = UploadedFile::fake()->image('audio_cover_' . uniqid() . '.jpg', 200, 200);
@@ -170,7 +170,7 @@ class MediaStorageAndUploadTest extends TestCase
      */
     public function test_video_upload_stores_file_in_media_disk()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $fakeVideo = UploadedFile::fake()->create('sample_video_' . uniqid() . '.mp4', 200, 'video/mp4');
         $fakeCover = UploadedFile::fake()->image('video_cover_' . uniqid() . '.jpg', 200, 200);
@@ -201,7 +201,7 @@ class MediaStorageAndUploadTest extends TestCase
      */
     public function test_book_update_replaces_files_on_media_disk()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $initialPdf = UploadedFile::fake()->create('initial_' . uniqid() . '.pdf', 50, 'application/pdf');
         $initialCover = UploadedFile::fake()->image('initial_cover_' . uniqid() . '.jpg', 200, 300);
@@ -246,7 +246,7 @@ class MediaStorageAndUploadTest extends TestCase
      */
     public function test_book_show_page_renders_media_urls_in_inertia_props()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $book = Book::create([
             'title' => 'Inertia Props Book ' . uniqid(),
             'cover_path' => 'covers/unit_test_cover.jpg',
@@ -275,7 +275,7 @@ class MediaStorageAndUploadTest extends TestCase
      */
     public function test_book_upload_validation_rejects_non_pdf_file()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $invalidFile = UploadedFile::fake()->create('not_a_book.txt', 10, 'text/plain');
 

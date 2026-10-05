@@ -45,7 +45,7 @@ class PolymorphicRelationsIntegrationTest extends TestCase
         $this->assertCount(1, $audio->tags);
         $this->assertCount(1, $manuscript->tags);
 
-        $user = \App\Models\User::factory()->create();
+        $user = \App\Models\User::factory()->superAdmin()->create();
         $this->actingAs($user);
 
         $bookActivity = Activity::factory()->create([

@@ -33,7 +33,7 @@ class SecurityValidationTest extends TestCase
     public function test_authenticated_user_can_create_book()
     {
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $response = $this->actingAs($user)->post(route('books.store'), [
             'title' => 'New Book',
@@ -47,7 +47,7 @@ class SecurityValidationTest extends TestCase
     public function test_validation_fails_for_empty_title()
     {
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $response = $this->actingAs($user)
             ->from(route('books.create'))
@@ -61,7 +61,7 @@ class SecurityValidationTest extends TestCase
     public function test_authenticated_user_can_create_video()
     {
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $response = $this->actingAs($user)->post(route('videos.store'), [
             'title' => 'New Video',
@@ -74,7 +74,7 @@ class SecurityValidationTest extends TestCase
     public function test_authenticated_user_can_create_audio()
     {
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $response = $this->actingAs($user)->post(route('audios.store'), [
             'title' => 'New Audio',
@@ -87,7 +87,7 @@ class SecurityValidationTest extends TestCase
     public function test_authenticated_user_can_create_manuscript()
     {
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $response = $this->actingAs($user)->post(route('manuscripts.store'), [
             'title' => 'New Manuscript',

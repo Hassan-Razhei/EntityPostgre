@@ -18,7 +18,7 @@ class EntityControllerTest extends TestCase
         parent::setUp();
         
         // Create a user for authentication
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->superAdmin()->create();
     }
 
     /** @test */

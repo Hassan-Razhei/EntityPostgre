@@ -20,7 +20,7 @@ class EntityWorkflowTest extends TestCase
     {
         Storage::fake('media');
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $cover = UploadedFile::fake()->image('video_cover.jpg');
         $videoFile = UploadedFile::fake()->create('movie.mp4', 5000, 'video/mp4');
@@ -52,7 +52,7 @@ class EntityWorkflowTest extends TestCase
     {
         Storage::fake('media');
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $video = Video::factory()->create(['title' => 'Old Video']);
 
         $newCover = UploadedFile::fake()->image('new_cover.jpg');
@@ -75,7 +75,7 @@ class EntityWorkflowTest extends TestCase
     {
         Storage::fake('media');
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $audioFile = UploadedFile::fake()->create('song.mp3', 3000, 'audio/mpeg');
 
@@ -97,7 +97,7 @@ class EntityWorkflowTest extends TestCase
     {
         Storage::fake('media');
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $pdf = UploadedFile::fake()->create('ancient.pdf', 2000, 'application/pdf');
 

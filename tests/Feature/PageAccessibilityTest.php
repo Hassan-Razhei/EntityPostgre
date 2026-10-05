@@ -16,7 +16,7 @@ class PageAccessibilityTest extends TestCase
 
     public function test_book_show_page_is_accessible()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $book = Book::factory()->create();
 
         $response = $this->actingAs($user)->get(route('books.show', $book->slug));
@@ -26,7 +26,7 @@ class PageAccessibilityTest extends TestCase
 
     public function test_book_edit_page_is_accessible()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $book = Book::factory()->create();
 
         $response = $this->actingAs($user)->get(route('books.edit', $book->slug));
@@ -36,7 +36,7 @@ class PageAccessibilityTest extends TestCase
 
     public function test_video_show_page_is_accessible()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $video = Video::factory()->create();
 
         $response = $this->actingAs($user)->get(route('videos.show', $video->slug));
@@ -46,7 +46,7 @@ class PageAccessibilityTest extends TestCase
 
     public function test_video_edit_page_is_accessible()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $video = Video::factory()->create();
 
         $response = $this->actingAs($user)->get(route('videos.edit', $video->slug));

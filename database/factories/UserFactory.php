@@ -26,7 +26,7 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'role' => \App\Enums\UserRole::RESEARCHER->value,
+            'role' => \App\Enums\UserRole::GUEST->value,
             'is_active' => true,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
@@ -50,6 +50,62 @@ class UserFactory extends Factory
     public function superAdmin(): static
     {
         return $this->withRole(\App\Enums\UserRole::SUPER_ADMIN);
+    }
+
+    /**
+     * مستخدم بحساب رئيس تحرير
+     */
+    public function chiefEditor(): static
+    {
+        return $this->withRole(\App\Enums\UserRole::CHIEF_EDITOR);
+    }
+
+    /**
+     * مستخدم بحساب محرر استوديو
+     */
+    public function editor(): static
+    {
+        return $this->withRole(\App\Enums\UserRole::EDITOR);
+    }
+
+    /**
+     * مستخدم بحساب مفهرس
+     */
+    public function cataloger(): static
+    {
+        return $this->withRole(\App\Enums\UserRole::CATALOGER);
+    }
+
+    /**
+     * مستخدم بحساب ناسخ
+     */
+    public function transcriber(): static
+    {
+        return $this->withRole(\App\Enums\UserRole::TRANSCRIBER);
+    }
+
+    /**
+     * مستخدم بحساب باحث موثق
+     */
+    public function verifiedResearcher(): static
+    {
+        return $this->withRole(\App\Enums\UserRole::VERIFIED_RESEARCHER);
+    }
+
+    /**
+     * مستخدم بحساب باحث مسجل
+     */
+    public function researcher(): static
+    {
+        return $this->withRole(\App\Enums\UserRole::RESEARCHER);
+    }
+
+    /**
+     * مستخدم بحساب زائر
+     */
+    public function guest(): static
+    {
+        return $this->withRole(\App\Enums\UserRole::GUEST);
     }
 
     /**

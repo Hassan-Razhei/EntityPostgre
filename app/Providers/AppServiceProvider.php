@@ -45,6 +45,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // العبور المركزي للمدير العام مع حماية حصانة سجلات التدقيق (Immutability)
+        Gate::before(function (\App\Models\User $user, string $ability) {
+            if (in_array($ability, ['delete-audit-log', 'update-audit-log'], true)) {
+                return null;
+            }
+
+            return $user->isSuperAdmin() ? true : null;
+        });
+
         Gate::policy(Entity::class, EntityPolicy::class);
         Gate::policy(Book::class, EntityPolicy::class);
         Gate::policy(Video::class, EntityPolicy::class);

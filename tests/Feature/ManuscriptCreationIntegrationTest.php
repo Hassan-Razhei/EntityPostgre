@@ -15,7 +15,7 @@ class ManuscriptCreationIntegrationTest extends TestCase
 {
     public function test_complete_manuscript_creation_with_all_new_fields()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         
         $manuscriptData = [
             'title' => 'Test Manuscript - Complete Flow',
@@ -77,7 +77,7 @@ class ManuscriptCreationIntegrationTest extends TestCase
 
     public function test_siblings_are_returned_in_show_response()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $code = 'SIBLING_TEST_' . uniqid();
 
         // Create Main Manuscript
@@ -111,7 +111,7 @@ class ManuscriptCreationIntegrationTest extends TestCase
 
     public function test_audio_and_video_code_field_works()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         
         // Test Audio
         $audioData = [

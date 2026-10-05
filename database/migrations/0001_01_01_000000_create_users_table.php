@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('role', 50)->default('researcher')->index();
+            $table->string('role', 50)->default('guest')->index();
             $table->boolean('is_active')->default(true)->index();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

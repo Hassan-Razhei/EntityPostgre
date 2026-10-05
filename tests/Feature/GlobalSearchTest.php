@@ -18,7 +18,7 @@ class GlobalSearchTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->superAdmin()->create();
     }
 
     public function test_guest_cannot_access_search(): void

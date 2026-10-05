@@ -13,7 +13,7 @@ class RouteCheckTest extends TestCase
 
     public function test_dashboard_is_accessible()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         
         $response = $this->actingAs($user)->get('/dashboard');
 

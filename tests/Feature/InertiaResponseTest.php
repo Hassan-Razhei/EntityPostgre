@@ -22,7 +22,7 @@ class InertiaResponseTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $this->actingAs($user);
     }
 

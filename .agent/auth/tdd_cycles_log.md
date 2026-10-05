@@ -10,6 +10,7 @@
 | **1** | **طبقة البيانات والموديلات (Data & Models)** | `tests/Unit/Auth/UserRoleAndModelTest.php` | 4 Failed, 1 Passed | 5 Passed (70 Assertions) | **328 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **2** | **استنبات الحسابات وأمر المدير العام (Provisioning & CLI)** | `tests/Feature/Auth/UserProvisioningTest.php` | 4 Failed | 4 Passed (70 Assertions) | **332 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **3** | **حواجز المسارات (Route Middlewares: EnsureUserHasRole & EnsureUserIsActive)** | `tests/Feature/Auth/RoleAndActiveMiddlewareTest.php` | 6 Failed | 6 Passed (13 Assertions) | **338 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
+| **4** | **سياسات الكيانات وبوابة العبور (EntityPolicy & Gate::before)** | `tests/Feature/Auth/EntityPolicyTest.php` | 5 Failed, 1 Passed | 6 Passed (26 Assertions) | **344 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 
 ---
 
@@ -246,5 +247,82 @@
 ### 4. القرارات المعمارية الموثقة في الدورة:
 1. **الردع التفسيري (Informative Denial):** إرجاع رسائل رفض عربية واضحة ومحددة عند الـ 403 لتمكين الواجهة ومستخدميها من معرفة سبب الحظر.
 2. **الفصل الصارم للجلسات الحية (Session Invalidation):** عدم الاكتفاء بالرفض البرمجي عند تجميد الحساب، بل إلغاء التوكن وإبطال الجلسة الأمنية فوراً لمنع أي استغلال للجلسة المفتوحة مسبقاً.
+
+---
+
+## 🔹 الدورة 4: سياسات الكيانات وبوابة العبور (EntityPolicy & Gate::before)
+
+- **تاريخ الإنجاز:** 2026-10-05
+- **الهدف المعماري:**  
+  بناء المستوى الثاني من خط الدفاع الثلاثي؛ بتشريع الضوابط الصارمة لسياسة الكيانات والمصنفات الرقمية [`EntityPolicy.php`](file:///home/a/Project-test/EntityPostgre/app/Policies/EntityPolicy.php) وتفعيل بوابة العبور المركزي السيادية للمدير العام (`Gate::before`) مع استثناء وحصانة سجلات التدقيق الرقمية (Immutability).
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`tests/Feature/Auth/EntityPolicyTest.php`](file:///home/a/Project-test/EntityPostgre/tests/Feature/Auth/EntityPolicyTest.php)
+- **الحالات التي تم اختبارها:**
+  1. `it_allows_viewing_public_entities_for_all`: إتاحة قراءة المصنفات العامة لكافة الزوار والمستخدمين.
+  2. `it_restricts_restricted_entities_to_verified_researchers_and_staff`: حظر المصنفات المقيدة عن الباحثين العاديين، وإتاحتها حصراً للباحث الموثق (`verified_researcher`) وطاقم التحرير والمدير العام.
+  3. `it_restricts_studio_access_to_transcriber_editor_chief_and_super_admin`: حصر دخول الاستوديو بالنساخ والمحررين ورؤساء التحرير والمدير العام.
+  4. `it_restricts_publishing_to_chief_editor_and_super_admin`: حظر النشر على المحررين والفهارس وحصره برئيس التحرير والمدير العام.
+  5. `it_restricts_soft_delete_to_chief_editor_and_super_admin`: حظر الحذف على المحررين وحصره برئيس التحرير والمدير العام.
+  6. `it_restricts_force_delete_strictly_to_super_admin`: قصر الحذف النهائي الجذري على المدير العام وحده دون سواه.
+- **نتيجة التشغيل الأولى (RED):**
+  ```text
+  FAIL  Tests\Feature\Auth\EntityPolicyTest
+  ✓ it allows viewing public entities for all
+  ⨯ it restricts restricted entities to verified researchers and staff (Failed asserting that true is false)
+  ⨯ it restricts studio access to transcriber editor chief and super admin (Failed asserting that false is true)
+  ⨯ it restricts publishing to chief editor and super admin (Failed asserting that false is true)
+  ⨯ it restricts soft delete to chief editor and super admin (Failed asserting that true is false)
+  ⨯ it restricts force delete strictly to super admin (Failed asserting that true is false)
+
+  Tests: 5 failed, 1 passed (10 assertions)
+  Duration: 1.30s
+  ```
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. **تحديث سياسة الكيانات:** [`app/Policies/EntityPolicy.php`](file:///home/a/Project-test/EntityPostgre/app/Policies/EntityPolicy.php)  
+     - استبدال `return true` الصامت بكامل الضوابط الهندسية للأدوار الـ 12.
+  2. **تفعيل بوابة العبور المركزي للمدير العام:** [`app/Providers/AppServiceProvider.php`](file:///home/a/Project-test/EntityPostgre/app/Providers/AppServiceProvider.php)  
+     - تفعيل `Gate::before` لعبور `super_admin` مع استثناء صريح لحصانة سجلات التدقيق (منع حذف أو تعديل سجلات التدقيق حتى للمدير العام).
+  3. **تطبيق قرار المستخدم المعماري (Strict Realism):**
+     - ضبط الرتبة الافتراضية في قاعدة البيانات (`0001_01_01_000000_create_users_table.php`) والموديل (`User.php`) والـ Factory (`UserFactory.php`) لتكون `guest` أصيلة.
+     - تحديث أسطر إنشاء المستخدم في الاختبارات الوظيفية السابقة للإعلان الصريح عن هوية منفذ العمليات الإدارية (`superAdmin()`).
+- **نتيجة تشغيل اختبار سياسة الكيانات بعد كتابة الكود (GREEN):**
+  ```text
+  PASS  Tests\Feature\Auth\EntityPolicyTest
+  ✓ it allows viewing public entities for all                            1.08s  
+  ✓ it restricts restricted entities to verified researchers and staff   0.08s  
+  ✓ it restricts studio access to transcriber editor chief and super ad… 0.12s  
+  ✓ it restricts publishing to chief editor and super admin              0.14s  
+  ✓ it restricts soft delete to chief editor and super admin             0.08s  
+  ✓ it restricts force delete strictly to super admin                    0.12s  
+
+  Tests: 6 passed (26 assertions)
+  Duration: 1.70s
+  ```
+
+---
+
+### 3. تطبيق فحص عدم الانكسار 🛡️ (Zero Regression Immunity - القاعدة 3):
+- **الأمر المنفذ:** `php artisan test`
+- **النتيجة الرسمية:**
+  ```text
+  Tests: 1 incomplete, 344 passed (2010 assertions)
+  Duration: 37.12s
+  ```
+  *(تم بنجاح كاسح استعادة كامل اللون الأخضر بنسبة 100% لكافة الاختبارات السابقة والجديدة، وارتفع إجمالي الاختبارات الناجحة إلى 344 اختباراً)*.
+
+---
+
+### 4. القرارات المعمارية الموثقة في الدورة:
+1. **الواقعية الصارمة (Strict Realism):** اعتماد `guest` كخيار افتراضي جذري في المنظومة، وإلزام الاختبارات الوظيفية بالتصريح الصريح عن الرتبة الإدارية المنفذة للاختبار.
+2. **استثناء حصانة التدقيق من عبور المدير العام (Audit Immutability):** منع تجاوز المدير العام عند فحص عمليات حذف أو تعديل سجلات التدقيق لضمان النزاهة الرقمية المطلقة.
+
 
 

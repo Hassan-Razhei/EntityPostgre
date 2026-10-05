@@ -19,7 +19,7 @@ class BookExportTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->superAdmin()->create();
         $this->book = Book::factory()->create(['slug' => 'test-book']);
         $this->child = $this->book->nodes()->create([
             'title' => 'Test Chapter',

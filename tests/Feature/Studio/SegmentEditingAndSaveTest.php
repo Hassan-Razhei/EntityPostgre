@@ -16,7 +16,7 @@ class SegmentEditingAndSaveTest extends TestCase
     #[Test]
     public function specific_segment_studio_page_provides_content_node_with_content(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $audio = Audio::firstOrCreate(
             ['slug' => 'test-audio-segment'],
             ['title' => 'شرح صوتي', 'duration' => 1200]
@@ -53,7 +53,7 @@ class SegmentEditingAndSaveTest extends TestCase
     #[Test]
     public function can_save_edited_specific_segment(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $audio = Audio::firstOrCreate(
             ['slug' => 'test-audio-save'],
             ['title' => 'تسجيل صوتي للحفظ', 'duration' => 1800]
@@ -96,7 +96,7 @@ class SegmentEditingAndSaveTest extends TestCase
     #[Test]
     public function can_save_segment_with_empty_content(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
         $audio = Audio::firstOrCreate(
             ['slug' => 'test-audio-empty-save'],
             ['title' => 'صوت للحفظ الفارغ', 'duration' => 600]
