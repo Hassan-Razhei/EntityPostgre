@@ -26,10 +26,40 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'role' => \App\Enums\UserRole::RESEARCHER->value,
+            'is_active' => true,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * تحديد رتبة المستخدم
+     */
+    public function withRole(\App\Enums\UserRole|string $role): static
+    {
+        return $this->state(fn () => [
+            'role' => $role instanceof \App\Enums\UserRole ? $role->value : $role,
+        ]);
+    }
+
+    /**
+     * مستخدم بحساب مدير عام
+     */
+    public function superAdmin(): static
+    {
+        return $this->withRole(\App\Enums\UserRole::SUPER_ADMIN);
+    }
+
+    /**
+     * مستخدم بحساب مجمد
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn () => [
+            'is_active' => false,
+        ]);
     }
 
     /**
