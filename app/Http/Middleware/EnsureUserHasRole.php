@@ -47,7 +47,8 @@ class EnsureUserHasRole
 
         // 3. التحقق من تطابق الرتبة
         if (! in_array($userRole, $allowedRoles, true)) {
-            abort(403, 'ليس لديك الصلاحية الكافية للوصول إلى هذا القسم.');
+            $userRoleLabel = $user->role instanceof UserRole ? $user->role->label() : ($user->role ?? 'غير محدد');
+            abort(403, "عذراً، ليس لديك الصلاحية الكافية للوصول إلى هذا القسم. رتبتك الحالية هي: {$userRoleLabel}.");
         }
 
         return $next($request);

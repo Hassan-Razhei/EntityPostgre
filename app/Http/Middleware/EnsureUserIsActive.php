@@ -30,7 +30,7 @@ class EnsureUserIsActive
                 $request->session()->regenerateToken();
             }
 
-            abort(403, 'تم تجميد هذا الحساب، يرجى مراجعة إدارة المنظومة.');
+            abort(403, 'تم تجميد هذا الحساب من قبل إدارة المنظومة. يرجى مراجعة إدارة الأرشيف.');
         }
 
         return $next($request);

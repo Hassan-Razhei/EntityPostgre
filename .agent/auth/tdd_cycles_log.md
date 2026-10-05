@@ -14,6 +14,7 @@
 | **5** | **ترسيم الأحياز الجغرافية للمسارات (Routing & Zones Separation)** | `tests/Feature/Auth/RoutingZonesTest.php` | 3 Failed | 3 Passed (10 Assertions) | **347 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **6** | **تكامل الواجهة وحقن الهوية (Frontend & Inertia: HandleInertiaRequests & useAuth)** | `tests/Feature/Auth/InertiaAuthSharingTest.php`<br>`resources/js/__tests__/useAuth.test.js` | 13 Failed (PHP)<br>1 Failed (JS) | 14 Passed (340 Assertions)<br>3 Passed (JS) | **361 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **7** | **التكيف البصري والملاحة المكانية (Adaptive UI & Spatial Navigation)** | `resources/js/__tests__/adaptiveUI.test.js` | 3 Failed (JS) | 6 Passed (JS) | **361 Passed (PHP) + 11 Passed (JS)** (100% نجاح) | ✅ مكتملة وموثقة |
+| **8** | **الردع التفسيري وشاشة الحظر الفاخرة (Informative Denial & Luxury 403 Page)** | `tests/Feature/Auth/InformativeDenialTest.php`<br>`resources/js/__tests__/error403.test.js` | 3 Failed (PHP)<br>1 Failed (JS) | 3 Passed (30 Assertions)<br>2 Passed (JS) | **364 Passed (PHP) + 13 Passed (JS)** (100% نجاح) | ✅ مكتملة وموثقة |
 
 ---
 
@@ -543,6 +544,67 @@
 ### 4. القرارات المعمارية الموثقة في الدورة:
 1. **التحوّر البصري التلقائي (Proactive Adaptive UI):** إخفاء الأدوات والأزرار غير المأذونة استباقياً من الواجهة، لمنع تجربة الاستخدام المحبطة عند الضغط على زر ثم تلقي ردع 403.
 2. **الهبوط الآمن لحالة الزوار (Graceful Degradation):** معالجة غياب الجلسة برقي في المكونات المشتركة، مع استبدال أدوات العمل بأبواب الدخول والاشتراك.
+
+---
+
+## 🔹 الدورة 8: الردع التفسيري وشاشة الحظر الفاخرة (Informative Denial & Luxury 403 Page)
+
+- **تاريخ الإنجاز:** 2026-10-05
+- **الهدف المعماري:**  
+  تطبيق الركن الخامس والأخير من المعمارية المرجعية (`master_auth_rbac_blueprint.md`): التغذية الحسية الفاخرة (Sensory Feedback). تحويل استجابة الحظر 403 من مجرد كود HTTP جاف أو صفحة بيضاء بدائية إلى تجربة متكاملة تشمل:
+  1. صياغة ردع تفسيري باللغة العربية يوضح للمستخدم سبب الحظر ورتبته الحالية واسم الرتبة الصريح.
+  2. شاشة حظر زمردية زجاجية فاخرة (`Errors/403.vue`) مصممة بأسلوب Dark Emerald Glassmorphism مع توهج محيطي (Ambient Glow) وبطاقة هوية المستخدم الحالية وروابط العودة الذكية وتسجيل الخروج.
+  3. اعتراض أخطاء 403 على مستوى تطبيق Laravel 11 في `bootstrap/app.php` عبر معالج الاستثناءات `$exceptions->respond(...)` لتقديم صفحة Inertia للويب، مع الإبقاء على استجابات JSON الصرفة لطلبات الـ API (`/api/*`).
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار المنشأة:**
+  1. اختبار الـ Feature في الخلفية: [`tests/Feature/Auth/InformativeDenialTest.php`](file:///home/a/Project-test/EntityPostgre/tests/Feature/Auth/InformativeDenialTest.php)
+     - `it_renders_informative_403_page_when_role_denied_on_web_routes`: فحص تقديم صفحة `Errors/403` لمستخدم برتبة باحث عند محاولة دخول الاستوديو.
+     - `it_renders_informative_403_page_when_inactive_user_accesses_web`: فحص تقديم صفحة `Errors/403` لحساب مجمد مع الرسالة التفسيرية لتجميد الحساب.
+     - `it_maintains_json_responses_for_api_requests_with_informative_denial`: فحص الحفاظ على استجابات JSON لطلبات API مع نص الردع التفسيري.
+  2. اختبار الـ Component في الواجهة الأمامية: [`resources/js/__tests__/error403.test.js`](file:///home/a/Project-test/EntityPostgre/resources/js/__tests__/error403.test.js)
+     - `renders the explanatory denial message and status code`: التحقق من إظهار الكود 403، ورسالة الحظر، وهوية ورتبة المستخدم.
+     - `provides navigation links to return to dashboard or home`: التحقق من توفير رابط العودة للرئيسية لحالة الزائر.
+- **نتيجة التشغيل الأولى (RED):**
+  - فشل اختبارات PHP لعدم تهيئة معالج 403 في `bootstrap/app.php` لتقديم Inertia.
+  - فشل اختبارات JS لعدم وجود ملف `Errors/403.vue` أساساً.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. **إنشاء شاشة الحظر الزمردية:** [`resources/js/Pages/Errors/403.vue`](file:///home/a/Project-test/EntityPostgre/resources/js/Pages/Errors/403.vue)
+     - تصميم زجاجي زمردي ملكي (Dark Emerald Glassmorphism: `bg-[#060c08]`, `backdrop-blur-2xl bg-slate-900/80`, `border-emerald-500/20`).
+     - بطاقة درع الحماية الأمني مع توهج زمردي خلفي متدرج.
+     - عرض رمز الخطأ `403` ورسالة التفسير الدقيقة المعربة.
+     - بطاقة تفاعلية تعرض هوية المستخدم المسجل ورتبته ولون شارته المستمد من `useAuth()`.
+     - أزرار ملاحة ذكية: العودة للصفحة الرئيسية/لوحة التحكم، وتسجيل الخروج (أو تسجيل الدخول للزوار).
+  2. **ربط معالج الاستثناءات في التطبيق:** [`bootstrap/app.php`](file:///home/a/Project-test/EntityPostgre/bootstrap/app.php)
+     - تسجيل خطاف الاستجابة `$exceptions->respond(...)` لاعتراض كود الحالة 403.
+     - التمييز الذكي بين طلبات الويب وطلبات Inertia من جهة (تقديم `Inertia::render('Errors/403')`)، وطلبات API من جهة أخرى (إبقاء استجابة JSON الصرفة).
+  3. **توحيد صياغة رسائل الردع في الحواجز:**
+     - [`app/Http/Middleware/EnsureUserHasRole.php`](file:///home/a/Project-test/EntityPostgre/app/Http/Middleware/EnsureUserHasRole.php): تضمين الرتبة الحالية للمستخدم بصيغة `عذراً، ليس لديك الصلاحية الكافية للوصول إلى هذا القسم. رتبتك الحالية هي: ...`.
+     - [`app/Http/Middleware/EnsureUserIsActive.php`](file:///home/a/Project-test/EntityPostgre/app/Http/Middleware/EnsureUserIsActive.php): توحيد رسالة تجميد الحساب `تم تجميد هذا الحساب من قبل إدارة المنظومة. يرجى مراجعة إدارة الأرشيف.`.
+- **نتيجة تشغيل الاختبار بعد كتابة الكود (GREEN):**
+  - **PHP:** `Tests: 3 passed (30 assertions)` في `InformativeDenialTest.php`.
+  - **JavaScript:** `Tests: 2 passed (2)` في `error403.test.js`.
+
+---
+
+### 3. تطبيق فحص عدم الانكسار 🛡️ (Zero Regression Immunity - القاعدة 3):
+- **الأمر المنفذ:** `php artisan test` + `npm run test:run`
+- **النتيجة الرسمية:**
+  - **PHP:** `Tests: 1 incomplete, 364 passed (2387 assertions)` (نجاح 100% لجميع اختبارات المنظومة).
+  - **JavaScript:** `Tests: 13 passed (13)` عبر 4 حزم اختبار كاملة (نجاح 100%).
+
+---
+
+### 4. القرارات المعمارية الموثقة في الدورة:
+1. **استجابة متكيفة حسب السياق (Context-Aware Error Delivery):** عزل المسارات الخلفية والـ API (`/api/*`) عن صفحات Inertia، بحيث تستلم تطبيقات الجوال ومستهلكو الـ API كائنات JSON قياسية، بينما يستلم مستخدمو المتصفح الشاشة الزمردية الفاخرة.
+2. **الشفافية الأمنية التفسيرية (Informative Security Transparency):** بدلاً من إظهار رسالة عامة "Forbidden"، يتم تزويد المستخدم برتبته المكتشفة، مما يسهل الدعم الفني ويوضح سبب الحرمان دون تسريب تفاصيل بنيوية حساسة.
+
 
 
 
