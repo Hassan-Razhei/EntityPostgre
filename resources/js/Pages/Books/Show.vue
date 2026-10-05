@@ -4,6 +4,9 @@ import { Head, Link } from '@inertiajs/vue3';
 import Card from '@/Components/Card.vue';
 import Badge from '@/Components/Badge.vue';
 import { ref } from 'vue';
+import { useAuth } from '@/Composables/useAuth';
+
+const { can } = useAuth();
 
 const props = defineProps({
     book: Object,
@@ -157,7 +160,7 @@ class="w-full h-full object-cover rounded-xl shadow-black/50 ring-1 ring-lime-40
                 </Link>
 
                 <Link
-                  v-if="first_content_slug"
+                  v-if="can('access_studio') && first_content_slug"
                   :href="route('studio.show', { type: 'book', slug: props.book.slug })"
                   class="inline-flex items-center justify-center px-8 py-4 bg-emerald-900/50 backdrop-blur-md text-emerald-50 border border-emerald-500/30 rounded-xl font-bold text-sm hover:bg-emerald-800/50 transition hover:scale-105 active:scale-95"
                 >
@@ -165,6 +168,7 @@ class="w-full h-full object-cover rounded-xl shadow-black/50 ring-1 ring-lime-40
                 </Link>
                                 
                 <Link
+                  v-if="can('curate_metadata')"
                   :href="route('books.edit', book.slug)"
                   class="inline-flex items-center justify-center px-6 py-4 bg-transparent text-emerald-200/60 border border-emerald-500/20 rounded-xl font-bold text-sm hover:bg-emerald-500/5 hover:text-emerald-100 transition"
                 >

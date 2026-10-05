@@ -5,6 +5,9 @@ import { ref } from 'vue';
 import Card from '@/Components/Card.vue';
 import Badge from '@/Components/Badge.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { useAuth } from '@/Composables/useAuth';
+
+const { can } = useAuth();
 
 const props = defineProps({
     audio: Object,
@@ -145,6 +148,7 @@ const formatDate = (dateString) => {
                 </PrimaryButton>
               </Link>
               <Link 
+                v-if="can('access_studio')"
                 :href="route('studio.show', { type: 'audio', slug: audio.slug })"
               >
                 <PrimaryButton class="!px-8 !py-4 !text-base !bg-lime-500 hover:!bg-lime-400 !text-emerald-950 shadow-[0_0_20px_rgba(132,204,22,0.3)] hover:shadow-[0_0_30px_rgba(132,204,22,0.5)] border-none">
@@ -165,7 +169,10 @@ const formatDate = (dateString) => {
                 </PrimaryButton>
               </Link>
               
-              <Link :href="route('audios.edit', audio.slug)">
+              <Link 
+                v-if="can('curate_metadata')"
+                :href="route('audios.edit', audio.slug)"
+              >
                 <button class="px-6 py-4 bg-emerald-900/50 hover:bg-emerald-900 text-emerald-100 rounded-xl font-bold backdrop-blur-sm border border-emerald-500/20 transition-all flex items-center gap-2">
                   <svg
                     class="w-5 h-5"
@@ -466,7 +473,7 @@ const formatDate = (dateString) => {
                 تحرير النصوص، التفريغ، والهوامش عبر المحرر المتقدم
               </p>
               <Link 
-                v-if="first_content_slug"
+                v-if="can('access_studio') && first_content_slug"
                 :href="route('studio.show', { type: 'audio', slug: audio.slug })"
               >
                 <PrimaryButton>

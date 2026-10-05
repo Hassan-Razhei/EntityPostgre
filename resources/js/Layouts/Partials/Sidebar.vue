@@ -1,7 +1,8 @@
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { route } from 'ziggy-js';
+import { useAuth } from '@/Composables/useAuth';
 
 defineProps({
     isOpen: {
@@ -9,6 +10,8 @@ defineProps({
         default: true
     }
 });
+
+const { can } = useAuth();
 
 const navigation = [
     {
@@ -58,6 +61,7 @@ const navigation = [
             { name: 'السلاسل', route: 'series.index', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
             { name: 'النشاطات', route: 'activities.index', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
             { name: 'المهملات', route: 'deletions.index', icon: 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' },
+            { name: 'أوامر النظام', route: 'system.commands', permission: 'system_commands', icon: 'M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
         ]
     }
 ];
@@ -104,24 +108,24 @@ const checkActive = (routeName) => {
           {{ group.name }}
         </h5>
         <div class="space-y-1">
-          <Link 
-            v-for="item in group.items" 
-            :key="item.name"
-            v-tooltip="!isOpen ? item.name : ''"
-            :href="route(item.route)"
-            :class="[
-              'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative',
-              checkActive(item.route) 
-                ? 'bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400' 
-                : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-white'
-            ]"
-          >
-            <svg
-              class="w-5 h-5 shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <template v-for="item in group.items" :key="item.name">
+            <Link 
+              v-if="!item.permission || can(item.permission)"
+              v-tooltip="!isOpen ? item.name : ''"
+              :href="route(item.route)"
+              :class="[
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative',
+                checkActive(item.route) 
+                  ? 'bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400' 
+                  : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-white'
+              ]"
             >
+              <svg
+                class="w-5 h-5 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -140,6 +144,7 @@ const checkActive = (routeName) => {
               class="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-600 dark:bg-indigo-400 rounded-l-full"
             />
           </Link>
+          </template>
         </div>
       </div>
     </div>

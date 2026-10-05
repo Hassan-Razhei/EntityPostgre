@@ -20,7 +20,7 @@ vi.mock('@inertiajs/vue3', async () => {
         Head: {
             template: '<div />',
         },
-        usePage: () => ({
+        usePage: vi.fn(() => ({
             props: {
                 auth: {
                     user: {
@@ -32,7 +32,7 @@ vi.mock('@inertiajs/vue3', async () => {
                     location: 'http://localhost',
                 },
             },
-        }),
+        })),
     };
 });
 
@@ -51,6 +51,15 @@ routeMock.current = vi.fn().mockReturnValue(false);
 config.global.mocks = {
     route: routeMock,
 };
+config.global.directives = {
+    tooltip: () => {},
+};
+
+// Mock ziggy-js module
+vi.mock('ziggy-js', () => ({
+    route: routeMock,
+    default: routeMock,
+}));
 
 // Also set as global for non-Vue code
 vi.stubGlobal('route', routeMock);

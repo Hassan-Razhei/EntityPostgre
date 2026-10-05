@@ -5,6 +5,9 @@ import { ref } from 'vue';
 import Card from '@/Components/Card.vue';
 import Badge from '@/Components/Badge.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { useAuth } from '@/Composables/useAuth';
+
+const { can } = useAuth();
 
 const props = defineProps({
     manuscript: Object,
@@ -127,6 +130,7 @@ const tabs = [
                 </Link>
 
                 <Link
+                  v-if="can('access_studio')"
                   :href="route('studio.show', { type: 'manuscript', slug: manuscript.slug })"
                 >
                   <button class="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 backdrop-blur-sm transition-all flex items-center gap-2 group">
@@ -139,7 +143,10 @@ const tabs = [
                   </button>
                 </Link>
                 
-                <Link :href="route('manuscripts.edit', manuscript.slug)">
+                <Link 
+                  v-if="can('curate_metadata')"
+                  :href="route('manuscripts.edit', manuscript.slug)"
+                >
                   <button class="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 backdrop-blur-sm transition-all flex items-center gap-2">
                     <svg
                       class="w-5 h-5"
@@ -423,7 +430,10 @@ const tabs = [
             <p class="text-gray-500 mb-6">
               يمكنك استعراض وتحرير المحتوى النصي للمخطوطة، وإضافة الحواشي والتعليقات العلمية عبر المحرر المتطور.
             </p>
-            <Link :href="route('studio.show', { type: 'manuscript', slug: manuscript.slug })">
+            <Link 
+              v-if="can('access_studio')"
+              :href="route('studio.show', { type: 'manuscript', slug: manuscript.slug })"
+            >
               <PrimaryButton class="!px-8 !py-4 !text-base shadow-xl shadow-emerald-500/20">
                 فتح محرر النصوص
               </PrimaryButton>

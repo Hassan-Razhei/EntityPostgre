@@ -5,6 +5,9 @@ import { ref } from 'vue';
 import Card from '@/Components/Card.vue';
 import Badge from '@/Components/Badge.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { useAuth } from '@/Composables/useAuth';
+
+const { can } = useAuth();
 
 const props = defineProps({
     video: Object,
@@ -169,7 +172,10 @@ const formatDate = (dateString) => {
                 </PrimaryButton>
               </Link>
 
-              <Link :href="route('videos.edit', video.slug)">
+              <Link 
+                v-if="can('curate_metadata')"
+                :href="route('videos.edit', video.slug)"
+              >
                 <button class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-sm transition-all backdrop-blur-sm border border-white/10 flex items-center gap-2">
                   <svg
                     class="w-5 h-5"
@@ -187,6 +193,7 @@ const formatDate = (dateString) => {
               </Link>
 
               <Link 
+                v-if="can('access_studio')"
                 :href="route('studio.show', { type: 'video', slug: video.slug })"
               >
                 <PrimaryButton class="!bg-lime-500 hover:!bg-lime-400 !text-emerald-950 !border-0 shadow-[0_0_20px_rgba(132,204,22,0.4)] flex items-center gap-2 px-8 py-3">
@@ -502,7 +509,7 @@ const formatDate = (dateString) => {
                 المحتوى النصي (MongoDB)
               </h3>
               <Link 
-                v-if="first_content_slug"
+                v-if="can('access_studio') && first_content_slug"
                 :href="route('studio.show', { type: 'video', slug: video.slug })"
               >
                 <PrimaryButton class="!bg-blue-600 hover:!bg-blue-500">

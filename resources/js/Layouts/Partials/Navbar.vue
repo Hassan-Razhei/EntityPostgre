@@ -1,6 +1,7 @@
 <script setup>
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ref, inject } from 'vue';
+import { useAuth } from '@/Composables/useAuth';
 
 defineProps({
     title: String,
@@ -12,7 +13,7 @@ const emit = defineEmits(['toggleSidebar']);
 const { isDark, toggleDarkMode } = inject('themeContext');
 const isUserMenuOpen = ref(false);
 const navbarSearch = ref('');
-const user = usePage().props.auth.user;
+const { user, isGuest } = useAuth();
 
 const performSearch = () => {
     if (navbarSearch.value.trim()) {
@@ -127,19 +128,24 @@ const performSearch = () => {
         >
       </div>
 
-      <!-- User Menu -->
-      <div class="flex items-center gap-4 border-r border-gray-100 dark:border-white/5 pr-4 mr-2">
+      <!-- User Menu / Guest Actions -->
+      <div v-if="!isGuest && user" class="flex items-center gap-4 border-r border-gray-100 dark:border-white/5 pr-4 mr-2">
         <div class="flex flex-col items-start leading-none hidden sm:flex">
           <span class="text-sm font-black dark:text-white">{{ user.name }}</span>
-          <span class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">مسؤول النظام</span>
+          <span 
+            class="text-[10px] mt-1 uppercase tracking-tighter px-1.5 py-0.5 rounded border font-bold"
+            :class="user.badge_color || 'text-gray-400 border-gray-200 dark:border-white/10'"
+          >
+            {{ user.role_label || 'باحث مسجل' }}
+          </span>
         </div>
         <div class="relative">
           <button 
-            class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center p-0.5 border border-gray-200 dark:border-white/10 overflow-hidden"
+            class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center p-0.5 border border-gray-200 dark:border-white/10 overflow-hidden cursor-pointer"
             @click="isUserMenuOpen = !isUserMenuOpen"
           >
             <div class="w-full h-full rounded-lg bg-linear-to-tr from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-              <span class="text-xs font-black">{{ user.name.charAt(0) }}</span>
+              <span class="text-xs font-black">{{ user.name?.charAt(0) || 'U' }}</span>
             </div>
           </button>
                     
@@ -148,11 +154,15 @@ const performSearch = () => {
             v-if="isUserMenuOpen"
             class="absolute left-0 top-12 w-48 bg-white dark:bg-[#0f0f0f] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/5 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
           >
+            <div class="px-4 py-2 border-b border-gray-100 dark:border-white/5 sm:hidden">
+              <p class="text-xs font-bold dark:text-white">{{ user.name }}</p>
+              <p class="text-[10px] text-gray-400">{{ user.role_label }}</p>
+            </div>
             <Link 
               :href="route('logout')" 
               method="post" 
               as="button" 
-              class="w-full text-right px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+              class="w-full text-right px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors cursor-pointer"
             >
               تسجيل الخروج
             </Link>
@@ -165,6 +175,22 @@ const performSearch = () => {
             @click="isUserMenuOpen = false"
           />
         </div>
+      </div>
+
+      <!-- Guest Login / Register Actions -->
+      <div v-else class="flex items-center gap-3 border-r border-gray-100 dark:border-white/5 pr-4 mr-2">
+        <Link 
+          :href="route('login')" 
+          class="text-xs font-bold px-3 py-1.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        >
+          تسجيل الدخول
+        </Link>
+        <Link 
+          :href="route('register')" 
+          class="text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-sm"
+        >
+          إنشاء حساب
+        </Link>
       </div>
     </div>
   </nav>

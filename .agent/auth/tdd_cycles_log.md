@@ -13,6 +13,7 @@
 | **4** | **سياسات الكيانات وبوابة العبور (EntityPolicy & Gate::before)** | `tests/Feature/Auth/EntityPolicyTest.php` | 5 Failed, 1 Passed | 6 Passed (26 Assertions) | **344 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **5** | **ترسيم الأحياز الجغرافية للمسارات (Routing & Zones Separation)** | `tests/Feature/Auth/RoutingZonesTest.php` | 3 Failed | 3 Passed (10 Assertions) | **347 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **6** | **تكامل الواجهة وحقن الهوية (Frontend & Inertia: HandleInertiaRequests & useAuth)** | `tests/Feature/Auth/InertiaAuthSharingTest.php`<br>`resources/js/__tests__/useAuth.test.js` | 13 Failed (PHP)<br>1 Failed (JS) | 14 Passed (340 Assertions)<br>3 Passed (JS) | **361 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
+| **7** | **التكيف البصري والملاحة المكانية (Adaptive UI & Spatial Navigation)** | `resources/js/__tests__/adaptiveUI.test.js` | 3 Failed (JS) | 6 Passed (JS) | **361 Passed (PHP) + 11 Passed (JS)** (100% نجاح) | ✅ مكتملة وموثقة |
 
 ---
 
@@ -468,6 +469,81 @@
 1. **التزويد الشامل للمصفوفة السباعية (Universal 12-Role Hydration):** حقن مصفوفة الأذونات الـ 7 لكل دور خادمياً في الـ Root Props، مما يحصن الفرونت إند من ارتكاب أخطاء فحص الحسابات أو استنتاج الصلاحيات محلياً.
 2. **تطهير كائن المستخدم (Credential Sanitization):** إعادة تشكيل مصفوفة `auth.user` صراحة لاستبعاد أي حقول أمنية داخلية (`password`, `remember_token`, إلخ) لحماية الأمان الرقمي.
 3. **تغليف دوال الصلاحيات داخل Enum (Rich Backed Enum):** ترقية `UserRole` ليصبح المصدر المرجعي الموحد (Single Source of Truth) لحساب الأهلية لكل دور، مما يمنع تكرار الشروط البرمجية في أماكن متفرقة.
+
+---
+
+## 🔹 الدورة 7: التكيّف البصري والملاحة المكانية (Adaptive UI & Spatial Navigation)
+
+- **تاريخ الإنجاز:** 2026-10-05
+- **الهدف المعماري:**  
+  تفعيل المستوى الثالث من خط الدفاع الأمني (Adaptive UI Rendering) في واجهات ومكونات Vue 3؛ بحيث تتحور القوائم العلوية والجانبية وشاشات العرض تلقائياً بحسب رتبة وصلاحيات المستخدم، مع توفير تجربة تصفح هادئة وخالية من الأخطاء للزوار غير المسجلين وحجب الروابط والأزرار السيادية عمن لا يملك أهليتها.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`resources/js/__tests__/adaptiveUI.test.js`](file:///home/a/Project-test/EntityPostgre/resources/js/__tests__/adaptiveUI.test.js) (Vitest Component Test).
+- **الحالات التي تم اختبارها:**
+  1. `renders the dynamic Arabic role label instead of hardcoded text for chief editor`: فحص القائمة العلوية لعرض شارة الرتبة العربية الحقيقية للمستخدم (`role_label`) بدلاً من النص الثابت.
+  2. `renders guest login and register actions when user is not authenticated`: فحص معالجة حالة الزائر غير المسجل (`guest`) وإظهار زري "تسجيل الدخول" و"إنشاء حساب" دون انهيار المكون.
+  3. `shows system commands navigation item only for users with system_commands permission`: فحص القائمة الجانبية لإظهار رابط "أوامر النظام" حصراً للمدير العام.
+  4. `hides system commands from regular staff or researchers lacking permission`: التحقق من اختفاء أوامر النظام تماماً عن النساخ والباحثين.
+  5. `shows studio editor button for users with studio capabilities`: فحص ظهور زر "محرر المحتوى" في صفحات العرض لطاقم الاستوديو.
+  6. `hides studio editor button for researchers or guest users lacking studio permission`: فحص حجب أزرار الاستوديو عن الباحثين والزوار.
+- **نتيجة التشغيل الأولى (RED):**
+  ```text
+  FAIL  resources/js/__tests__/adaptiveUI.test.js
+  × renders the dynamic Arabic role label instead of hardcoded text for chief editor (Found "مسؤول النظام")
+  × renders guest login and register actions when user is not authenticated (Cannot read properties of null)
+  × shows system commands navigation item only for users with system_commands permission (Expected "أوامر النظام")
+  
+  Tests: 3 failed, 1 passed (4)
+  Duration: 1.86s
+  ```
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. **تحديث القائمة العلوية:** [`resources/js/Layouts/Partials/Navbar.vue`](file:///home/a/Project-test/EntityPostgre/resources/js/Layouts/Partials/Navbar.vue)
+     - استدعاء `useAuth()` وعرض اسم المستخدم وشارة رتبته الملونة (`user.role_label`, `user.badge_color`).
+     - إظهار زري "تسجيل الدخول" و"إنشاء حساب" عند غياب الجلسة (`isGuest`).
+  2. **تحديث القائمة الجانبية:** [`resources/js/Layouts/Partials/Sidebar.vue`](file:///home/a/Project-test/EntityPostgre/resources/js/Layouts/Partials/Sidebar.vue)
+     - إضافة مسار "أوامر النظام" (`system.commands`) في قسم "النظام" محكوماً بالصلاحية `system_commands`.
+     - تطبيق فلترة القائمة عبر `v-if="!item.permission || can(item.permission)"`.
+  3. **تحديث صفحات العرض الأربعة (Adaptive Action Buttons):**
+     - [`resources/js/Pages/Books/Show.vue`](file:///home/a/Project-test/EntityPostgre/resources/js/Pages/Books/Show.vue): حماية أزرار الاستوديو والتعديل بـ `can('access_studio')` و `can('curate_metadata')`.
+     - [`resources/js/Pages/Manuscripts/Show.vue`](file:///home/a/Project-test/EntityPostgre/resources/js/Pages/Manuscripts/Show.vue): حماية أزرار الاستوديو وتعديل المخطوط بـ `can('access_studio')` و `can('curate_metadata')`.
+     - [`resources/js/Pages/Audios/Show.vue`](file:///home/a/Project-test/EntityPostgre/resources/js/Pages/Audios/Show.vue): حماية أزرار محرر الاستوديو والتعديل الصوتي.
+     - [`resources/js/Pages/Videos/Show.vue`](file:///home/a/Project-test/EntityPostgre/resources/js/Pages/Videos/Show.vue): حماية أزرار محرر الاستوديو وتعديل المرئية.
+- **نتيجة تشغيل الاختبار بعد كتابة الكود (GREEN):**
+  ```text
+  PASS  resources/js/__tests__/adaptiveUI.test.js
+  ✓ renders the dynamic Arabic role label instead of hardcoded text for chief editor    57ms
+  ✓ renders guest login and register actions when user is not authenticated              8ms
+  ✓ shows system commands navigation item only for users with system_commands permission 33ms
+  ✓ hides system commands from regular staff or researchers lacking permission          21ms
+  ✓ shows studio editor button for users with studio capabilities                       19ms
+  ✓ hides studio editor button for researchers or guest users lacking studio permission 10ms
+
+  Tests: 6 passed (6)
+  Duration: 2.09s
+  ```
+
+---
+
+### 3. تطبيق فحص عدم الانكسار 🛡️ (Zero Regression Immunity - القاعدة 3):
+- **الأمر المنفذ:** `php artisan test` + `npm run test:run`
+- **النتيجة الرسمية:**
+  - **PHP:** `Tests: 1 incomplete, 361 passed (2342 assertions)` (نجاح 100% لكامل المنظومة).
+  - **JavaScript:** `Tests: 11 passed (11)` عبر 3 ملفات اختبار كاملة (نجاح 100%).
+
+---
+
+### 4. القرارات المعمارية الموثقة في الدورة:
+1. **التحوّر البصري التلقائي (Proactive Adaptive UI):** إخفاء الأدوات والأزرار غير المأذونة استباقياً من الواجهة، لمنع تجربة الاستخدام المحبطة عند الضغط على زر ثم تلقي ردع 403.
+2. **الهبوط الآمن لحالة الزوار (Graceful Degradation):** معالجة غياب الجلسة برقي في المكونات المشتركة، مع استبدال أدوات العمل بأبواب الدخول والاشتراك.
+
 
 
 
