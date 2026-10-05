@@ -90,7 +90,7 @@ const currentSource = computed(() => {
 
 const currentPoster = computed(() => {
     const poster = props.media?.cover_path 
-        ? `/storage/${props.media.cover_path}` 
+        ? props.media?.cover_url || `/media/${props.media.cover_path}` 
         : null;
     console.log('[PlayerClient] Poster:', poster);
     return poster;

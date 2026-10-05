@@ -22,7 +22,7 @@ class MediaControllersTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
-        Storage::fake('public');
+        Storage::fake('media');
     }
 
     // ==========================================
@@ -43,7 +43,7 @@ class MediaControllersTest extends TestCase
 
         $response->assertRedirect(route('audios.index'));
         $this->assertDatabaseHas('audios', ['title' => 'New Audio']);
-        Storage::disk('public')->assertExists("audio/" . $file->hashName());
+        Storage::disk('media')->assertExists("audio/" . $file->hashName());
     }
 
     /** @test */
@@ -87,7 +87,7 @@ class MediaControllersTest extends TestCase
 
         $response->assertRedirect(route('videos.index'));
         $this->assertDatabaseHas('videos', ['title' => 'New Video']);
-        Storage::disk('public')->assertExists("videos/" . $file->hashName());
+        Storage::disk('media')->assertExists("videos/" . $file->hashName());
     }
 
     /** @test */
@@ -131,7 +131,7 @@ class MediaControllersTest extends TestCase
 
         $response->assertRedirect(route('manuscripts.index'));
         $this->assertDatabaseHas('manuscripts', ['title' => 'New Manuscript']);
-        Storage::disk('public')->assertExists("manuscripts/" . $file->hashName());
+        Storage::disk('media')->assertExists("manuscripts/" . $file->hashName());
     }
 
     /** @test */

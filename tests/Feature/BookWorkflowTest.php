@@ -15,7 +15,7 @@ class BookWorkflowTest extends TestCase
 
     public function test_authenticated_user_can_create_book_with_files()
     {
-        Storage::fake('public');
+        Storage::fake('media');
         $user = User::factory()->create();
         $author = \App\Models\Author::factory()->create(['name' => 'Test Author']);
 
@@ -60,16 +60,16 @@ class BookWorkflowTest extends TestCase
         // I might need to fix BookManagerService to save cover_path on Book or Version.
         // For this test pass, let's assume we want it on Book (legacy) or Version.
 
-        Storage::disk('public')->assertExists($version->file_path);
+        Storage::disk('media')->assertExists($version->file_path);
 
         if ($book->cover_path) {
-            Storage::disk('public')->assertExists($book->cover_path);
+            Storage::disk('media')->assertExists($book->cover_path);
         }
     }
 
     public function test_authenticated_user_can_update_book_with_files()
     {
-        Storage::fake('public');
+        Storage::fake('media');
         $user = User::factory()->create();
         $author = \App\Models\Author::factory()->create(['name' => 'Old Author']);
         $book = Book::factory()->create(['title' => 'Old Title']);

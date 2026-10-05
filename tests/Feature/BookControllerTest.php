@@ -20,7 +20,7 @@ class BookControllerTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
-        Storage::fake('public');
+        Storage::fake('media');
     }
 
     /** @test */
@@ -81,8 +81,8 @@ class BookControllerTest extends TestCase
         // Assert storage
         // Note: Exact path depends on MediaManager logic, usually defaults to books/hash.pdf or similar
         // We just check if files were stored generally
-        Storage::disk('public')->assertExists("books/" . $file->hashName());
-        Storage::disk('public')->assertExists("covers/" . $cover->hashName());
+        Storage::disk('media')->assertExists("books/" . $file->hashName());
+        Storage::disk('media')->assertExists("covers/" . $cover->hashName());
     }
 
     /** @test */
@@ -101,7 +101,7 @@ class BookControllerTest extends TestCase
         $book->refresh();
         $response->assertRedirect(route('books.show', $book));
         $this->assertDatabaseHas('books', ['id' => $book->id, 'title' => 'Updated Title']);
-        Storage::disk('public')->assertExists("books/" . $newFile->hashName());
+        Storage::disk('media')->assertExists("books/" . $newFile->hashName());
     }
 
     /** @test */

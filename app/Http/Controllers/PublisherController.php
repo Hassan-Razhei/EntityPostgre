@@ -21,6 +21,7 @@ class PublisherController extends EntityController
     protected function getSearchFields(): array { return ['name']; }
     protected function getPerPage(): int { return 12; }
     protected function getFileUploads(): array { return ['logo' => 'logos']; }
+    protected function getStorageDisk(): string { return 'public'; }
 
     protected function getCreateSuccessMessage(): string { return 'تم إنشاء دار النشر بنجاح'; }
     protected function getUpdateSuccessMessage(): string { return 'تم تحديث دار النشر بنجاح'; }
