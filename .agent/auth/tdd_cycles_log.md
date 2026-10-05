@@ -11,6 +11,7 @@
 | **2** | **استنبات الحسابات وأمر المدير العام (Provisioning & CLI)** | `tests/Feature/Auth/UserProvisioningTest.php` | 4 Failed | 4 Passed (70 Assertions) | **332 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **3** | **حواجز المسارات (Route Middlewares: EnsureUserHasRole & EnsureUserIsActive)** | `tests/Feature/Auth/RoleAndActiveMiddlewareTest.php` | 6 Failed | 6 Passed (13 Assertions) | **338 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **4** | **سياسات الكيانات وبوابة العبور (EntityPolicy & Gate::before)** | `tests/Feature/Auth/EntityPolicyTest.php` | 5 Failed, 1 Passed | 6 Passed (26 Assertions) | **344 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
+| **5** | **ترسيم الأحياز الجغرافية للمسارات (Routing & Zones Separation)** | `tests/Feature/Auth/RoutingZonesTest.php` | 3 Failed | 3 Passed (10 Assertions) | **347 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 
 ---
 
@@ -323,6 +324,74 @@
 ### 4. القرارات المعمارية الموثقة في الدورة:
 1. **الواقعية الصارمة (Strict Realism):** اعتماد `guest` كخيار افتراضي جذري في المنظومة، وإلزام الاختبارات الوظيفية بالتصريح الصريح عن الرتبة الإدارية المنفذة للاختبار.
 2. **استثناء حصانة التدقيق من عبور المدير العام (Audit Immutability):** منع تجاوز المدير العام عند فحص عمليات حذف أو تعديل سجلات التدقيق لضمان النزاهة الرقمية المطلقة.
+
+---
+
+## 🔹 الدورة 5: ترسيم الأحياز الجغرافية وحراسة المسارات (Routing & Zones Separation)
+
+- **تاريخ الإنجاز:** 2026-10-05
+- **الهدف المعماري:**  
+  تفعيل المستوى الأول من خط الدفاع الثلاثي (Route Guarding) بعزل الأحياز الحساسة للمنظومة في [`routes/web.php`](file:///home/a/Project-test/EntityPostgre/routes/web.php)؛ حيث يُحظر المستخدم المجمد على كافة الأصعدة بـ `active`، ويُعزل استوديو التحرير الرقمي الموحد ومسارات حفظ الأجزاء بحاجز رتب الاستوديو (`role:transcriber,editor,chief_editor,super_admin`)، وتُقفل لوحة أوامر النظام وأوامر التنفيذ الجذرية حصراً للمدير العام (`role:super_admin`).
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`tests/Feature/Auth/RoutingZonesTest.php`](file:///home/a/Project-test/EntityPostgre/tests/Feature/Auth/RoutingZonesTest.php)
+- **الحالات التي تم اختبارها:**
+  1. `it_restricts_studio_routes_to_studio_staff_only`: التحقق من أن الباحث العادي يُحظر من دخول مسار استوديو التحرير (`/studio/resume`) بـ 403، بينما طاقم الاستوديو المعتمد والمدير العام مصرح لهم بالدخول.
+  2. `it_restricts_system_commands_strictly_to_super_admin`: التحقق من حظر المحرر ورئيس التحرير والباحث من دخول لوحة أوامر النظام (`/system/commands`) بـ 403، والسماح للمدير العام فقط بعبورها (200 OK).
+  3. `it_blocks_inactive_users_across_zones`: التحقق من طرد المستخدم المجمد وحظره بـ 403 عبر مختلف مناطق التطبيق حتى لو كان يحمل رتبة مدير عام.
+- **نتيجة التشغيل الأولى (RED):**
+  ```text
+  FAIL  Tests\Feature\Auth\RoutingZonesTest
+  ⨯ it restricts studio routes to studio staff only (Expected response status code [403] but received 302)
+  ⨯ it restricts system commands strictly to super admin (Expected response status code [403] but received 200)
+  ⨯ it blocks inactive users across zones (Expected response status code [403] but received 200)
+
+  Tests: 3 failed (3 assertions)
+  Duration: 1.25s
+  ```
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. **تحديث مسارات الويب:** [`routes/web.php`](file:///home/a/Project-test/EntityPostgre/routes/web.php)
+     - إضافة وسيط `active` لمجموعة المسارات الموثقة: `Route::middleware(['auth', 'active'])->group(...)`.
+     - حراسة مسارات استوديو التحرير الموحد ومسارات الأجزاء المتصلة:
+       `Route::middleware(['role:transcriber,editor,chief_editor,super_admin'])->group(...)`.
+     - قصر مسارات أوامر النظام ولوحة الأوامر حصراً على المدير العام:
+       `Route::middleware(['role:super_admin'])->group(...)`.
+     - حراسة مسارات تقنية القارئ (`reader`) بوسيط `active`.
+- **نتيجة تشغيل اختبار ترسيم الأحياز بعد كتابة الكود (GREEN):**
+  ```text
+  PASS  Tests\Feature\Auth\RoutingZonesTest
+  ✓ it restricts studio routes to studio staff only                      1.01s  
+  ✓ it restricts system commands strictly to super admin                 0.07s  
+  ✓ it blocks inactive users across zones                                0.06s  
+
+  Tests: 3 passed (10 assertions)
+  Duration: 1.20s
+  ```
+
+---
+
+### 3. تطبيق فحص عدم الانكسار 🛡️ (Zero Regression Immunity - القاعدة 3):
+- **الأمر المنفذ:** `php artisan test`
+- **النتيجة الرسمية:**
+  ```text
+  Tests: 1 incomplete, 347 passed (2014 assertions)
+  Duration: 36.43s
+  ```
+  *(جميع اختبارات الأرشيف والاستوديو والوسائط السابقة البالغ عددها 344 اختباراً بقيت خضراء بنسبة 100% دون أدنى انكسار، وارتفع إجمالي الاختبارات الناجحة إلى 347 اختباراً)*.
+
+---
+
+### 4. القرارات المعمارية الموثقة في الدورة:
+1. **العزل الهيكلي للمناطق (Zonal Isolation):** تجميع المسارات في كتل `Route::middleware` واضحة الصلاحيات بدلاً من تطبيق الحراسة الفردية المتفرقة لكل مسار، لتفادي تسرب أي مسارات جديدة مستقبلاً دون حماية.
+2. **الحظر الاستباقي الشامل (Universal Active Filter):** اشتراط وسيط `active` بجانب `auth` في قمة هرم المجموعات الموثقة لضمان عدم وصول أي حساب مجمد إلى أي مورد داخل المنصة.
+
 
 
 

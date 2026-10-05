@@ -47,38 +47,41 @@ Route::get('/stream/audio/{path}', [App\Http\Controllers\MediaStreamController::
     ->where('path', '.*')
     ->name('stream.audio');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/search', [GlobalSearchController::class, 'index'])->name('search');
 
-    // Unified Smart Editor Routes
-    // Unified Smart Editor Routes (Entity Studio)
-    Route::get('/studio/resume', [App\Http\Controllers\UnifiedEditorController::class, 'resume'])->name('studio.resume');
-    Route::get('/studio/{type}/{slug}/{childId?}', [App\Http\Controllers\UnifiedEditorController::class, 'show'])->name('studio.show');
-    Route::post('/studio/{type}/{slug}/{childId?}/save', [App\Http\Controllers\UnifiedEditorController::class, 'save'])->name('studio.save');
-    Route::post('/studio/{type}/{slug}/{childId}/restore/{versionIndex}', [App\Http\Controllers\UnifiedEditorController::class, 'restoreVersion'])->name('studio.restore');
-    Route::post('/studio/{type}/{slug}/nodes', [App\Http\Controllers\ContentNodeController::class, 'store'])->name('studio.nodes.store');
+    // Unified Smart Editor Routes (Entity Studio) & Studio APIs
+    Route::middleware(['role:transcriber,editor,chief_editor,super_admin'])->group(function () {
+        Route::get('/studio/resume', [App\Http\Controllers\UnifiedEditorController::class, 'resume'])->name('studio.resume');
+        Route::get('/studio/{type}/{slug}/{childId?}', [App\Http\Controllers\UnifiedEditorController::class, 'show'])->name('studio.show');
+        Route::post('/studio/{type}/{slug}/{childId?}/save', [App\Http\Controllers\UnifiedEditorController::class, 'save'])->name('studio.save');
+        Route::post('/studio/{type}/{slug}/{childId}/restore/{versionIndex}', [App\Http\Controllers\UnifiedEditorController::class, 'restoreVersion'])->name('studio.restore');
+        Route::post('/studio/{type}/{slug}/nodes', [App\Http\Controllers\ContentNodeController::class, 'store'])->name('studio.nodes.store');
 
-    // Missing API routes for Book Children (Compatibility Layer)
-    Route::post('api/book-children/{id}/save', [BookContentController::class, 'updateValidation'])->name('api.book-children.save');
-    Route::post('api/book-children/{id}/restore/{version?}', [BookContentController::class, 'restoreVersion'])->name('api.book-children.restore');
+        // Missing API routes for Book Children (Compatibility Layer)
+        Route::post('api/book-children/{id}/save', [BookContentController::class, 'updateValidation'])->name('api.book-children.save');
+        Route::post('api/book-children/{id}/restore/{version?}', [BookContentController::class, 'restoreVersion'])->name('api.book-children.restore');
 
-    // API routes for Segments (Audio/Video)
-    Route::post('api/segments', [App\Http\Controllers\Api\SegmentController::class, 'store'])->name('api.segments.store');
-    Route::put('api/segments/{id}', [App\Http\Controllers\Api\SegmentController::class, 'update'])->name('api.segments.update');
-    Route::delete('api/segments/{id}', [App\Http\Controllers\Api\SegmentController::class, 'destroy'])->name('api.segments.destroy');
+        // API routes for Segments (Audio/Video)
+        Route::post('api/segments', [App\Http\Controllers\Api\SegmentController::class, 'store'])->name('api.segments.store');
+        Route::put('api/segments/{id}', [App\Http\Controllers\Api\SegmentController::class, 'update'])->name('api.segments.update');
+        Route::delete('api/segments/{id}', [App\Http\Controllers\Api\SegmentController::class, 'destroy'])->name('api.segments.destroy');
 
-    // System Commands API
-    Route::post('api/system/run-command', [App\Http\Controllers\SystemController::class, 'runCommand'])->name('api.system.run-command');
-    Route::post('api/system/list-files', [App\Http\Controllers\SystemController::class, 'listFiles'])->name('api.system.list-files');
+        // Editor Test Route
+        Route::get('/editor-test', [App\Http\Controllers\EditorTestController::class, 'index'])->name('editor.test');
+    });
 
-    // Command Dashboard Page
-    Route::get('/system/commands', function () {
-        return Inertia\Inertia::render('System/Commands');
-    })->name('system.commands');
+    // System Commands & Dashboard (Super Admin Only)
+    Route::middleware(['role:super_admin'])->group(function () {
+        Route::post('api/system/run-command', [App\Http\Controllers\SystemController::class, 'runCommand'])->name('api.system.run-command');
+        Route::post('api/system/list-files', [App\Http\Controllers\SystemController::class, 'listFiles'])->name('api.system.list-files');
 
-    // Editor Test Route
-    Route::get('/editor-test', [App\Http\Controllers\EditorTestController::class, 'index'])->name('editor.test');
+        // Command Dashboard Page
+        Route::get('/system/commands', function () {
+            return Inertia\Inertia::render('System/Commands');
+        })->name('system.commands');
+    });
 
 
     // Web Resource Routes
@@ -161,7 +164,7 @@ Route::get('/dev/player/{type}/{slug}', function ($type, $slug) {
 Route::get('/dev/manuscripter/{manuscript:slug}', [\App\Http\Controllers\ManuscriptController::class, 'sandbox'])->name('dev.manuscripter');
 
 // Reader Technology Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/reader/{type}/{slug}/search', [App\Http\Controllers\ReaderController::class, 'search'])
         ->name('reader.search');
     Route::post('/api/reader/position', [App\Http\Controllers\ReaderController::class, 'savePosition'])
