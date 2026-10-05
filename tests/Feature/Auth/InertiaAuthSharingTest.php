@@ -118,7 +118,7 @@ class InertiaAuthSharingTest extends TestCase
                     'system_commands' => false,
                     'manage_backups' => true,
                     'view_audit_logs' => false,
-                    'view_restricted' => true,
+                    'view_restricted' => false,
                 ],
             ],
 
@@ -168,7 +168,7 @@ class InertiaAuthSharingTest extends TestCase
                     'system_commands' => false,
                     'manage_backups' => false,
                     'view_audit_logs' => false,
-                    'view_restricted' => true,
+                    'view_restricted' => false,
                 ],
             ],
             '8. ناسخ ومفرّغ النصوص (transcriber)' => [
@@ -180,7 +180,7 @@ class InertiaAuthSharingTest extends TestCase
                     'system_commands' => false,
                     'manage_backups' => false,
                     'view_audit_logs' => false,
-                    'view_restricted' => true,
+                    'view_restricted' => false,
                 ],
             ],
 

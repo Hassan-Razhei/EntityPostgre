@@ -165,6 +165,63 @@ enum UserRole: string
      */
     public function canViewRestricted(): bool
     {
-        return $this->weight() >= self::VERIFIED_RESEARCHER->weight();
+        return in_array($this, [
+            self::SUPER_ADMIN,
+            self::SYSTEM_AUDITOR,
+            self::CHIEF_EDITOR,
+            self::EDITOR,
+            self::ACADEMIC_REVIEWER,
+            self::VERIFIED_RESEARCHER,
+        ], true);
+    }
+
+    /**
+     * تصدير الاقتباسات والأبحاث بدقة عالية
+     */
+    public function canExportCitations(): bool
+    {
+        return in_array($this, [
+            self::SUPER_ADMIN,
+            self::CHIEF_EDITOR,
+            self::EDITOR,
+            self::ACADEMIC_REVIEWER,
+            self::VERIFIED_RESEARCHER,
+            self::SUBSCRIBER,
+        ], true);
+    }
+
+    /**
+     * رفع وسائط جديدة على قرص media
+     */
+    public function canUploadMedia(): bool
+    {
+        return in_array($this, [
+            self::SUPER_ADMIN,
+            self::CHIEF_EDITOR,
+            self::EDITOR,
+        ], true);
+    }
+
+    /**
+     * تحكيم وتدقيق النسخ وإيداع التقارير العلمية
+     */
+    public function canReviewAcademically(): bool
+    {
+        return in_array($this, [
+            self::SUPER_ADMIN,
+            self::CHIEF_EDITOR,
+            self::ACADEMIC_REVIEWER,
+        ], true);
+    }
+
+    /**
+     * تجميد وحذف السجلات مؤقتاً (Soft Delete)
+     */
+    public function canSoftDelete(): bool
+    {
+        return in_array($this, [
+            self::SUPER_ADMIN,
+            self::CHIEF_EDITOR,
+        ], true);
     }
 }

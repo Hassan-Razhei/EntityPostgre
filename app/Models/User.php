@@ -137,4 +137,68 @@ class User extends Authenticatable
     {
         return $this->role !== null && $this->role->canPublish();
     }
+
+    /**
+     * التحقق من أهلية تصدير الاقتباسات بدقة عالية
+     */
+    public function canExportCitations(): bool
+    {
+        return $this->role !== null && $this->role->canExportCitations();
+    }
+
+    /**
+     * التحقق من أهلية استعراض المسودات والمخطوطات المقيدة
+     */
+    public function canViewRestricted(): bool
+    {
+        return $this->role !== null && $this->role->canViewRestricted();
+    }
+
+    /**
+     * التحقق من أهلية رفع الوسائط
+     */
+    public function canUploadMedia(): bool
+    {
+        return $this->role !== null && $this->role->canUploadMedia();
+    }
+
+    /**
+     * التحقق من أهلية التحكيم العلمي
+     */
+    public function canReviewAcademically(): bool
+    {
+        return $this->role !== null && $this->role->canReviewAcademically();
+    }
+
+    /**
+     * التحقق من أهلية الحذف المؤقت
+     */
+    public function canSoftDelete(): bool
+    {
+        return $this->role !== null && $this->role->canSoftDelete();
+    }
+
+    /**
+     * التحقق من أهلية إدارة النسخ الاحتياطي
+     */
+    public function canManageBackups(): bool
+    {
+        return $this->role !== null && $this->role->canManageBackups();
+    }
+
+    /**
+     * التحقق من أهلية الاطلاع على سجلات الأمان
+     */
+    public function canViewAuditLogs(): bool
+    {
+        return $this->role !== null && $this->role->canViewAuditLogs();
+    }
+
+    /**
+     * التحقق من أهلية إدارة أوامر النظام
+     */
+    public function canManageSystem(): bool
+    {
+        return $this->role !== null && $this->role->canManageSystem();
+    }
 }

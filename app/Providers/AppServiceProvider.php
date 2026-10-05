@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Entity;
+use App\Models\User;
 use App\Policies\EntityPolicy;
 
 class AppServiceProvider extends ServiceProvider
@@ -75,6 +76,80 @@ class AppServiceProvider extends ServiceProvider
         $this->registerMorphMap();
         $this->registerObservers();
         $this->registerEventListeners();
+        $this->registerAuthorizationGates();
+    }
+
+    /**
+     * تسجيل بوابات مصفوفة العمليات الـ 14 التشغيلية
+     * الوثيقة المرجعية: .agent/auth/master_auth_rbac_blueprint.md (الركن الثالث والسادس)
+     */
+    protected function registerAuthorizationGates(): void
+    {
+        // 1. تصفح الفهارس والبحث العام (متاح للجميع حتى الزائر)
+        Gate::define('browse_catalog', fn (?User $user) => true);
+
+        // 2. تشغيل وبث وسائط الكتب العامة (متاح للجميع حتى الزائر)
+        Gate::define('stream_media', fn (?User $user) => true);
+
+        // 3. حفظ مواضع القراءة والملاحظات (محظور على الزائر، متاح لكافة المسجلين)
+        Gate::define('save_research_notes', function (?User $user) {
+            return $user !== null && $user->role !== \App\Enums\UserRole::GUEST;
+        });
+
+        // 4. تصدير الاقتباسات والأبحاث بدقة عالية
+        Gate::define('export_citations', function (?User $user) {
+            return $user !== null && $user->canExportCitations();
+        });
+
+        // 5. استعراض المخطوطات والمسودات المقيدة
+        Gate::define('view_restricted_drafts', function (?User $user) {
+            return $user !== null && $user->canViewRestricted();
+        });
+
+        // 6. تفريغ النصوص ومطابقة المقاطع بالاستوديو
+        Gate::define('transcribe_in_studio', function (?User $user) {
+            return $user !== null && $user->canAccessStudio();
+        });
+
+        // 7. إدخال وتعديل البيانات الوصفية والوسوم
+        Gate::define('curate_metadata', function (?User $user) {
+            return $user !== null && $user->canCurateMetadata();
+        });
+
+        // 8. رفع وسائط جديدة على قرص media
+        Gate::define('upload_media', function (?User $user) {
+            return $user !== null && $user->canUploadMedia();
+        });
+
+        // 9. تحكيم وتدقيق النسخ وإيداع التقارير العلمية
+        Gate::define('review_academically', function (?User $user) {
+            return $user !== null && $user->canReviewAcademically();
+        });
+
+        // 10. اعتماد ونشر العمل وإتاحته للجمهور
+        Gate::define('publish_entity', function (?User $user) {
+            return $user !== null && $user->canPublish();
+        });
+
+        // 11. تجميد وحذف السجلات مؤقتاً (Soft Delete)
+        Gate::define('soft_delete_records', function (?User $user) {
+            return $user !== null && $user->canSoftDelete();
+        });
+
+        // 12. إدارة النسخ الاحتياطي ومزامنة الأقراص
+        Gate::define('manage_backups_storage', function (?User $user) {
+            return $user !== null && $user->canManageBackups();
+        });
+
+        // 13. الاطلاع على سجلات الأمان والتعديل (Audit)
+        Gate::define('view_audit_logs', function (?User $user) {
+            return $user !== null && $user->canViewAuditLogs();
+        });
+
+        // 14. تشغيل أوامر النظام السيادية وتعديل الرتب
+        Gate::define('manage_system_commands', function (?User $user) {
+            return $user !== null && $user->canManageSystem();
+        });
     }
 
     /**

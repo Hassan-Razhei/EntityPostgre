@@ -15,6 +15,7 @@
 | **6** | **تكامل الواجهة وحقن الهوية (Frontend & Inertia: HandleInertiaRequests & useAuth)** | `tests/Feature/Auth/InertiaAuthSharingTest.php`<br>`resources/js/__tests__/useAuth.test.js` | 13 Failed (PHP)<br>1 Failed (JS) | 14 Passed (340 Assertions)<br>3 Passed (JS) | **361 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **7** | **التكيف البصري والملاحة المكانية (Adaptive UI & Spatial Navigation)** | `resources/js/__tests__/adaptiveUI.test.js` | 3 Failed (JS) | 6 Passed (JS) | **361 Passed (PHP) + 11 Passed (JS)** (100% نجاح) | ✅ مكتملة وموثقة |
 | **8** | **الردع التفسيري وشاشة الحظر الفاخرة (Informative Denial & Luxury 403 Page)** | `tests/Feature/Auth/InformativeDenialTest.php`<br>`resources/js/__tests__/error403.test.js` | 3 Failed (PHP)<br>1 Failed (JS) | 3 Passed (30 Assertions)<br>2 Passed (JS) | **364 Passed (PHP) + 13 Passed (JS)** (100% نجاح) | ✅ مكتملة وموثقة |
+| **9** | **فحص مصفوفة الاعتماد الشاملة (Comprehensive Authorization Matrix: 168 Checkpoints)** | `tests/Feature/Auth/AuthorizationMatrixTest.php` | 56 Failed, 112 Passed | 168 Passed (168 Assertions) | **532 Passed (PHP) + 13 Passed (JS)** (100% نجاح) | ✅ مكتملة وموثقة |
 
 ---
 
@@ -604,6 +605,54 @@
 ### 4. القرارات المعمارية الموثقة في الدورة:
 1. **استجابة متكيفة حسب السياق (Context-Aware Error Delivery):** عزل المسارات الخلفية والـ API (`/api/*`) عن صفحات Inertia، بحيث تستلم تطبيقات الجوال ومستهلكو الـ API كائنات JSON قياسية، بينما يستلم مستخدمو المتصفح الشاشة الزمردية الفاخرة.
 2. **الشفافية الأمنية التفسيرية (Informative Security Transparency):** بدلاً من إظهار رسالة عامة "Forbidden"، يتم تزويد المستخدم برتبته المكتشفة، مما يسهل الدعم الفني ويوضح سبب الحرمان دون تسريب تفاصيل بنيوية حساسة.
+
+---
+
+## 🔹 الدورة 9: فحص مصفوفة الاعتماد الشاملة وحصانة النظام (Comprehensive Matrix Certification)
+
+- **تاريخ الإنجاز:** 2026-10-05
+- **الهدف المعماري:**  
+  تتويج المنظومة بإجراء الفحص المرجعي الكامل لمصفوفة الصلاحيات التنفيذية للأدوار الـ 12 والعمليات الـ 14 (إجمالي 168 نقطة تقاطع)، كما وردت في الركن السادس والسابع من الدليل المعماري المرجعي (`master_auth_rbac_blueprint.md`). التحقق من انطباق كل علامة (✅) و (❌) بدقة رياضية متناهية عبر بوابات الصلاحيات المركزية (Gates) وتوابع الـ Enum، وتأكيد درع المناعة لجميع اختبارات المشروع السابقة.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`tests/Feature/Auth/AuthorizationMatrixTest.php`](file:///home/a/Project-test/EntityPostgre/tests/Feature/Auth/AuthorizationMatrixTest.php)
+- **الحالات التي تم اختبارها:**
+  - تغطية شبكة الـ (14 عملية تشغيلية × 12 دوراً = 168 نقطة تقاطع) عبر `DataProvider` موحد.
+- **نتيجة التشغيل الأولى (RED):**
+  - **56 Failed, 112 Passed (168 Assertions)**
+  - *(فشلت الاختبارات الـ 56 بدقة للرتب غير الإدارية حيث كان متوقعاً TRUE لكن بوابات العمليات لم تكن مسجلة بعد في AppServiceProvider)*.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. **تحديث توابع الأهلية في التعداد الهرمي:** [`app/Enums/UserRole.php`](file:///home/a/Project-test/EntityPostgre/app/Enums/UserRole.php)
+     - إضافة توابع: `canExportCitations()`, `canUploadMedia()`, `canReviewAcademically()`, `canSoftDelete()`.
+     - ضبط تابع `canViewRestricted()` ليطابق تحديداً الرتب الست المصرح لها بالاطلاع على المسودات المقيدة.
+  2. **تحديث موديل المستخدم:** [`app/Models/User.php`](file:///home/a/Project-test/EntityPostgre/app/Models/User.php)
+     - إضافة دوال الوكالة (Proxies) المطابقة للعمليات الجديدة.
+  3. **تسجيل بوابات مصفوفة العمليات الـ 14 التشغيلية:** [`app/Providers/AppServiceProvider.php`](file:///home/a/Project-test/EntityPostgre/app/Providers/AppServiceProvider.php)
+     - تسجيل بوابات: `browse_catalog`, `stream_media`, `save_research_notes`, `export_citations`, `view_restricted_drafts`, `transcribe_in_studio`, `curate_metadata`, `upload_media`, `review_academically`, `publish_entity`, `soft_delete_records`, `manage_backups_storage`, `view_audit_logs`, `manage_system_commands`.
+- **نتيجة تشغيل الاختبار بعد كتابة الكود (GREEN):**
+  - **PHP:** `Tests: 168 passed (168 assertions)` بنسبة نجاح 100%.
+
+---
+
+### 3. تطبيق فحص عدم الانكسار 🛡️ (Zero Regression Immunity - القاعدة 3):
+- **الأمر المنفذ:** `php artisan test` + `npm run test:run`
+- **النتيجة الرسمية:**
+  - **PHP:** `Tests: 1 incomplete, 532 passed (2555 assertions)` (نجاح 100% لكامل المنظومة).
+  - **JavaScript:** `Tests: 13 passed (13)` عبر 4 حزم اختبار كاملة (نجاح 100%).
+
+---
+
+### 4. القرارات المعمارية الموثقة في الدورة:
+1. **التحقق المركزي عبر البوابات (Unified Gate Registry):** توحيد فحص العمليات الـ 14 في بوابات Laravel القياسية، مما يمكّن الواجهة وكنترولرات النظام والسياسات من استخدام `Gate::allows('operation')` و `can('operation')` بمرونة وتناغم كامل.
+2. **الاعتماد الرياضي الصارم (Mathematical Verification):** إخضاع كل دور وكل صلاحية لاختبار تقاطعي حاسم، لمنع أي تسريب للصلاحيات أو التعدي بين القطاعات الإدارية والأكاديمية والتحريرية.
+
 
 
 
