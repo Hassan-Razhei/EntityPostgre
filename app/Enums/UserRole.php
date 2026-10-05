@@ -135,4 +135,36 @@ enum UserRole: string
     {
         return in_array($this, [self::SUPER_ADMIN, self::CHIEF_EDITOR], true);
     }
+
+    /**
+     * التحقق من أهلية تشغيل أوامر النظام السيادية
+     */
+    public function canManageSystem(): bool
+    {
+        return $this === self::SUPER_ADMIN;
+    }
+
+    /**
+     * التحقق من أهلية إدارة وسائط النسخ الاحتياطي والتخزين
+     */
+    public function canManageBackups(): bool
+    {
+        return in_array($this, [self::SUPER_ADMIN, self::BACKUP_OPERATOR], true);
+    }
+
+    /**
+     * التحقق من أهلية مراقبة وتدقيق سجلات الأمان
+     */
+    public function canViewAuditLogs(): bool
+    {
+        return in_array($this, [self::SUPER_ADMIN, self::SYSTEM_AUDITOR], true);
+    }
+
+    /**
+     * التحقق من أهلية الاطلاع على المخطوطات والمسودات المقيدة
+     */
+    public function canViewRestricted(): bool
+    {
+        return $this->weight() >= self::VERIFIED_RESEARCHER->weight();
+    }
 }

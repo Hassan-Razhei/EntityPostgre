@@ -38,10 +38,31 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $role = $user?->role;
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $role?->value,
+                    'role_label' => $role?->label(),
+                    'role_weight' => $role?->weight(),
+                    'badge_color' => $role?->badgeColor(),
+                    'is_active' => (bool) $user->is_active,
+                    'can' => [
+                        'access_studio' => $role?->canAccessStudio() ?? false,
+                        'curate_metadata' => $role?->canCurateMetadata() ?? false,
+                        'publish' => $role?->canPublish() ?? false,
+                        'system_commands' => $role?->canManageSystem() ?? false,
+                        'manage_backups' => $role?->canManageBackups() ?? false,
+                        'view_audit_logs' => $role?->canViewAuditLogs() ?? false,
+                        'view_restricted' => $role?->canViewRestricted() ?? false,
+                    ],
+                ] : null,
             ],
         ];
     }

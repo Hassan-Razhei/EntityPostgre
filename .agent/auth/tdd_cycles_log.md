@@ -12,6 +12,7 @@
 | **3** | **حواجز المسارات (Route Middlewares: EnsureUserHasRole & EnsureUserIsActive)** | `tests/Feature/Auth/RoleAndActiveMiddlewareTest.php` | 6 Failed | 6 Passed (13 Assertions) | **338 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **4** | **سياسات الكيانات وبوابة العبور (EntityPolicy & Gate::before)** | `tests/Feature/Auth/EntityPolicyTest.php` | 5 Failed, 1 Passed | 6 Passed (26 Assertions) | **344 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **5** | **ترسيم الأحياز الجغرافية للمسارات (Routing & Zones Separation)** | `tests/Feature/Auth/RoutingZonesTest.php` | 3 Failed | 3 Passed (10 Assertions) | **347 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
+| **6** | **تكامل الواجهة وحقن الهوية (Frontend & Inertia: HandleInertiaRequests & useAuth)** | `tests/Feature/Auth/InertiaAuthSharingTest.php`<br>`resources/js/__tests__/useAuth.test.js` | 13 Failed (PHP)<br>1 Failed (JS) | 14 Passed (340 Assertions)<br>3 Passed (JS) | **361 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 
 ---
 
@@ -391,6 +392,83 @@
 ### 4. القرارات المعمارية الموثقة في الدورة:
 1. **العزل الهيكلي للمناطق (Zonal Isolation):** تجميع المسارات في كتل `Route::middleware` واضحة الصلاحيات بدلاً من تطبيق الحراسة الفردية المتفرقة لكل مسار، لتفادي تسرب أي مسارات جديدة مستقبلاً دون حماية.
 2. **الحظر الاستباقي الشامل (Universal Active Filter):** اشتراط وسيط `active` بجانب `auth` في قمة هرم المجموعات الموثقة لضمان عدم وصول أي حساب مجمد إلى أي مورد داخل المنصة.
+
+---
+
+## 🔹 الدورة 6: تكامل الواجهة وحقن الهوية (Frontend & Inertia Integration: HandleInertiaRequests & useAuth)
+
+- **تاريخ الإنجاز:** 2026-10-05
+- **الهدف المعماري:**  
+  بناء المستوى الثالث من خط الدفاع الأمني (Adaptive Rendering & State Hydration)؛ بتزويد الواجهة مسبقاً عبر `HandleInertiaRequests.php` بكائن المستخدم الموثوق وشارة رتبته ومصفوفة الصلاحيات المجهزة مسبقاً `auth.user.can` لجميع الأدوار الـ 12 دون تسريب أي بيانات اعتماد حساسة، وتوفير الـ Composable العام `resources/js/Composables/useAuth.js` في Vue 3 لتمكين المكونات وشاشات العرض من فحص الأذونات بسلاسة فائقة.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار المنشأة:**  
+  1. [`tests/Feature/Auth/InertiaAuthSharingTest.php`](file:///home/a/Project-test/EntityPostgre/tests/Feature/Auth/InertiaAuthSharingTest.php) (PHP Feature Test).
+  2. [`resources/js/__tests__/useAuth.test.js`](file:///home/a/Project-test/EntityPostgre/resources/js/__tests__/useAuth.test.js) (Vitest Frontend Test).
+- **الحالات التي تم اختبارها:**
+  1. `it_shares_null_user_for_unauthenticated_guests`: التحقق من أن الزائر غير المسجل يحصل على `auth.user = null` دون أي أخطاء.
+  2. `it_shares_user_without_sensitive_credentials`: التحقق من حجب الحقول الحساسة (`password`, `remember_token`) وتزويد الواجهة ببيانات الهوية والرتبة والشارة.
+  3. `it_shares_exact_permission_matrix_for_each_of_the_twelve_roles`: **فحص دقيق وصارم لمصفوفة الصلاحيات الـ 7 لكل دور من الأدوار الـ 12 فرداً فرداً** عبر DataProvider مخصص:
+     - `access_studio`: مقصور على طاقم الاستوديو والمدير العام.
+     - `curate_metadata`: مقصور على الفهارس والمحررين ورؤساء التحرير والمدير العام.
+     - `publish`: مقصور على رئيس التحرير والمدير العام.
+     - `system_commands`: مقصور حصراً على المدير العام.
+     - `manage_backups`: مقصور على مشغل النسخ الاحتياطي والمدير العام.
+     - `view_audit_logs`: مقصور على مدقق النظام والمدير العام.
+     - `view_restricted`: مقصور على الرتب المؤهلة والباحثين الموثقين (`weight >= 25`).
+  4. فحص حالات دوال `useAuth` في Vue 3 (`user`, `can`, `hasRole`, `isAtLeast`, `isGuest`, `isSuperAdmin`, `canAccessStudio`).
+- **نتيجة التشغيل الأولى (RED):**
+  - **PHP:** `Tests: 13 failed, 1 passed (175 assertions)` — فشلت لاختفاء خاصية `auth.user.can.access_studio` وعدم حقن المصفوفة بعد.
+  - **Vitest:** `FAIL resources/js/__tests__/useAuth.test.js` — فشل لعدم وجود ملف الـ Composable بعد.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. **تحديث التعداد الهرمي للأدوار:** [`app/Enums/UserRole.php`](file:///home/a/Project-test/EntityPostgre/app/Enums/UserRole.php)
+     - إضافة توابع الفحص المعمارية الصريحة: `canManageSystem()`, `canManageBackups()`, `canViewAuditLogs()`, `canViewRestricted()`.
+  2. **تحديث وسيط Inertia:** [`app/Http/Middleware/HandleInertiaRequests.php`](file:///home/a/Project-test/EntityPostgre/app/Http/Middleware/HandleInertiaRequests.php)
+     - تهيئة وتطهير كائن `auth.user` وحقن المصفوفة الكاملة `auth.user.can` لجميع الأدوار الـ 12 بدقة كاملة.
+  3. **إنشاء Composable الواجهة:** [`resources/js/Composables/useAuth.js`](file:///home/a/Project-test/EntityPostgre/resources/js/Composables/useAuth.js)
+     - برمجة دوال تفاعلية سريعة تعتمد على كاش Inertia Props المجهزة دون أي استعلام شبكة إضافي.
+- **نتيجة تشغيل الاختبارين بعد كتابة الكود (GREEN):**
+  - **PHP:**
+    ```text
+    PASS  Tests\Feature\Auth\InertiaAuthSharingTest
+    ✓ it shares null user for unauthenticated guests                       1.02s  
+    ✓ it shares user without sensitive credentials                         0.09s  
+    ✓ it shares exact permission matrix for each of the twelve roles (12 tests) ...
+    
+    Tests: 14 passed (340 assertions)
+    Duration: 2.74s
+    ```
+  - **Vitest:**
+    ```text
+    PASS  resources/js/__tests__/useAuth.test.js
+    ✓ useAuth Composable (3 tests) 12ms
+    
+    Tests: 3 passed (3)
+    Duration: 1.21s
+    ```
+
+---
+
+### 3. تطبيق فحص عدم الانكسار 🛡️ (Zero Regression Immunity - القاعدة 3):
+- **الأمر المنفذ:** `php artisan test` + `npm run test:run`
+- **النتيجة الرسمية:**
+  - **PHP:** `Tests: 1 incomplete, 361 passed (2363 assertions)` — ارتفاع إجمالي الاختبارات الناجحة من 347 إلى **361 اختباراً** بنسبة نجاح 100%.
+  - **JavaScript:** `Tests: 5 passed (5)` في ملفي اختبار بنسبة نجاح 100%.
+  *(ثبات تام لجميع مكونات النظام والأرشيف والوسائط دون تسجيل أي انكسار).*
+
+---
+
+### 4. القرارات المعمارية الموثقة في الدورة:
+1. **التزويد الشامل للمصفوفة السباعية (Universal 12-Role Hydration):** حقن مصفوفة الأذونات الـ 7 لكل دور خادمياً في الـ Root Props، مما يحصن الفرونت إند من ارتكاب أخطاء فحص الحسابات أو استنتاج الصلاحيات محلياً.
+2. **تطهير كائن المستخدم (Credential Sanitization):** إعادة تشكيل مصفوفة `auth.user` صراحة لاستبعاد أي حقول أمنية داخلية (`password`, `remember_token`, إلخ) لحماية الأمان الرقمي.
+3. **تغليف دوال الصلاحيات داخل Enum (Rich Backed Enum):** ترقية `UserRole` ليصبح المصدر المرجعي الموحد (Single Source of Truth) لحساب الأهلية لكل دور، مما يمنع تكرار الشروط البرمجية في أماكن متفرقة.
+
 
 
 
