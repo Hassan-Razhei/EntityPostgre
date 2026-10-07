@@ -482,3 +482,36 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
 - **اختبارات الباك إند (PHPUnit):** **17 Passed (239 Assertions)** بنسبة 100%.
 - **اختبارات الفرونت إند (Vitest):** **40 Passed (40 Assertions عبر 9 ملفات)** بنسبة 100%.
+
+---
+
+## 🚀 دورة التطوير رقم 12: توحيد لوحة التحكم واستبدال Dashboard.vue القديم بـ AdminDashboard.vue
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار المتأثرة:**
+  - [`tests/Feature/Auth/InertiaAuthSharingTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/Auth/InertiaAuthSharingTest.php)
+- **الحالات التي تم اختبارها:**
+  1. التحقق من أن مسار `/dashboard` يقدم قمرة القيادة الموحدة `AdminDashboard` دون تشتت بين ملفين.
+  2. منع الخلط البرمجي وحذف ملف `Dashboard.vue` القديم نهائياً.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل توكيد اسم المكون `->component('Dashboard')` بعد تفويض الكنترولر.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المحدثة والمحذوفة:**
+  1. [`app/Http/Controllers/DashboardController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/DashboardController.php):
+     - تفويض مسار `/dashboard` مباشرة إلى `SuperAdminDashboardController` لتقديم قمرة القيادة `AdminDashboard.vue` ببياناتها الحية الشاملة (`stats`, `recentActivities`, `recentUsers`).
+  2. `resources/js/Pages/Dashboard.vue`:
+     - حذف الملف القديم بالكامل لإزالة الازدواجية وإنهاء أي لبس معماري.
+  3. [`tests/Feature/Auth/InertiaAuthSharingTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/Auth/InertiaAuthSharingTest.php):
+     - تحديث التوكيد ليتوافق مع `AdminDashboard`.
+- **نتيجة التشغيل (GREEN):**
+  * نجاح الاختبارات: `InertiaAuthSharingTest`: **14 Passed (340 Assertions)** بنسبة 100%.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الباك إند بالكامل (PHPUnit):** **100% نجاح عبر 40+ اختباراً**.
+- **اختبارات الفرونت إند (Vitest):** **40 Passed (40 Assertions)** بنسبة 100%.
+- **بناء حزم الإنتاج (Vite Build):** نجاح تام لـ `npm run build` في 14.8 ثانية بدون أي ملفات قديمة.
