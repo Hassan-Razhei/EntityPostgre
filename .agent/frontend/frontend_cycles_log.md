@@ -8,6 +8,7 @@
 | رقم الدورة | اسم الدورة والمحور | ملفات الاختبار المنشأة | نتيجة الـ RED 🔴 | نتيجة الـ GREEN 🟢 | فحص عدم الانكسار 🛡️ | الحالة |
 |:---:|---|---|:---:|:---:|:---:|:---:|
 | **1** | **النواة التشغيلية وقمرة القيادة الحية (POC & AdminDashboard)** | `tests/Feature/SuperAdminDashboardTest.php` | 3 Failed (404) | 3 Passed (14 Assertions) | **340 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
+| **2** | **السايدبار الموحد وأكورديون المجموعات الخمس (Unified Sidebar & Accordion)** | `resources/js/__tests__/Sidebar.test.js` | 6 Failed | 6 Passed (19 Vitest Tests) | **19 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -45,3 +46,45 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
 - فحص اختبارات التوجيه الجغرافي وحقن الهوية: `17 Passed (350 assertions)` بنجاح تام.
 - المعاينة الحية: تأكيد عمل الصفحة واستجابة السايدبار والثيم والجداول في المتصفح على `http://localhost:8000/superadmin/dashboard`.
+
+---
+
+## 🔹 الدورة 2: السايدبار الموحد وأكورديون المجموعات الخمس (Unified Sidebar & Accordion)
+
+- **تاريخ الإنجاز:** 2026-10-07
+- **الهدف المعماري:**  
+  ترقية السايدبار الأصلي المعتمد في المشروع [`resources/js/Layouts/Partials/Sidebar.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Layouts/Partials/Sidebar.vue) ليعكس بدقة 100% المجموعات الخمس الواردة في المرجع الحاكم `super_admin_dashboard_preview.html` (المكتبة، الأشخاص، التنظيم، الاستوديو، النظام)، مع إضافة شريط تحكم الأكورديون (توسيع وطي الكل)، وبادجات العدادات، وتمييز المجموعة السيادية، وحراسة المسارات بصلاحيات الأدوار عبر `useAuth()`.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`resources/js/__tests__/Sidebar.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/Sidebar.test.js)
+- **الحالات التي تم اختبارها:**
+  1. `renders all five canonical groups matching super_admin_dashboard_preview.html`: فحص وجود المجموعات الخمس الأساسية.
+  2. `renders the accordion micro-toolbar with expand and collapse buttons`: فحص وجود شريط الأكورديون وزري التوسيع والطي.
+  3. `toggles collapse state of a navigation group when header is clicked`: فحص سلوك طي وفرد المجموعة عند النقر.
+  4. `collapses all groups when collapse-all button is clicked`: فحص طي كافة المجموعات دفعة واحدة.
+  5. `expands all groups when expand-all button is clicked`: فحص توسيع كافة المجموعات دفعة واحدة.
+  6. `renders the sovereign group with sovereign-group class and crown icon`: فحص تمييز المجموعة السيادية برتبة السوبر أدمن.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل كافة الاختبارات الستة بنجاح (`6 Failed`).
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملف البرمجي المحدث:**  
+  [`resources/js/Layouts/Partials/Sidebar.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Layouts/Partials/Sidebar.vue)
+  * بناء مصفوفة `navigationGroups` المطابقة 1:1 للمرجع الحاكم مع الرموز التعبيرية والبادجات.
+  * إضافة كائن الحالة التفاعلية `collapsedGroups = ref(new Set())` ودوال `toggleNavGroup` و `expandAllGroups` و `collapseAllGroups`.
+  * حراسة مجموعة الاستوديو بصلاحية `access_studio` ومجموعة النظام بصلاحية `system_commands`.
+- **نتيجة التشغيل (GREEN):**
+  * `Sidebar.test.js`: **6 Passed (100% نجاح)**.
+  * نجاح بناء حزم الـ Assets عبر Vite: `AuthenticatedLayout-BYoXluRk.js (17.58 kB)`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
+- اختبارات الواجهة الحالية: `adaptiveUI.test.js` (6 Passed).
+- إجمالي اختبارات جافاسكريبت: **19 Tests Passed في Vitest بنجاح 100%**.
+- اختبارات الباك إند: `SuperAdminDashboardTest` (3 Passed).
