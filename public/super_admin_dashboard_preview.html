@@ -2532,7 +2532,68 @@
       text-decoration: underline;
     }
 
-  </style>
+  
+    /* Adaptive System Health Pills (Dark & Light Mode Harmony) */
+    .health-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.32rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f4f4f5;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      transition: all 0.2s ease;
+    }
+    body.light-mode .health-pill {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #047857;
+    }
+    .pulse-dot-green {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 1.5s infinite;
+      display: inline-block;
+    }
+    .status-pill-db {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.32rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      font-size: 0.72rem;
+      font-weight: 800;
+      transition: all 0.2s ease;
+    }
+    body.light-mode .status-pill-db {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      color: #4338ca;
+    }
+    body.light-mode .status-pill-db .pulse-dot-emerald {
+      background: #6366f1;
+      box-shadow: 0 0 8px #6366f1;
+    }
+    .pulse-dot-emerald {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 1.5s infinite;
+      display: inline-block;
+    }
+</style>
 </head>
 <body>
 
@@ -5191,9 +5252,13 @@
               <h2><span>📊 لوحة المؤشرات والإحصائيات المركزية</span></h2>
               <p>رصد فوري لكافة قطاعات الأرشيف الرقمي، مسار النشر، ونشاط المحققين</p>
             </div>
-            <div class="header-actions">
-              <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 800; color: #34d399; background: rgba(16, 185, 129, 0.1); padding: 0.35rem 0.75rem; border-radius: 9999px; border: 1px solid rgba(16, 185, 129, 0.2);">
-                <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; animation: pulse 1.5s infinite;"></span>
+                        <div class="header-actions">
+              <div class="health-pill">
+                <span class="pulse-dot-green"></span>
+                <span>النظام يعمل بكفاءة</span>
+              </div>
+              <div class="status-pill-db">
+                <span class="pulse-dot-emerald"></span>
                 <span>قاعدة البيانات متصلة ومستقرة</span>
               </div>
             </div>
