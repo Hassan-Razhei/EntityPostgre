@@ -56,7 +56,7 @@
               class="w-full pr-12 pl-4"
             />
           </div>
-                    
+
           <div class="flex items-center gap-3">
             <div class="w-48">
               <SelectInput
@@ -91,6 +91,13 @@
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               /></svg>
             </IconButton>
+
+            <!-- Columns Dropdown -->
+            <ColumnsDropdown
+              :columns="columns"
+              @toggle-column="toggleColumn"
+              @reset-all="resetAllColumns"
+            />
           </div>
         </div>
       </Card>
@@ -98,11 +105,59 @@
       <!-- Table View -->
       <Table>
         <TableHead>
-          <TableHeaderCell>الرقم التسلسلي</TableHeaderCell>
-          <TableHeaderCell>عنوان العمل</TableHeaderCell>
-          <TableHeaderCell>المؤلف</TableHeaderCell>
-          <TableHeaderCell>الأوسمة</TableHeaderCell>
-          <TableHeaderCell align="left">
+          <TableHeaderCell
+            v-if="isColumnVisible('serial_number')"
+            data-col="serial_number"
+          >
+            الرقم التسلسلي
+          </TableHeaderCell>
+          <TableHeaderCell
+            v-if="isColumnVisible('title')"
+            data-col="title"
+          >
+            عنوان العمل
+          </TableHeaderCell>
+          <TableHeaderCell
+            v-if="isColumnVisible('slug')"
+            data-col="slug"
+          >
+            المعرف
+          </TableHeaderCell>
+          <TableHeaderCell
+            v-if="isColumnVisible('author')"
+            data-col="author"
+          >
+            المؤلف
+          </TableHeaderCell>
+          <TableHeaderCell
+            v-if="isColumnVisible('isbn')"
+            data-col="isbn"
+          >
+            الرقم الدولي
+          </TableHeaderCell>
+          <TableHeaderCell
+            v-if="isColumnVisible('description')"
+            data-col="description"
+          >
+            الوصف
+          </TableHeaderCell>
+          <TableHeaderCell
+            v-if="isColumnVisible('tags')"
+            data-col="tags"
+          >
+            الأوسمة
+          </TableHeaderCell>
+          <TableHeaderCell
+            v-if="isColumnVisible('created_at')"
+            data-col="created_at"
+          >
+            تاريخ الإضافة
+          </TableHeaderCell>
+          <TableHeaderCell
+            v-if="isColumnVisible('actions')"
+            data-col="actions"
+            align="left"
+          >
             الإجراءات
           </TableHeaderCell>
         </TableHead>
@@ -111,12 +166,18 @@
             v-for="book in books.data"
             :key="book.id"
           >
-            <TableCell>
+            <TableCell
+              v-if="isColumnVisible('serial_number')"
+              data-col="serial_number"
+            >
               <span class="font-black font-mono text-gray-300 dark:text-gray-600 group-hover:text-indigo-500 transition-colors">
                 {{ book.formatted_serial_number }}
               </span>
             </TableCell>
-            <TableCell>
+            <TableCell
+              v-if="isColumnVisible('title')"
+              data-col="title"
+            >
               <div class="font-black text-gray-900 dark:text-white">
                 {{ book.title }}
               </div>
@@ -124,7 +185,18 @@
                 تاريخ الإضافة: {{ formatDate(book.created_at) }}
               </div>
             </TableCell>
-            <TableCell>
+            <TableCell
+              v-if="isColumnVisible('slug')"
+              data-col="slug"
+            >
+              <span class="font-mono text-xs text-indigo-500 dark:text-indigo-400">
+                {{ book.slug }}
+              </span>
+            </TableCell>
+            <TableCell
+              v-if="isColumnVisible('author')"
+              data-col="author"
+            >
               <div
                 v-if="book.authors && book.authors.length"
                 class="flex flex-wrap gap-2"
@@ -142,7 +214,29 @@
                 class="text-gray-400 italic text-xs"
               >غير محدد</span>
             </TableCell>
-            <TableCell>
+            <TableCell
+              v-if="isColumnVisible('isbn')"
+              data-col="isbn"
+            >
+              <span class="font-mono text-xs text-gray-500 dark:text-zinc-400">
+                {{ book.isbn || '—' }}
+              </span>
+            </TableCell>
+            <TableCell
+              v-if="isColumnVisible('description')"
+              data-col="description"
+            >
+              <p
+                class="text-xs text-gray-600 dark:text-zinc-400 truncate max-w-xs"
+                :title="book.description"
+              >
+                {{ book.description || '—' }}
+              </p>
+            </TableCell>
+            <TableCell
+              v-if="isColumnVisible('tags')"
+              data-col="tags"
+            >
               <div class="flex flex-wrap gap-1">
                 <Badge
                   v-for="tag in book.tags"
@@ -153,7 +247,19 @@
                 </Badge>
               </div>
             </TableCell>
-            <TableCell class="text-left">
+            <TableCell
+              v-if="isColumnVisible('created_at')"
+              data-col="created_at"
+            >
+              <span class="text-xs text-gray-500 dark:text-zinc-400">
+                {{ formatDate(book.created_at) }}
+              </span>
+            </TableCell>
+            <TableCell
+              v-if="isColumnVisible('actions')"
+              data-col="actions"
+              class="text-left"
+            >
               <div class="flex items-center justify-end gap-2">
                 <IconButton
                   :href="route('reader.show', { type: 'book', slug: book.slug })"
@@ -208,7 +314,7 @@
             </TableCell>
           </TableRow>
         </TableBody>
-                
+
         <template #pagination>
           <Pagination :links="books.links" />
         </template>
@@ -234,6 +340,7 @@ import TableBody from '@/Components/Table/TableBody.vue';
 import TableRow from '@/Components/Table/TableRow.vue';
 import TableHeaderCell from '@/Components/Table/TableHeaderCell.vue';
 import TableCell from '@/Components/Table/TableCell.vue';
+import ColumnsDropdown from '@/Components/Table/ColumnsDropdown.vue';
 
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
@@ -244,8 +351,37 @@ const props = defineProps({
     filters: Object,
     categories: Array,
     tags: Array,
-    // Add authors prop if passed from controller, otherwise handle locally
 });
+
+const columns = ref([
+    { key: 'serial_number', label: 'الرقم التسلسلي', visible: true, required: false },
+    { key: 'title', label: 'عنوان العمل', visible: true, required: true },
+    { key: 'slug', label: 'المعرف', visible: false, required: false },
+    { key: 'author', label: 'المؤلف', visible: true, required: false },
+    { key: 'isbn', label: 'الرقم الدولي', visible: true, required: false },
+    { key: 'description', label: 'الوصف', visible: false, required: false },
+    { key: 'tags', label: 'الأوسمة', visible: true, required: false },
+    { key: 'created_at', label: 'تاريخ الإضافة', visible: true, required: false },
+    { key: 'actions', label: 'الإجراءات', visible: true, required: true },
+]);
+
+const isColumnVisible = (key) => {
+    const col = columns.value.find(c => c.key === key);
+    return col ? col.visible : true;
+};
+
+const toggleColumn = (key, isVisible) => {
+    const col = columns.value.find(c => c.key === key);
+    if (col && !col.required) {
+        col.visible = isVisible;
+    }
+};
+
+const resetAllColumns = () => {
+    columns.value.forEach(col => {
+        col.visible = true;
+    });
+};
 
 const search = ref(props.filters?.search || '');
 const category = ref(props.filters?.category || '');
@@ -270,5 +406,3 @@ const formatDate = (dateString) => {
     });
 };
 </script>
-
-

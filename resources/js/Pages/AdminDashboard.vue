@@ -46,25 +46,25 @@
           <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
         </div>
         <div class="nav-group-items">
-          <div class="nav-item active" id="nav-books" onclick="loadView('books')">
+          <div class="nav-item" id="nav-books" onclick="loadView('books')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             <span>الكتب</span>
-            <span class="badge-count">1,482</span>
+            <span class="badge-count">{{ (props.stats?.books ?? 0).toLocaleString() }}</span>
           </div>
           <div class="nav-item" id="nav-manuscripts" onclick="loadView('manuscripts')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span>المخطوطات</span>
-            <span class="badge-count">428</span>
+            <span class="badge-count">{{ (props.stats?.manuscripts ?? 0).toLocaleString() }}</span>
           </div>
           <div class="nav-item" id="nav-audios" onclick="loadView('audios')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
             <span>الصوتيات</span>
-            <span class="badge-count">650</span>
+            <span class="badge-count">{{ (props.stats?.audios ?? 0).toLocaleString() }}</span>
           </div>
           <div class="nav-item" id="nav-videos" onclick="loadView('videos')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
             <span>المرئيات</span>
-            <span class="badge-count">185</span>
+            <span class="badge-count">{{ (props.stats?.videos ?? 0).toLocaleString() }}</span>
           </div>
         </div>
       </div>
@@ -85,11 +85,12 @@
           <div class="nav-item" id="nav-authors" onclick="loadView('authors')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             <span>المؤلفون</span>
-            <span class="badge-count">340</span>
+            <span class="badge-count">{{ (props.stats?.authors ?? 0).toLocaleString() }}</span>
           </div>
           <div class="nav-item" id="nav-publishers" onclick="loadView('publishers')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             <span>الناشرون</span>
+            <span class="badge-count">{{ (props.stats?.publishers ?? 0).toLocaleString() }}</span>
           </div>
         </div>
       </div>
@@ -110,10 +111,12 @@
           <div class="nav-item" id="nav-categories" onclick="loadView('categories')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2zm5-3a2 2 0 100 4 2 2 0 000-4z"/></svg>
             <span>التصنيفات</span>
+            <span class="badge-count">{{ (props.stats?.categories ?? 0).toLocaleString() }}</span>
           </div>
           <div class="nav-item" id="nav-tags" onclick="loadView('tags')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
             <span>الأوسمة</span>
+            <span class="badge-count">{{ (props.stats?.tags ?? 0).toLocaleString() }}</span>
           </div>
         </div>
       </div>
@@ -154,7 +157,7 @@
           <div class="nav-item" id="nav-versions" onclick="loadView('versions')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>الإصدارات</span>
-            <span class="badge-count" style="color: #38bdf8;">842</span>
+            <span class="badge-count" style="color: #38bdf8;">{{ (props.stats?.versions ?? 0).toLocaleString() }}</span>
           </div>
         </div>
       </div>
@@ -172,7 +175,7 @@
           <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
         </div>
         <div class="nav-group-items">
-          <div class="nav-item" id="nav-stats" onclick="loadView('stats')">
+          <div class="nav-item active" id="nav-stats" onclick="loadView('stats')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             <span>الإحصائيات</span>
           </div>
@@ -183,16 +186,17 @@
           <div class="nav-item" id="nav-users" onclick="loadView('users')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             <span>المستخدمون</span>
-            <span class="badge-count">124</span>
+            <span class="badge-count">{{ (props.stats?.users ?? 0).toLocaleString() }}</span>
           </div>
           <div class="nav-item" id="nav-activities" onclick="loadView('activities')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>النشاطات</span>
+            <span class="badge-count">{{ (props.stats?.activities ?? 0).toLocaleString() }}</span>
           </div>
           <div class="nav-item" id="nav-deletions" onclick="loadView('deletions')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             <span>المهملات</span>
-            <span class="badge-count icon-refresh">18</span>
+            <span class="badge-count icon-refresh">{{ (props.stats?.deletions ?? 0).toLocaleString() }}</span>
           </div>
           <div class="nav-item" id="nav-commands" onclick="loadView('commands')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -293,20 +297,25 @@ const props = defineProps({
   stats: {
     type: Object,
     default: () => ({
-      books: 1482,
-      manuscripts: 428,
-      audios: 650,
-      videos: 185,
-      authors: 340,
-      publishers: 85,
-      categories: 42,
-      tags: 156,
-      users: 124,
-      deletions: 18,
-      versions: 842,
+      books: 0,
+      manuscripts: 0,
+      audios: 0,
+      videos: 0,
+      authors: 0,
+      publishers: 0,
+      categories: 0,
+      tags: 0,
+      users: 0,
+      deletions: 0,
+      versions: 0,
+      activities: 0,
     })
   },
   recentActivities: {
+    type: Array,
+    default: () => []
+  },
+  recentUsers: {
     type: Array,
     default: () => []
   }
@@ -2866,16 +2875,37 @@ const viewCatalog = {
       },
 
       // ========================================================
+      // ========================================================
       // 16. USERS VIEW (النظام -> المستخدمون)
       // ========================================================
       users: {
         title: 'المستخدمون',
         group: 'النظام',
-        render: () => `
+        render: () => {
+          const userRows = props.recentUsers && props.recentUsers.length
+            ? props.recentUsers.map(u => `
+              <tr>
+                <td><strong>${u.name}</strong></td>
+                <td><span style="font-family: monospace; color: var(--text-dim);">${u.email}</span></td>
+                <td><span class="role-chip ${u.role === 'super_admin' ? 'chip-admin' : (u.role === 'editor' ? 'chip-studio' : 'chip-public')}">${u.role}</span></td>
+                <td><span class="icon-import">نشط</span></td>
+                <td>${u.created_at}</td>
+                <td>
+                  <button class="btn-action-small" onclick="alert('تعديل صلاحيات المستخدم: ${u.name}')">صلاحيات ⚙️</button>
+                </td>
+              </tr>
+            `).join('')
+            : `
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-dim); padding: 1.5rem;">لا يوجد مستخدمون حالياً</td>
+              </tr>
+            `;
+
+          return `
           <div class="view-header-banner">
             <div class="view-title-group">
               <h2><span>👥 المستخدمون</span></h2>
-              <p>دليل المستخدمين ومصفوفة رتب الصلاحيات المعتمدة في النظام</p>
+              <p>دليل المستخدمين ومصفوفة رتب الصلاحيات المعتمدة في النظام (${(props.stats?.users ?? 0).toLocaleString()} مستخدم)</p>
             </div>
             <div class="header-actions">
               <button class="btn-primary-small" onclick="alert('إرسال دعوة لعضو جديد...')">+ إضافة مستخدم</button>
@@ -2890,49 +2920,19 @@ const viewCatalog = {
                     <th>المستخدم</th>
                     <th>البريد الإلكتروني</th>
                     <th>الرتبة المؤسسية</th>
-                    <th>مستوى الصلاحية</th>
                     <th>الحالة</th>
+                    <th>تاريخ التسجيل</th>
                     <th>الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td><strong>د. إبراهيم الفاسي</strong></td>
-                    <td>super_admin@archive.org</td>
-                    <td><span class="role-chip chip-admin">مدير النظام الشامل</span></td>
-                    <td><span class="role-chip chip-admin">صلاحيات كاملة</span></td>
-                    <td><span class="icon-import">نشط</span></td>
-                    <td><button class="btn-action-small" disabled style="opacity: 0.5;">مدير النظام</button></td>
-                  </tr>
-                  <tr>
-                    <td><strong>د. طارق الحارثي</strong></td>
-                    <td>chief_editor@archive.org</td>
-                    <td><span class="role-chip chip-studio">رئيس التحرير والاعتماد</span></td>
-                    <td><span class="role-chip chip-studio">اعتماد ونشر</span></td>
-                    <td><span class="icon-import">نشط</span></td>
-                    <td><button class="btn-action-small" onclick="alert('تعديل صلاحيات رئيس التحرير')">تعديل الصلاحية ✏️</button></td>
-                  </tr>
-                  <tr>
-                    <td><strong>أ. مريم السعيد</strong></td>
-                    <td>editor@archive.org</td>
-                    <td><span class="role-chip chip-studio">محرر وسائط واستوديو</span></td>
-                    <td><span class="role-chip chip-studio">إدارة المحتوى</span></td>
-                    <td><span class="icon-import">نشط</span></td>
-                    <td><button class="btn-action-small" onclick="alert('تعديل صلاحيات المحرر')">تعديل الصلاحية ✏️</button></td>
-                  </tr>
-                  <tr>
-                    <td><strong>أ.د. عبد الرحمن السليمان</strong></td>
-                    <td>academic_reviewer@archive.org</td>
-                    <td><span class="role-chip chip-academic">مُحكّم ومراجع علمي</span></td>
-                    <td><span class="role-chip chip-academic">تحكيم علمي</span></td>
-                    <td><span class="icon-import">نشط</span></td>
-                    <td><button class="btn-action-small" onclick="alert('تعديل صلاحيات المراجع')">تعديل الصلاحية ✏️</button></td>
-                  </tr>
+                  ${userRows}
                 </tbody>
               </table>
             </div>
           </div>
-        `
+        `;
+        }
       },
 
       // ========================================================
@@ -2941,11 +2941,40 @@ const viewCatalog = {
       activities: {
         title: 'النشاطات',
         group: 'النظام',
-        render: () => `
+        render: () => {
+          const acts = props.recentActivities && props.recentActivities.length
+            ? props.recentActivities.map(act => `
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-box">
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="timeline-user-avatar">${act.user_avatar_char || 'م'}</div>
+                    <div class="timeline-body">
+                      <strong>${act.user_name}</strong> قام بـ <span style="color: #34d399; font-weight: 800;">${act.description || act.activity_type}</span>: <span style="color: var(--text-main); font-weight: 800;">${act.entity_title || 'النظام'}</span>
+                    </div>
+                  </div>
+                  <time class="timeline-time">${act.created_at}</time>
+                </div>
+              </div>
+            `).join('')
+            : `
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-box">
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="timeline-user-avatar">✓</div>
+                    <div class="timeline-body">لا توجد نشاطات مسجلة حالياً في قاعدة البيانات.</div>
+                  </div>
+                  <time class="timeline-time">الآن</time>
+                </div>
+              </div>
+            `;
+
+          return `
           <div class="view-header-banner">
             <div class="view-title-group">
               <h2><span>🕒 النشاطات</span></h2>
-              <p>سجل التدقيق الحي ورصد تحركات المستخدمين وتعديلات الكيانات لحظياً</p>
+              <p>سجل التدقيق الحي ورصد تحركات المستخدمين وتعديلات الكيانات لحظياً من PostgreSQL</p>
             </div>
             <div class="header-actions">
               <a href="/activities" class="btn-action-small" style="text-decoration: none;">السجل الكامل 🔍</a>
@@ -2955,64 +2984,13 @@ const viewCatalog = {
           <div class="section-card">
             <div class="timeline-container">
               <div class="timeline-rail"></div>
-
-              <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-box">
-                  <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div class="timeline-user-avatar">ط</div>
-                    <div class="timeline-body">
-                      <strong>د. طارق الحارثي</strong> قام بـ <span style="color: #34d399; font-weight: 800;">إجازة نشر</span>: <a href="/books/tadhkirat-al-sami/reader" style="color: var(--text-main); font-weight: 800; text-decoration: underline;">تذكرة السامع والمتكلم في أدب العالم والمتعلم</a>
-                    </div>
-                  </div>
-                  <time class="timeline-time">منذ 14 دقيقة</time>
-                </div>
-              </div>
-
-              <div class="timeline-item">
-                <div class="timeline-dot" style="background: #3b82f6;"></div>
-                <div class="timeline-box">
-                  <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div class="timeline-user-avatar" style="background: rgba(59,130,246,0.15); color: #60a5fa; border-color: rgba(59,130,246,0.3);">م</div>
-                    <div class="timeline-body">
-                      <strong>أ. مريم السعيد</strong> قامت بـ <span style="color: #60a5fa; font-weight: 800;">حفظ مسودة</span> في استوديو المخطوطات: <a href="/dev/manuscripter/diwan-al-hamasa" style="color: var(--text-main); font-weight: 800; text-decoration: underline;">ديوان الحماسة</a>
-                    </div>
-                  </div>
-                  <time class="timeline-time">منذ 45 دقيقة</time>
-                </div>
-              </div>
-
-              <div class="timeline-item">
-                <div class="timeline-dot" style="background: #f59e0b;"></div>
-                <div class="timeline-box">
-                  <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div class="timeline-user-avatar" style="background: rgba(245,158,11,0.15); color: #fbbf24; border-color: rgba(245,158,11,0.3);">ع</div>
-                    <div class="timeline-body">
-                      <strong>أ.د. عبد الرحمن السليمان</strong> قام بـ <span style="color: #fbbf24; font-weight: 800;">تحكيم علمي</span>: <a href="/books/al-mustasfa/reader" style="color: var(--text-main); font-weight: 800; text-decoration: underline;">كتاب الرسالة للإمام الشافعي</a>
-                    </div>
-                  </div>
-                  <time class="timeline-time">منذ ساعتين</time>
-                </div>
-              </div>
-
-              <div class="timeline-item">
-                <div class="timeline-dot" style="background: #10b981;"></div>
-                <div class="timeline-box">
-                  <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div class="timeline-user-avatar" style="background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.3);">أ</div>
-                    <div class="timeline-body">
-                      <strong>م. أنس خليل</strong> قام بـ <span style="color: #34d399; font-weight: 800;">مزامنة وتفريغ شرائح</span>: <a href="/dev/player/audio/sunan-abi-dawud-01" style="color: var(--text-main); font-weight: 800; text-decoration: underline;">مجلس سنن أبي داود</a>
-                    </div>
-                  </div>
-                  <time class="timeline-time">منذ 4 ساعات</time>
-                </div>
-              </div>
+              ${acts}
             </div>
           </div>
-        `
+        `;
+        }
       },
 
-      // ========================================================
       // 18. DELETIONS VIEW (النظام -> المهملات)
       // ========================================================
       deletions: {
@@ -3022,7 +3000,7 @@ const viewCatalog = {
           <div class="view-header-banner" style="border-color: rgba(245, 158, 11, 0.3);">
             <div class="view-title-group">
               <h2><span>♻️ المهملات</span></h2>
-              <p>خزنة استرجاع المحذوفات المؤقتة لمنع الفقد العرضي للبيانات التراثية</p>
+              <p>خزنة استرجاع المحذوفات المؤقتة لمنع الفقد العرضي (${(props.stats?.deletions ?? 0).toLocaleString()} عنصراً في المهملات)</p>
             </div>
             <div class="header-actions">
               <a href="/deletions" class="btn-action-small" style="text-decoration: none;">إدارة سلة المهملات 🗑️</a>
@@ -3135,13 +3113,13 @@ const viewCatalog = {
     }
 
     function loadView(viewKey) {
-      const view = viewCatalog[viewKey] || viewCatalog.books;
+      const view = viewCatalog[viewKey] || viewCatalog.stats;
 
       // Update active sidebar item
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       const activeNav = document.getElementById('nav-' + viewKey);
       
-      let groupName = 'المكتبة الرقمية';
+      let groupName = 'النظام';
       if (activeNav) {
         activeNav.classList.add('active');
         const parentGroup = activeNav.closest('.nav-group');
@@ -3162,19 +3140,27 @@ const viewCatalog = {
 
       updateToolbarState();
 
+      if (typeof window !== 'undefined' && window.location.hash !== '#' + viewKey) {
+        history.replaceState(null, '', '#' + viewKey);
+      }
+
       // Render content
       const contentArea = document.getElementById('dynamicContentArea');
-      contentArea.style.opacity = '0';
-      contentArea.style.transform = 'translateY(6px)';
-      contentArea.style.transition = 'all 0.2s ease-out';
+      if (contentArea) {
+        contentArea.style.opacity = '0';
+        contentArea.style.transform = 'translateY(6px)';
+        contentArea.style.transition = 'all 0.2s ease-out';
 
-      setTimeout(() => {
-        contentArea.innerHTML = view.render();
-        contentArea.style.opacity = '1';
-        contentArea.style.transform = 'translateY(0)';
-      }, 60);
+        setTimeout(() => {
+          contentArea.innerHTML = view.render();
+          contentArea.style.opacity = '1';
+          contentArea.style.transform = 'translateY(0)';
+        }, 50);
+      }
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
+        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) {}
+      }
     }
 
     function runCmd() {
@@ -3476,11 +3462,23 @@ onMounted(() => {
   window.runCmd = runCmd;
 
   initTheme();
-  loadView('books');
+  const initialView = (typeof window !== 'undefined' && (window.location.hash || "").replace("#", "")) || "stats";
+  loadView(initialView);
   updateToolbarState();
+
+  const handleHashChange = () => {
+    const targetView = (window.location.hash || "").replace("#", "") || "stats";
+    loadView(targetView);
+  };
+  window.addEventListener('hashchange', handleHashChange);
+  window.__adminDashboardHashHandler = handleHashChange;
 });
 
 onUnmounted(() => {
+  if (typeof window !== 'undefined' && window.__adminDashboardHashHandler) {
+    window.removeEventListener('hashchange', window.__adminDashboardHashHandler);
+    delete window.__adminDashboardHashHandler;
+  }
   // Cleanup window attachments
   delete window.loadView;
   delete window.toggleNavGroup;

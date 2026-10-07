@@ -97,4 +97,27 @@ class SuperAdminDashboardTest extends TestCase
                 ->has('recentActivities')
             );
     }
+
+    #[Test]
+    public function it_shares_recent_users_and_accurate_deletions_count_to_admin_dashboard(): void
+    {
+        // تجهيز أصول محذوفة ناعماً (Soft Deleted)
+        $b1 = Book::factory()->create();
+        $b2 = Book::factory()->create();
+        $b1->delete();
+        $b2->delete();
+
+        $a1 = Author::factory()->create();
+        $a1->delete();
+
+        $response = $this->actingAs($this->superAdmin)
+            ->get('/superadmin/dashboard');
+
+        $response->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('AdminDashboard')
+                ->where('stats.deletions', 3)
+                ->has('recentUsers', 3) // المستخدمون الثلاثة المنشأون في setUp
+            );
+    }
 }

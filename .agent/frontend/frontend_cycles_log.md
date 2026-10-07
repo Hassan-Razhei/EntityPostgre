@@ -12,6 +12,7 @@
 | **3** | **النافبار الموحد ومسار التتبع ثلاثي المستويات وقائمة المستخدم (Unified Navbar & Breadcrumbs)** | `resources/js/__tests__/Navbar.test.js` | 4 Failed | 4 Passed (23 Vitest Tests) | **23 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
 | **4** | **تغذية قمرة القيادة بالبيانات الحية من PostgreSQL (Live Stats & Dynamic Props)** | `tests/Feature/SuperAdminDashboardTest.php` | 1 Failed (Property [stats] missing) | 4 Passed (38 Assertions) | **23 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
 | **5** | **نظام الجداول عالي الكثافة وقائمة اختيار الأعمدة (ColumnsDropdown & High-Density Primitive)** | `resources/js/__tests__/ColumnsDropdown.test.js` | 1 Failed (Missing import) | 6 Passed (29 Vitest Tests) | **29 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
+| **6** | **دمج نظام الجداول عالي الكثافة وقائمة الأعمدة في فهرس الكتب (Books Index High-Density Integration)** | `resources/js/__tests__/BooksIndex.test.js` | 4 Failed | 4 Passed (33 Vitest Tests) | **33 Vitest + 10 PHP Passed** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -209,3 +210,94 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
 - **اختبارات جافاسكريبت بالكامل (Vitest):** **29 Passed (100% نجاح عبر 7 ملفات اختبار)**.
 - **اختبارات الباك إند (PHPUnit):** **4 Passed (38 Assertions)** بنجاح تام.
+
+---
+
+## 🔹 الدورة 6: دمج نظام الجداول عالي الكثافة وقائمة الأعمدة في فهرس الكتب (Books Index High-Density Integration)
+
+- **تاريخ الإنجاز:** 2026-10-07
+- **الهدف المعماري:**  
+  ترقية صفحة فهرس الكتب الأصلية المعتمدة في النظام [`resources/js/Pages/Books/Index.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/Books/Index.vue) لدمج مكون اختيار الأعمدة `<ColumnsDropdown />`، وتطبيق مصفوفة الأعمدة المتوافقة 1:1 مع جداول المايجريشن في PostgreSQL ومواصفات النموذج الحاكم `super_admin_dashboard_preview.html`. تتيح ترقية الصفحة التحكم الحي في إظهار وإخفاء الأعمدة مثل (`isbn`، `slug`، `description`، `created_at`) مع تثبيت الأعمدة الإلزامية (`title`، `actions`)، وضمان عمل البحث السريع والفلترة والترقيم والوضع الليلي دون أي انكسار.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`resources/js/__tests__/BooksIndex.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/BooksIndex.test.js)
+- **الحالات التي تم اختبارها:**
+  1. `renders the ColumnsDropdown component in the toolbar`: التأكد من وجود مكون قائمة الأعمدة داخل شريط الفلترة والأدوات.
+  2. `provides columns configuration with required title column`: فحص تمرير مصفوفة الأعمدة كاملة وتثبيت عمود `title` كحقل إلزامي أساسي.
+  3. `hides column header and cells when column visibility is toggled off`: فحص إخفاء ترويسة الجدول والخلايا المطابقة ديناميكياً عند إلغاء تفعيل عمود `isbn`.
+  4. `restores all columns when reset-all event is emitted`: فحص استعادة رؤية كافة الأعمدة عند استدعاء حدث `reset-all`.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل كافة الاختبارات الأربعة بنجاح (`4 Failed`).
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملف البرمجي المحدث:**  
+  [`resources/js/Pages/Books/Index.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/Books/Index.vue)
+  * استيراد ودمج `<ColumnsDropdown />` داخل بطاقة شريط البحث والفلترة.
+  * تعريف مصفوفة الأعمدة التفاعلية `columns` التسعة (الرقم التسلسلي، العنوان، المعرف، المؤلف، الرقم الدولي، الوصف، الأوسمة، تاريخ الإضافة، الإجراءات).
+  * ربط دالتي `isColumnVisible` و `toggleColumn` و `resetAllColumns` مع ترويسة الجدول وخلايا الصفوف.
+- **نتيجة التشغيل (GREEN):**
+  * `BooksIndex.test.js`: **4 Passed (100% نجاح)**.
+  * نجاح بناء حزم الإنتاج عبر Vite: `Index-BVavF0BW.js (12.47 kB)`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
+- **اختبارات جافاسكريبت بالكامل (Vitest):** **33 Passed (100% نجاح عبر 8 ملفات اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** نجاح كافة اختبارات الكتب [`BookTest`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Unit/Models/BookTest.php) و [`BookControllerTest`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/BookControllerTest.php) بواقع **10 Passed (66 Assertions)**.
+
+
+---
+
+## 🔹 الدورة 7: إتمام قمرة القيادة السيادية (AdminDashboard) وربط البيانات الحية للمستخدمين والنشاطات والمهملات والتنقل السلس
+
+- **تاريخ الإنجاز:** 2026-10-07
+- **الهدف المعماري:**  
+  إتمام قمرة القيادة السيادية [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue) وإغلاق كافة وظائفها بنسبة 100% تطابقاً مع المرجع الحاكم `super_admin_dashboard_preview.html`:
+  1. ضبط الواجهة الافتراضية لقمرة القيادة لتفتح على لوحة المؤشرات المركزية (`stats`) الحاوية على شارات الكفاءة وصحة قاعدة البيانات والـ KPI ومسار تدفق النشر وسجل النشاطات بدلاً من فتح جدول الكتب قسرياً.
+  2. دعم التوجيه المتناغم عبر الهاش (`#stats`، `#books`، `#users`، `#activities`، `#commands`، إلخ) لحفظ موقع المشرف وتسهيل التنقل والتحديث.
+  3. ربط كافة شارات السايدبار الـ 19 بالأعداد الحية الدقيقة لجميع الكيانات من قاعدة بيانات PostgreSQL عبر `props.stats`.
+  4. حساب عدد المحذوفات مؤقتاً (سلة المهملات `stats.deletions`) برمجياً عبر `onlyTrashed()->count()` لجميع الموديلات التي تدعم الحذف الرخو.
+  5. ربط تبويب المستخدمين (`users`) وسجل النشاطات الحية (`activities`) بقوائم PostgreSQL الفعلية مع تهيئة الأفاتار والرتب الملونة وتواريخ الإضافة التفاعلية.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار:**  
+  - باوند إند: [`tests/Feature/SuperAdminDashboardTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/SuperAdminDashboardTest.php) (`it_shares_recent_users_and_accurate_deletions_count_to_admin_dashboard`).
+  - فرونت إند: [`resources/js/__tests__/AdminDashboard.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/AdminDashboard.test.js).
+- **الحالات التي تم اختبارها:**
+  1. `renders live statistics badges in sidebar navigation items`: فحص ربط أرقام السايدبار ديناميكياً بـ `props.stats`.
+  2. `initializes with stats overview view by default`: فحص فتح الداشبورد على شاشة `stats` افتراضياً أو بناءً على الهاش في الرابط.
+  3. `renders real users list in users view when selected`: فحص توليد بطاقات المستخدمين الحقيقيين في تبويب `المستخدمون`.
+  4. `renders live activities timeline in activities view`: فحص رسم الخط الزمني للنشاطات الفعلية في تبويب `النشاطات`.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل اختبار الباك إند: `Failed asserting that 0 matches expected 3` (كانت المهملات صفراً والمستخدمون غير ممررين).
+  * فشل اختبار الفرونت إند: لعدم وجود ملف الاختبار وبقاء الشارات ثابتة وفتح واجهة الكتب افتراضياً.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المحدثة:**  
+  1. [`app/Http/Controllers/SuperAdminDashboardController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SuperAdminDashboardController.php):
+     - حساب المحذوفات مؤقتاً (`deletions`) ديناميكياً عبر `Book`, `Manuscript`, `Audio`, `Video`, `Author`.
+     - استخراج أحدث المستخدمين `recentUsers` مع تجهيز الحرف الأول للأفاتار وشرائح الرتب الزمنية.
+     - تمرير إحصائيات الـ 15 موديلاً كاملاً مع المستخدمين والمهملات والنشاطات.
+  2. [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue):
+     - ربط شارات السايدبار ديناميكياً بـ `props.stats` واستخدام `.toLocaleString()`.
+     - ضبط الواجهة الابتدائية إلى `stats` والاستماع لأحداث `hashchange` في نافذة المتصفح.
+     - تحديث قوالب `users` و `activities` و `deletions` لعرض البيانات الحية المستلمة من Inertia Props.
+- **نتيجة التشغيل (GREEN):**
+  * `SuperAdminDashboardTest`: **5 Passed (52 Assertions) بنسبة 100%**.
+  * `AdminDashboard.test.js`: **4 Passed (100% نجاح)**.
+  * نجاح بناء الحزم للإنتاج عبر Vite: `AdminDashboard-Bn9evrBZ.js (211.51 kB)`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
+- **اختبارات جافاسكريبت بالكامل (Vitest):** **37 Passed (100% نجاح عبر 9 ملفات اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** **5 Passed (52 Assertions)** بنجاح تام.

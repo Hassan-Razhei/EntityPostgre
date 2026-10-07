@@ -23,6 +23,13 @@ class SuperAdminDashboardController extends Controller
 {
     public function index(): Response
     {
+        // حساب إجمالي الكيانات المحذوفة ناعماً (Soft Deleted)
+        $deletionsCount = Book::onlyTrashed()->count()
+            + Manuscript::onlyTrashed()->count()
+            + Audio::onlyTrashed()->count()
+            + Video::onlyTrashed()->count()
+            + Author::onlyTrashed()->count();
+
         $stats = [
             'books' => Book::count(),
             'manuscripts' => Manuscript::count(),
@@ -38,7 +45,7 @@ class SuperAdminDashboardController extends Controller
             'comments' => Comment::count(),
             'activities' => Activity::count(),
             'versions' => Version::count(),
-            'deletions' => 0,
+            'deletions' => $deletionsCount,
         ];
 
         // جلب آخر النشاطات الحية من جدول النشاطات
@@ -59,9 +66,24 @@ class SuperAdminDashboardController extends Controller
                 ];
             });
 
+        // جلب أحدث المستخدمين لرصد الدخول والصلاحيات
+        $recentUsers = User::latest()
+            ->limit(10)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role ?? 'viewer',
+                    'created_at' => $user->created_at?->diffForHumans() ?? 'الآن',
+                ];
+            });
+
         return Inertia::render('AdminDashboard', [
             'stats' => $stats,
             'recentActivities' => $recentActivities,
+            'recentUsers' => $recentUsers,
         ]);
     }
 }
