@@ -18,7 +18,9 @@ class SystemController extends Controller
             'args'    => 'nullable|array'
         ]);
 
-        $command = $request->input('command');
+        $rawCommand = (string) $request->input('command');
+        // Normalize: strip leading 'php artisan ' if present
+        $command = preg_replace('/^php\s+artisan\s+/', '', trim($rawCommand));
         $args    = $request->input('args', []);
 
         // Whitelist allowed commands for security
@@ -28,7 +30,13 @@ class SystemController extends Controller
             'manuscriptsData:sync',
             'storage:sync',
             'project:seed-realistic',
-            'optimize:clear'
+            'optimize:clear',
+            'cache:clear',
+            'config:clear',
+            'route:clear',
+            'view:clear',
+            'migrate:status',
+            'about',
         ];
 
         if (!in_array($command, $allowedCommands)) {
@@ -83,7 +91,7 @@ class SystemController extends Controller
     {
         // Default to user home directory if no path provided
         $currentPath = $request->input('path') ?: '/home/z';
-        
+
         // Validation: Ensure path exists
         if (!file_exists($currentPath)) {
              return response()->json(['message' => 'Path not found', 'path' => $currentPath], 404);
@@ -103,36 +111,24 @@ class SystemController extends Controller
         }
 
         foreach ($scanned as $node) {
-            if ($node === '.') continue;
-            
-            $fullPath = $currentPath . DIRECTORY_SEPARATOR . $node;
-            // Handle '..' manually to ensure we resolve correctly
-            if ($node === '..') {
-                $parent = dirname($currentPath);
-                $items[] = [
-                    'name' => '..',
-                    'path' => $parent,
-                    'type' => 'folder',
-                    'extension' => null
-                ];
-                continue;
-            }
+            if ($node === '.' || $node === '..') continue;
 
+            $fullPath = $currentPath . DIRECTORY_SEPARATOR . $node;
             $items[] = [
                 'name' => $node,
                 'path' => $fullPath,
-                'type' => is_dir($fullPath) ? 'folder' : 'file',
-                'extension' => is_file($fullPath) ? pathinfo($fullPath, PATHINFO_EXTENSION) : null
+                'is_dir' => is_dir($fullPath),
+                'size' => is_file($fullPath) ? filesize($fullPath) : null,
+                'readable' => is_readable($fullPath)
             ];
         }
 
-        // Sort: Folders first (excluding '..'), then files
-        usort($items, function ($a, $b) {
-            if ($a['name'] === '..') return -1;
-            if ($b['name'] === '..') return 1;
-            
-            if ($a['type'] === $b['type']) return strcasecmp($a['name'], $b['name']);
-            return $a['type'] === 'folder' ? -1 : 1;
+        // Sort: directories first, then alphabetically
+        usort($items, function($a, $b) {
+            if ($a['is_dir'] === $b['is_dir']) {
+                return strcasecmp($a['name'], $b['name']);
+            }
+            return $a['is_dir'] ? -1 : 1;
         });
 
         return response()->json([

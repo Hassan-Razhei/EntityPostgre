@@ -301,3 +301,55 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
 - **اختبارات جافاسكريبت بالكامل (Vitest):** **37 Passed (100% نجاح عبر 9 ملفات اختبار)**.
 - **اختبارات الباك إند (PHPUnit):** **5 Passed (52 Assertions)** بنجاح تام.
+
+
+---
+
+## 🔹 الدورة 8: ربط الطرفية التفاعلية وأدوات الصيانة الفورية بالباك إند الفعلي (Terminal Console & Operations Live Execution)
+
+- **تاريخ الإنجاز:** 2026-10-07
+- **الهدف المعماري:**  
+  ترقية الطرفية التفاعلية (`commands`) وأدوات العمليات الفورية (`ops`) داخل قمرة القيادة [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue) وربطها بمسار الباك إند الحقيقي `POST /api/system/run-command`:
+  1. استبدال الردود الثابتة في الطرفية بتنفيذ حقيقي للأوامر عبر `SystemController::runCommand`.
+  2. تطبيع نصوص الأوامر بإزالة بادئة `php artisan ` تلقائياً في المتحكم [`app/Http/Controllers/SystemController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SystemController.php).
+  3. توسيع القائمة البيضاء للأوامر الآمنة المصرح بها لتشمل أوامر الصيانة الأساسية (`optimize:clear`, `cache:clear`, `config:clear`, `route:clear`, `view:clear`, `migrate:status`, `about`).
+  4. ربط بطاقة "تفريغ الكاش ومزامنة السياسات" في تبويب العمليات بتنفيذ فوري لـ `optimize:clear` عبر دالة `triggerOpsCacheClear()`.
+  5. عرض مخرجات الأوامر الحقيقية بألوان وتنسيق الطرفيات (`pre` format) مع التمرير التلقائي للأسفل، وعرض رسائل الخطأ والمنع 403 بوضوح باللون الأحمر.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار:**  
+  - باك إند: [`tests/Feature/SystemCommandExecutionTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/SystemCommandExecutionTest.php).
+  - فرونت إند: [`resources/js/__tests__/AdminDashboard.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/AdminDashboard.test.js).
+- **الحالات التي تم اختبارها:**
+  1. `it_allows_super_admin_to_run_whitelisted_artisan_command`: التحقق من تشغيل الأوامر المصرحة بنجاح.
+  2. `it_normalizes_php_artisan_prefix_in_command_string`: فحص قبول الأوامر المسبوقة بـ `php artisan `.
+  3. `it_rejects_unwhitelisted_commands_with_403`: فحص رفض الأوامر الخطرة أو غير المدرجة في القائمة البيضاء.
+  4. `executes artisan command via runCmd and displays real output in terminal`: فحص اتصال الطرفية واستدعاء مسار الباك إند عبر axios وعرض المخرجات.
+  5. `displays error in terminal when command fails or is rejected`: فحص إظهار رسائل الرفض والخطأ.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل اختبار الباك إند: `Expected 200 but received 403` لعدم تطبيع بادئة `php artisan`.
+  * فشل اختبار الفرونت إند: `Number of calls to axios.post: 0` وظهور رسالة النجاح الصورية القديمة.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المحدثة:**  
+  1. [`app/Http/Controllers/SystemController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SystemController.php):
+     - تطبيع الأمر المدخل عبر `preg_replace('/^php\s+artisan\s+/', '', trim($rawCommand))`.
+     - اعتماد القائمة البيضاء الموسعة للأوامر الإدارية الآمنة.
+  2. [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue):
+     - ترقية `runCmd()` إلى دالة غير متزامنة (`async`) ترسل الطلب إلى `/api/system/run-command`.
+     - إضافة سطر حالة تفاعلي أثناء المعالجة، وعرض المخرجات الحقيقية بتنسيق الكود الملون.
+     - إضافة دالة `triggerOpsCacheClear()` وربطها ببطاقة تفريغ الكاش في تبويب `ops`.
+- **نتيجة التشغيل (GREEN):**
+  * `SystemCommandExecutionTest`: **3 Passed (7 Assertions) بنسبة 100%**.
+  * `AdminDashboard.test.js`: **6 Passed (100% نجاح)**.
+  * نجاح بناء حزم الإنتاج عبر Vite: `AdminDashboard-BulnWrZ0.js (210.51 kB)`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
+- **اختبارات جافاسكريبت بالكامل (Vitest):** **39 Passed (100% نجاح عبر 9 ملفات اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** **8 Passed (59 Assertions)** بنجاح تام.

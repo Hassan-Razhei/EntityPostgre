@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import * as inertia from '@inertiajs/vue3';
+import axios from 'axios';
 import AdminDashboard from '../Pages/AdminDashboard.vue';
+
+vi.mock('axios', () => ({
+    default: {
+        post: vi.fn(),
+    },
+}));
 
 describe('AdminDashboard Cockpit Component (TDD)', () => {
     const mockStats = {
@@ -117,5 +124,52 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
         expect(contentArea.html()).toContain('النشاطات');
         expect(contentArea.html()).toContain('د. طارق الحارثي');
         expect(contentArea.html()).toContain('صحيح البخاري');
+    });
+
+    it('executes artisan command via runCmd and displays real output in terminal', async () => {
+        axios.post.mockResolvedValueOnce({
+            data: {
+                status: 'success',
+                output: 'Application cache cleared successfully.\nCompiled views cleared!',
+            },
+        });
+
+        const wrapper = createWrapper();
+        window.loadView('commands');
+        await new Promise(r => setTimeout(r, 120));
+
+        const input = document.getElementById('cmdInput');
+        const output = document.getElementById('terminalOutput');
+        expect(input).not.toBeNull();
+        expect(output).not.toBeNull();
+
+        input.value = 'optimize:clear';
+        await window.runCmd();
+
+        expect(axios.post).toHaveBeenCalledWith('/api/system/run-command', {
+            command: 'optimize:clear',
+        });
+        expect(output.textContent).toContain('Application cache cleared successfully.');
+    });
+
+    it('displays error in terminal when command fails or is rejected', async () => {
+        axios.post.mockRejectedValueOnce({
+            response: {
+                data: {
+                    message: 'Command not allowed',
+                },
+            },
+        });
+
+        const wrapper = createWrapper();
+        window.loadView('commands');
+        await new Promise(r => setTimeout(r, 120));
+
+        const input = document.getElementById('cmdInput');
+        const output = document.getElementById('terminalOutput');
+        input.value = 'migrate:fresh';
+        await window.runCmd();
+
+        expect(output.textContent).toContain('Command not allowed');
     });
 });
