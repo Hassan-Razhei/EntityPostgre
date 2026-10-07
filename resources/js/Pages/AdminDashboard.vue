@@ -3062,6 +3062,118 @@ const viewCatalog = {
               <a href="/system/commands" class="btn-indigo-small" style="text-decoration: none;">لوحة الأوامر الكاملة 🖥️</a>
             </div>
           </div>
+
+          <div class="section-card" style="margin-bottom: 1.25rem;">
+            <div class="section-header" style="margin-bottom: 0.85rem;">
+              <h3 class="section-title">⚡ أوامر المنظومة المخصصة (Console Commands)</h3>
+              <span class="role-chip chip-super">7 أوامر سيادية مخصصة</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1rem;">
+              أوامر Artisan مخصصة في <code>app/Console/Commands</code> لإدارة الأصول والمخطوطات ومزامنة التخزين وبذر البيانات وتحليل المعمارية. اضغط على أي أمر لتشغيله ومتابعة مخرجاته فورياً:
+            </p>
+            <div class="catalog-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">
+              
+              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('storage:sync')">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🗄️ مزامنة التخزين الرقمي</span>
+                    <span class="role-chip chip-admin" style="font-size: 0.65rem;">storage</span>
+                  </div>
+                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">storage:sync</code>
+                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">فحص مجلدات التخزين وربط الملفات المرفوعة وتحديث البيانات الوصفية للمصنفات.</p>
+                </div>
+                <div style="margin-top: 0.75rem; text-align: left;">
+                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('storage:sync')">تشغيل ⚡</button>
+                </div>
+              </div>
+
+              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('manuscript:sync')">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">📜 مزامنة صفحات المخطوطات</span>
+                    <span class="role-chip chip-editor" style="font-size: 0.65rem;">manuscripts</span>
+                  </div>
+                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">manuscript:sync</code>
+                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">استخراج ومعالجة صفحات المخطوطات تلقائياً من مستندات docx ومطابقتها.</p>
+                </div>
+                <div style="margin-top: 0.75rem; text-align: left;">
+                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('manuscript:sync')">تشغيل ⚡</button>
+                </div>
+              </div>
+
+              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('manuscriptsData:sync')">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">📑 استيراد بيانات المخطوطات</span>
+                    <span class="role-chip chip-editor" style="font-size: 0.65rem;">legacy-data</span>
+                  </div>
+                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">manuscriptsData:sync</code>
+                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">استيراد وتحديث بيانات المخطوطات التاريخية من ملفات CSV/Excel إلى المخطط الجديد.</p>
+                </div>
+                <div style="margin-top: 0.75rem; text-align: left;">
+                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('manuscriptsData:sync')">تشغيل ⚡</button>
+                </div>
+              </div>
+
+              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('media:import-transcripts')">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🎙️ استيراد التفريغات النصية</span>
+                    <span class="role-chip chip-user" style="font-size: 0.65rem;">media</span>
+                  </div>
+                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">media:import-transcripts</code>
+                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">معالجة واستيراد نصوص docx وتحويلها لقطع زمنية مرتبطة بالصوتيات والمرئيات.</p>
+                </div>
+                <div style="margin-top: 0.75rem; text-align: left;">
+                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('media:import-transcripts')">تشغيل ⚡</button>
+                </div>
+              </div>
+
+              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('project:seed-realistic')">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🌱 بذر البيانات الواقعية</span>
+                    <span class="role-chip chip-super" style="font-size: 0.65rem;">database</span>
+                  </div>
+                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">project:seed-realistic</code>
+                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">تغذية قاعدة البيانات ببيانات عربية متكاملة لجميع الكيانات لأغراض التطوير.</p>
+                </div>
+                <div style="margin-top: 0.75rem; text-align: left;">
+                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('project:seed-realistic')">تشغيل ⚡</button>
+                </div>
+              </div>
+
+              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('content:regenerate-slugs')">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🔗 إعادة توليد المعرفات النصية</span>
+                    <span class="role-chip chip-admin" style="font-size: 0.65rem;">slugs</span>
+                  </div>
+                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">content:regenerate-slugs</code>
+                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">إعادة توليد وتحديث الروابط اللطيفة (Slugs) لكافة العقد والمصنفات في PostgreSQL.</p>
+                </div>
+                <div style="margin-top: 0.75rem; text-align: left;">
+                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('content:regenerate-slugs')">تشغيل ⚡</button>
+                </div>
+              </div>
+
+              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('analyze:architecture')">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🏗️ تحليل معمارية النظام</span>
+                    <span class="role-chip chip-super" style="font-size: 0.65rem;">architecture</span>
+                  </div>
+                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">analyze:architecture</code>
+                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">تحليل معماري شامل واكتشاف التكرار البرمجي وإحصائيات ملفات ودوال النظام.</p>
+                </div>
+                <div style="margin-top: 0.75rem; text-align: left;">
+                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('analyze:architecture')">تشغيل ⚡</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
           <div style="background: #000; border-radius: 12px; padding: 1.25rem; font-family: monospace; font-size: 0.82rem; color: #34d399; height: 320px; overflow-y: auto;" id="terminalOutput">
             <div>[System Core] Authenticated as Super Admin.</div>
             <div>[System Core] Session secure via TLS • Database: PostgreSQL 16 Connected.</div>
@@ -3205,6 +3317,14 @@ const viewCatalog = {
         output.appendChild(errLine);
       }
       output.scrollTop = output.scrollHeight;
+    }
+
+    async function runPresetCmd(cmd) {
+      const input = document.getElementById('cmdInput');
+      if (input) {
+        input.value = cmd;
+      }
+      await runCmd();
     }
 
     async function triggerOpsCacheClear() {
@@ -3494,6 +3614,7 @@ onMounted(() => {
   window.filterBooksTable = filterBooksTable;
   window.runCmd = runCmd;
   window.triggerOpsCacheClear = triggerOpsCacheClear;
+  window.runPresetCmd = runPresetCmd;
 
   initTheme();
   const initialView = (typeof window !== 'undefined' && (window.location.hash || "").replace("#", "")) || "stats";
@@ -3537,6 +3658,7 @@ onUnmounted(() => {
   delete window.filterBooksTable;
   delete window.runCmd;
   delete window.triggerOpsCacheClear;
+  delete window.runPresetCmd;
 });
 </script>
 

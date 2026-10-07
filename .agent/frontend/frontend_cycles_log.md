@@ -353,3 +353,58 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
 - **اختبارات جافاسكريبت بالكامل (Vitest):** **39 Passed (100% نجاح عبر 9 ملفات اختبار)**.
 - **اختبارات الباك إند (PHPUnit):** **8 Passed (59 Assertions)** بنجاح تام.
+
+
+---
+
+## 🔹 الدورة 9: أزرار أوامر المنظومة المخصصة في واجهة الأوامر بقمرة القيادة (Custom Console Commands Integration)
+
+- **تاريخ الإنجاز:** 2026-10-08
+- **الهدف المعماري:**  
+  ترقية واجهة الأوامر (`commands`) في قمرة القيادة [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue) لتضمين شبكة بطاقات وأزرار تفاعلية للأوامر المخصصة في مجلد [`app/Console/Commands/`](file:///home/a/PhpstormProjects/EntityPostgre/app/Console/Commands/):
+  1. توفير أزرار وبطاقات تشغيل مباشر للأوامر السبعة المخصصة:
+     - `storage:sync`: فحص مجلدات التخزين ومزامنة ملفات الوسائط الرقمية.
+     - `manuscript:sync`: استخراج ومعالجة صفحات المخطوطات من مستندات docx.
+     - `manuscriptsData:sync`: استيراد وتحديث بيانات المخطوطات من ملفات CSV/Excel.
+     - `media:import-transcripts`: معالجة وتفريغ نصوص الصوتيات والمرئيات.
+     - `project:seed-realistic`: بذر قاعدة البيانات ببيانات عربية واقعية وشاملة.
+     - `content:regenerate-slugs`: إعادة توليد وتحديث المعرفات النصية اللطيفة للعقد في PostgreSQL.
+     - `analyze:architecture`: تحليل معمارية النظام واكتشاف تكرار الشيفرة.
+  2. بناء دالة التشغيل السريع المسبق `runPresetCmd(cmd)` لتعبئة الأمر وتشغيله فورياً وعرض المخرجات الحية في الشاشة السوداء.
+  3. اعتماد الأوامر في القائمة البيضاء الآمنة في [`app/Http/Controllers/SystemController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SystemController.php).
+  4. ضمان الدعم الكامل للوضع النهاري والليلي عبر استخدام متغيرات التباين `var(--text-main)`.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار:**  
+  - باك إند: [`tests/Feature/SystemCommandExecutionTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/SystemCommandExecutionTest.php) (`it_allows_super_admin_to_run_custom_console_commands`).
+  - فرونت إند: [`resources/js/__tests__/AdminDashboard.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/AdminDashboard.test.js) (`renders custom console command buttons in commands view and executes on click`).
+- **الحالات التي تم اختبارها:**
+  1. فحص تشغيل أوامر المجلد المخصص (`content:regenerate-slugs`).
+  2. فحص وجود شبكة البطاقات وشارات الأوامر في واجهة `commands`.
+  3. فحص وظيفة زر التشغيل الفوري واستدعاء المسار الفعلي `/api/system/run-command`.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل اختبار الباك إند: `Expected 200 but received 403` لعدم وجود الأمر في القائمة البيضاء.
+  * فشل اختبار الفرونت إند: لعدم وجود قسم أزرار الأوامر المخصصة.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المحدثة:**  
+  1. [`app/Http/Controllers/SystemController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SystemController.php):
+     - إضافة الأوامر المخصصة (`content:regenerate-slugs`, `analyze:architecture`) إلى القائمة البيضاء.
+  2. [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue):
+     - بناء قسم بطاقات الأوامر في `viewCatalog.commands`.
+     - إضافة دالة `runPresetCmd(cmd)` وتصديرها وتنظيفها على كائن `window`.
+     - تطبيق قواعد التباين اللوني بالوضع النهاري والليلي.
+- **نتيجة التشغيل (GREEN):**
+  * `SystemCommandExecutionTest`: **4 Passed (9 Assertions) بنسبة 100%**.
+  * `AdminDashboard.test.js`: **7 Passed (100% نجاح)**.
+  * نجاح بناء حزم الإنتاج عبر Vite: `AdminDashboard-Jw-KpZ9z.js (221.14 kB)`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
+- **اختبارات جافاسكريبت بالكامل (Vitest):** **40 Passed (100% نجاح عبر 9 ملفات اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** **9 Passed (61 Assertions)** بنجاح تام.

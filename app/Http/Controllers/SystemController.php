@@ -30,6 +30,8 @@ class SystemController extends Controller
             'manuscriptsData:sync',
             'storage:sync',
             'project:seed-realistic',
+            'content:regenerate-slugs',
+            'analyze:architecture',
             'optimize:clear',
             'cache:clear',
             'config:clear',
@@ -46,8 +48,8 @@ class SystemController extends Controller
         // ─── تقييد الوصول لأمر seed-realistic لمستخدمين محددين ──────────
         if ($command === 'project:seed-realistic') {
             $allowedEmails = array_filter(
-                explode(',', config('app.seed_allowed_users', env('SEED_ALLOWED_USERS', '')))
-            );
+                explode(',', config('app.seed_allowed_users', env('SEED_ALLOWED_USERS', ''))
+            ));
 
             $currentEmail = auth()->user()?->email;
 

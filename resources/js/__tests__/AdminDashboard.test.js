@@ -172,4 +172,37 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
 
         expect(output.textContent).toContain('Command not allowed');
     });
+
+    it('renders custom console command buttons in commands view and executes on click', async () => {
+        axios.post.mockResolvedValueOnce({
+            data: {
+                status: 'success',
+                output: 'Storage sync completed: 4 files registered.',
+            },
+        });
+
+        const wrapper = createWrapper();
+        window.loadView('commands');
+        await new Promise(r => setTimeout(r, 120));
+
+        const contentArea = wrapper.find('#dynamicContentArea');
+        // Check presence of custom commands section and buttons
+        expect(contentArea.html()).toContain('أوامر المنظومة المخصصة');
+        expect(contentArea.html()).toContain('storage:sync');
+        expect(contentArea.html()).toContain('manuscript:sync');
+        expect(contentArea.html()).toContain('content:regenerate-slugs');
+        expect(contentArea.html()).toContain('analyze:architecture');
+
+        // Test preset command trigger
+        expect(typeof window.runPresetCmd).toBe('function');
+        await window.runPresetCmd('storage:sync');
+
+        expect(axios.post).toHaveBeenCalledWith('/api/system/run-command', {
+            command: 'storage:sync',
+        });
+        const input = document.getElementById('cmdInput');
+        expect(input.value).toBe('');
+        const output = document.getElementById('terminalOutput');
+        expect(output.textContent).toContain('Storage sync completed');
+    });
 });

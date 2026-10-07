@@ -29,6 +29,23 @@ class SystemCommandExecutionTest extends TestCase
     }
 
     #[Test]
+    public function it_allows_super_admin_to_run_custom_console_commands(): void
+    {
+        $superAdmin = User::factory()->superAdmin()->create();
+
+        // Testing custom command from app/Console/Commands: content:regenerate-slugs
+        $response = $this->actingAs($superAdmin)
+            ->postJson(route('api.system.run-command'), [
+                'command' => 'content:regenerate-slugs',
+            ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'success',
+        ]);
+    }
+
+    #[Test]
     public function it_normalizes_php_artisan_prefix_in_command_string(): void
     {
         $superAdmin = User::factory()->superAdmin()->create();
