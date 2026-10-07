@@ -9,6 +9,7 @@
 |:---:|---|---|:---:|:---:|:---:|:---:|
 | **1** | **النواة التشغيلية وقمرة القيادة الحية (POC & AdminDashboard)** | `tests/Feature/SuperAdminDashboardTest.php` | 3 Failed (404) | 3 Passed (14 Assertions) | **340 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **2** | **السايدبار الموحد وأكورديون المجموعات الخمس (Unified Sidebar & Accordion)** | `resources/js/__tests__/Sidebar.test.js` | 6 Failed | 6 Passed (19 Vitest Tests) | **19 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
+| **3** | **النافبار الموحد ومسار التتبع ثلاثي المستويات وقائمة المستخدم (Unified Navbar & Breadcrumbs)** | `resources/js/__tests__/Navbar.test.js` | 4 Failed | 4 Passed (23 Vitest Tests) | **23 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -87,4 +88,45 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
 - اختبارات الواجهة الحالية: `adaptiveUI.test.js` (6 Passed).
 - إجمالي اختبارات جافاسكريبت: **19 Tests Passed في Vitest بنجاح 100%**.
+- اختبارات الباك إند: `SuperAdminDashboardTest` (3 Passed).
+
+---
+
+## 🔹 الدورة 3: النافبار الموحد ومسار التتبع ثلاثي المستويات وقائمة المستخدم (Unified Navbar & Breadcrumbs)
+
+- **تاريخ الإنجاز:** 2026-10-07
+- **الهدف المعماري:**  
+  ترقية شريط الملاحة العلوي الأصلي [`resources/js/Layouts/Partials/Navbar.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Layouts/Partials/Navbar.vue) لمطابقة المرجع الحاكم: إدراج مسار التتبع ثلاثي المستويات (`الرئيسية ‹ المجموعة ‹ الصفحة`)، حقل البحث السريع مع أيقونة العدسة، زر التنبيهات، وقائمة المستخدم المنسدلة الدائرية مع تفاصيل الحساب والبريد الإلكتروني وخيارات لوحة التحكم وتسجيل الخروج.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`resources/js/__tests__/Navbar.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/Navbar.test.js)
+- **الحالات التي تم اختبارها:**
+  1. `renders 3-tier breadcrumbs (الرئيسية ‹ المجموعة ‹ الصفحة) matching super_admin_dashboard_preview.html`: فحص مستويات التتبع الثلاثية.
+  2. `renders the system notifications button with alert trigger`: فحص زر التنبيهات.
+  3. `renders user email and profile details inside the user dropdown header`: فحص قائمة المستخدم وبيانات الحساب والبريد.
+  4. `toggles theme when theme button is clicked`: فحص زر تبديل الثيم وأيقونتي الشمس والقمر.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل 4 اختبارات بنجاح (`4 Failed`).
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملف البرمجي المحدث:**  
+  [`resources/js/Layouts/Partials/Navbar.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Layouts/Partials/Navbar.vue)
+  * إضافة خاصية `group` لتمكين مسار التتبع ثلاثي المستويات.
+  * تصميم زر الأفاتار الدائري مع الحرف الأول، والقائمة المنسدلة الزجاجية ذات الظلال الفاخرة (`userDropdownMenu`).
+  * تضمين بيانات الحساب: الاسم والبريد الإلكتروني والرتبة المؤسسية.
+  * زر التنبيهات السريعة ومبدل الثيم بالشمس والقمر.
+- **نتيجة التشغيل (GREEN):**
+  * `Navbar.test.js`: **4 Passed (100% نجاح)**.
+  * إجمالي اختبارات Vitest: **23 Passed (100% نجاح)**.
+  * نجاح بناء حزم الـ Assets عبر Vite: `AuthenticatedLayout-CdRlxx6T.js (21.14 kB)`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
+- اختبارات الواجهة: `adaptiveUI.test.js` (6 Passed), `Sidebar.test.js` (6 Passed), `useAuth.test.js` (3 Passed).
 - اختبارات الباك إند: `SuperAdminDashboardTest` (3 Passed).
