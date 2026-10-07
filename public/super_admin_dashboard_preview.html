@@ -2458,6 +2458,9 @@
       top: calc(100% + 4px);
       left: 0;
       min-width: 185px;
+      max-height: 260px;
+      overflow-y: auto;
+      overflow-x: hidden;
       background: rgba(18, 18, 22, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -2469,11 +2472,36 @@
       display: none;
       flex-direction: column;
       gap: 0.2rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     }
+
+    /* Elegant Custom Scrollbar */
+    .columns-dropdown-menu::-webkit-scrollbar {
+      width: 5px;
+    }
+    .columns-dropdown-menu::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .columns-dropdown-menu::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+    .columns-dropdown-menu::-webkit-scrollbar-thumb:hover {
+      background: var(--indigo);
+    }
+
     body.light-mode .columns-dropdown-menu {
       background: #ffffff;
       border-color: rgba(0, 0, 0, 0.1);
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+    body.light-mode .columns-dropdown-menu::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    body.light-mode .columns-dropdown-menu::-webkit-scrollbar-thumb:hover {
+      background: var(--indigo);
     }
 
     .columns-dropdown-menu.show {
