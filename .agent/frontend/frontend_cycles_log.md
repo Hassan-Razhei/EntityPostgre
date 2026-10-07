@@ -408,3 +408,44 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
 - **اختبارات جافاسكريبت بالكامل (Vitest):** **40 Passed (100% نجاح عبر 9 ملفات اختبار)**.
 - **اختبارات الباك إند (PHPUnit):** **9 Passed (61 Assertions)** بنجاح تام.
+
+---
+
+## 🚀 دورة التطوير رقم 10: ترقية أمر التعبئة الواقعية (SeedRealisticData) وفق منهجية TDD
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار المضافة:**
+  - [`tests/Feature/Console/SeedRealisticEnhancementsTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/Console/SeedRealisticEnhancementsTest.php)
+- **الحالات التي تم اختبارها:**
+  1. `it_seeds_super_admin_and_representative_rbac_roles`: التحقق من تعيين `admin@admin.com` بدور `SUPER_ADMIN`، وبذر مستخدمين يمثلون الهيكل الرقابي الصارم (`CHIEF_EDITOR`, `EDITOR`, `CATALOGER`, `ACADEMIC_REVIEWER`, `RESEARCHER`).
+  2. `it_seeds_soft_deleted_records_for_trash_bin`: التحقق من وجود سجلات محذوفة مؤقتاً (`SoftDeletes`) في الكتب والمخطوطات لتفعيل اختبارات سلة المهملات وإحصائيات الحذف في لوحة التحكم (`stats.deletions > 0`).
+  3. `it_seeds_diverse_activity_types`: التحقق من تنوع سجلات الأنشطة (`publish`, `update`, `delete`, `create`, `viewed`) لدعم الخط الزمني والتحليلات.
+  4. `it_populates_direct_isbn_and_author_fields_on_books`: التحقق من تعبئة حقلي `isbn` و `author` مباشرة على جدول `books` لتغذية الجداول عالية الكثافة (`Books/Index.vue`).
+  5. `it_seeds_manuscript_folios_and_studio_curation_metadata`: التحقق من رقم اللوحة التراثية (`folio_number`) وحقول التحرير اليدوي في الاستوديو (`is_manually_edited`, `last_editor_id`, `last_updated`) داخل الـ `metadata` (JSONB) لـ `ContentNode`.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل 5 اختبارات من أصل 5 لغياب الهيكلة المحدثة وبيانات الأدوار وسلة المهملات والحقول المباشرة.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المحدثة:**
+  - [`app/Console/Commands/SeedRealisticData.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Console/Commands/SeedRealisticData.php):
+    1. استخدام Enums: استيراد `UserRole` وتعيين `admin@admin.com` بصلاحية `SUPER_ADMIN`، وبذر 5 مستخدمين بأسماء وتخصصات واقعية تمثل الأدوار الرقابية الصارمة.
+    2. بذر سجلات محذوفة مبدئياً (`$trashedBook->delete()`, `$trashedManuscript->delete()`) مع تسجيل أنشطة `activity_type = 'delete'`.
+    3. إنشاء دورة أنشطة متوازنة تشمل (`create`, `publish`, `update`, `viewed`) لكل كيان.
+    4. تزويد نموذج `Book` بحقول `author` و `isbn` مباشرة بالتوافق مع واجهات الجداول والمؤشرات.
+    5. تضمين حقول التنسيق والتحرير البشري (`is_manually_edited`, `last_editor_id`, `last_updated`) ورقم اللوحة (`folio_number`) لصفحات المخطوطات وفصول الكتب داخل حقل `metadata` (JSONB) عبر `EntityContentService`.
+- **نتيجة التشغيل (GREEN):**
+  * نجاح كافة الاختبارات الخمسة في `SeedRealisticEnhancementsTest`: **5 Passed (31 Assertions)** بنسبة 100%.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات النظام والواجهة الخلفية (PHPUnit):**
+  - `SeedRealisticEnhancementsTest`: **5 Passed (31 Assertions)**.
+  - `ConsoleCommandsTest`: **2 Passed (8 Assertions)** مع الحفاظ على التوافق الرجعي لنشاط `viewed`.
+  - `SystemCommandExecutionTest`: **4 Passed (9 Assertions)**.
+  - `SuperAdminDashboardTest`: **5 Passed (198 Assertions)**.
+  - **الإجمالي: 16 Passed (246 Assertions) بنسبة 100% نجاح**.
+- **اختبارات جافاسكريبت بالكامل (Vitest):**
+  - **40 Passed (100% نجاح عبر 9 ملفات اختبار)**.

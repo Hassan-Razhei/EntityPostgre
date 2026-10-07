@@ -7,6 +7,7 @@ use App\Enums\ContentNodeType;
 use Illuminate\Console\Command;
 
 use App\Models\User;
+use App\Enums\UserRole;
 use App\Models\Book;
 use App\Models\Audio;
 use App\Models\Video;
@@ -113,13 +114,39 @@ class SeedRealisticData extends Command
         \App\Models\ContentNode::query()->truncate();
         \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
-        // 1. Core Users
+        // 1. Core Users with Sovereign RBAC Hierarchical Roles
         $admin = User::query()->firstOrCreate(
             ['email' => 'admin@admin.com'],
-            ['name' => 'Admin User', 'password' => Hash::make('password')]
+            [
+                'name' => 'Admin User',
+                'password' => Hash::make('password'),
+                'role' => UserRole::SUPER_ADMIN
+            ]
         );
-        if (User::query()->count() < 5)
-            User::factory(5)->create();
+        $admin->role = UserRole::SUPER_ADMIN;
+        $admin->save();
+
+        $sampleRoles = [
+            ['email' => 'chief@entity.org', 'name' => 'د. طارق الحارثي', 'role' => UserRole::CHIEF_EDITOR],
+            ['email' => 'editor@entity.org', 'name' => 'أحمد المحرر', 'role' => UserRole::EDITOR],
+            ['email' => 'cataloger@entity.org', 'name' => 'سارة المفهرسة', 'role' => UserRole::CATALOGER],
+            ['email' => 'reviewer@entity.org', 'name' => 'د. بشار الأكاديمي', 'role' => UserRole::ACADEMIC_REVIEWER],
+            ['email' => 'researcher@entity.org', 'name' => 'عمر الباحث', 'role' => UserRole::RESEARCHER],
+        ];
+
+        foreach ($sampleRoles as $uData) {
+            $user = User::query()->firstOrCreate(
+                ['email' => $uData['email']],
+                [
+                    'name' => $uData['name'],
+                    'password' => Hash::make('password'),
+                    'role' => $uData['role']
+                ]
+            );
+            $user->role = $uData['role'];
+            $user->save();
+        }
+
         $users = User::query()->get();
 
         // 2. Core Taxonomies
@@ -304,6 +331,7 @@ class SeedRealisticData extends Command
         ];
 
         $allEntities = collect();
+        $activityCounter = 0;
 
         // 5. Seeding Entities (Main Loop)
         foreach ($dataSets as $type => $set) {
@@ -346,6 +374,11 @@ class SeedRealisticData extends Command
                     'title' => $title,
                     'description' => "وصف تجريبي لـ {$title}. هذا العمل يعتبر ركيزة أساسية في مكتبتنا الرقمية ويوفر مادة علمية غنية للباحثين والقراء المهتمين بالتراث العربي والإسلامي.",
                 ];
+
+                if ($type === 'book') {
+                    $attributes['author'] = $itemData['author'] ?? 'مجهول';
+                    $attributes['isbn'] = '978-' . rand(100, 999) . '-' . rand(1000, 9999) . '-' . rand(0, 9);
+                }
 
                 // Add versioning code (group every 3 items together)
                 if ($type !== 'shelf') {
@@ -476,7 +509,10 @@ class SeedRealisticData extends Command
                                     'json_content' => $this->generateJsonContent($nodeContent),
                                     'plain_text' => strip_tags($nodeContent),
                                     'slug' => 'chapter-' . $c . '-p-' . $p . '-' . mb_substr($entity->slug, 0, 4),
-                                    'order' => $c
+                                    'order' => $c,
+                                    'is_manually_edited' => ($c === 1),
+                                    'last_editor_id' => ($c === 1) ? ($users->firstWhere('role', UserRole::EDITOR)?->id ?? $admin->id) : null,
+                                    'last_updated' => now()->subHours(rand(1, 24)),
                                 ]);
                             }
                         }
@@ -490,6 +526,7 @@ class SeedRealisticData extends Command
                         $nodeId = (string) Str::uuid();
                         $nodeContent = "<p>محتوى الصفحة {$p} من المخطوطة " . $entity->title . "...</p>";
 
+                        $folioLabels = ['1أ', '1ب', '2أ', '2ب', '3أ'];
                         $contentService->createNode($entity, [
                             '_id' => $nodeId,
                             'type' => ContentNodeType::PAGE->value,
@@ -499,6 +536,10 @@ class SeedRealisticData extends Command
                             'json_content' => $this->generateJsonContent($nodeContent),
                             'plain_text' => strip_tags($nodeContent),
                             'order' => $p,
+                            'folio_number' => $folioLabels[$p - 1] ?? (string) $p,
+                            'is_manually_edited' => ($p <= 2),
+                            'last_editor_id' => ($p <= 2) ? ($users->firstWhere('role', UserRole::CHIEF_EDITOR)?->id ?? $admin->id) : null,
+                            'last_updated' => now()->subHours(rand(1, 48)),
                         ]);
                     }
                 } elseif (EntityType::tryFrom($type) === EntityType::AUDIO) {
@@ -546,7 +587,7 @@ class SeedRealisticData extends Command
                         ]);
                     }
                 }
-                // --- END MongoDB Seeding ---
+                // --- END Digital Content Nodes Seeding (PostgreSQL) ---
 
                 // 6. Ecosystem Logic (Polymorphic Authors & Versions)
 
@@ -619,6 +660,26 @@ class SeedRealisticData extends Command
                     ]);
                 }
 
+                $activityType = match ($activityCounter++ % 3) {
+                    0 => 'create',
+                    1 => 'publish',
+                    default => 'update',
+                };
+                $activityDesc = match ($activityType) {
+                    'create' => "إيداع وتوثيق أصل جديد: {$title}",
+                    'publish' => "إجازة ونشر مصنف جديد: {$title}",
+                    default => "تعديل ومراجعة نصية على {$title}",
+                };
+
+                Activity::query()->create([
+                    'user_id' => $users->random()->id,
+                    'entity_id' => $entity->id,
+                    'entity_type' => $type,
+                    'activity_type' => $activityType,
+                    'description' => $activityDesc
+                ]);
+
+                // Record viewed activity for analytics and backward compatibility
                 Activity::query()->create([
                     'user_id' => $users->random()->id,
                     'entity_id' => $entity->id,
@@ -660,6 +721,41 @@ class SeedRealisticData extends Command
             // Add 3 random entities to each series
             $allEntities->random(min(3, $allEntities->count()))->each(fn($e, $idx) => $series->addEntity($e, $idx + 1));
         }
+
+        // 7. Seed Soft-deleted entities for Trash Bin testing
+        $this->info("Seeding soft-deleted records for trash bin...");
+        $trashedBook = Book::query()->create([
+            'title' => 'كتاب تجريبي محذوف مؤقتاً',
+            'author' => 'مؤلف تجريبي',
+            'isbn' => '978-000-0000-0',
+            'description' => 'مسودة كتاب تم نقلها لسلة المهملات لاختبار الاستعادة والحذف النهائي.',
+            'code' => 'BOOK_TRASHED_1',
+        ]);
+        $trashedBook->delete();
+
+        Activity::query()->create([
+            'user_id' => $admin->id,
+            'entity_id' => $trashedBook->id,
+            'entity_type' => 'book',
+            'activity_type' => 'delete',
+            'description' => "نقل كتاب إلى سلة المهملات: {$trashedBook->title}",
+        ]);
+
+        $trashedManuscript = Manuscript::query()->create([
+            'title' => 'مخطوطة مسودة محذوفة',
+            'catalog_number' => 'MS-TRASH-01',
+            'description' => 'مخطوطة مكررة تم حذفها مؤقتاً.',
+            'code' => 'MS_TRASHED_1',
+        ]);
+        $trashedManuscript->delete();
+
+        Activity::query()->create([
+            'user_id' => $admin->id,
+            'entity_id' => $trashedManuscript->id,
+            'entity_type' => 'manuscript',
+            'activity_type' => 'delete',
+            'description' => "نقل مخطوطة إلى سلة المهملات: {$trashedManuscript->title}",
+        ]);
 
         $this->info("Seeding completed successfully with all relationships!");
     }
