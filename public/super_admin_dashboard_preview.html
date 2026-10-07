@@ -2981,26 +2981,30 @@
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(4, this.checked)">
-                        <span>المؤلف</span>
+                        <span>المعرف</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(5, this.checked)">
-                        <span>الرقم الدولي</span>
+                        <span>المؤلف</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(6, this.checked)">
-                        <span>الوصف</span>
+                        <span>الرقم الدولي</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(7, this.checked)">
-                        <span>الملفات</span>
+                        <span>الوصف</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(8, this.checked)">
-                        <span>التاريخ</span>
+                        <span>الملفات</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(9, this.checked)">
+                        <span>التاريخ</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(10, this.checked)">
                         <span>الإجراءات</span>
                       </label>
                       <div class="columns-menu-divider"></div>
@@ -3045,6 +3049,7 @@
                     </th>
                     <th style="width: 70px;" class="sortable">الرقم ⇅</th>
                     <th class="sortable">العنوان ⇅</th>
+                    <th style="width: 110px;" class="sortable">المعرف ⇅</th>
                     <th class="sortable">المؤلف ⇅</th>
                     <th style="width: 120px;" class="sortable">الرقم الدولي ⇅</th>
                     <th class="sortable">الوصف</th>
@@ -3062,6 +3067,7 @@
                     <td>
                       <a href="/books/fath-al-bari/reader" class="book-title-link">فتح الباري شرح صحيح البخاري</a>
                     </td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">fath-al-bari</td>
                     <td>
                       <div style="font-weight: 700;"><a href="/authors" style="color: var(--text-main); text-decoration: none;">ابن حجر العسقلاني</a></div>
                     </td>
@@ -3091,6 +3097,7 @@
                     <td>
                       <a href="/books/al-mustasfa/reader" class="book-title-link">المستصفى من علم الأصول</a>
                     </td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">al-mustasfa</td>
                     <td>
                       <div style="font-weight: 700;"><a href="/authors" style="color: var(--text-main); text-decoration: none;">الإمام الغزالي</a></div>
                     </td>
@@ -3120,6 +3127,7 @@
                     <td>
                       <a href="/books/majmu-al-fatawa/reader" class="book-title-link">مجموع الفتاوى لشيخ الإسلام</a>
                     </td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">majmu-al-fatawa</td>
                     <td>
                       <div style="font-weight: 700;"><a href="/authors" style="color: var(--text-main); text-decoration: none;">ابن تيمية</a></div>
                     </td>
@@ -3149,6 +3157,7 @@
                     <td>
                       <a href="/books/siyar-a-lam/reader" class="book-title-link">سير أعلام النبلاء</a>
                     </td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">siyar-a-lam</td>
                     <td>
                       <div style="font-weight: 700;"><a href="/authors" style="color: var(--text-main); text-decoration: none;">الإمام الذهبي</a></div>
                     </td>
@@ -3178,6 +3187,7 @@
                     <td>
                       <a href="/books/lisan-al-arab/reader" class="book-title-link">لسان العرب المحيط</a>
                     </td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">lisan-al-arab</td>
                     <td>
                       <div style="font-weight: 700;"><a href="/authors" style="color: var(--text-main); text-decoration: none;">ابن منظور الإفريقي</a></div>
                     </td>
@@ -3207,6 +3217,7 @@
                     <td>
                       <a href="/books/tafsir-al-tabari/reader" class="book-title-link">جامع البيان عن تأويل آي القرآن (تفسير الطبري)</a>
                     </td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">tafsir-al-tabari</td>
                     <td>
                       <div style="font-weight: 700;"><a href="/authors" style="color: var(--text-main); text-decoration: none;">ابن جرير الطبري</a></div>
                     </td>
@@ -3236,6 +3247,7 @@
                     <td>
                       <a href="/books/al-mughni/reader" class="book-title-link">المغني في فقه الإمام أحمد بن حنبل</a>
                     </td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">al-mughni</td>
                     <td>
                       <div style="font-weight: 700;"><a href="/authors" style="color: var(--text-main); text-decoration: none;">ابن قدامة المقدسي</a></div>
                     </td>
@@ -3263,8 +3275,9 @@
                     <td style="text-align: center;"><input type="checkbox" class="row-checkbox" onchange="onBookRowCheckboxChange(this)"></td>
                     <td style="font-family: 'Outfit', monospace; color: var(--text-dim); font-size: 0.75rem;">#10408</td>
                     <td>
-                      <a href="/studio/book/al-muwafaqat" class="book-title-link">الموافقات في أصول الشريعة</a>
+                      <a href="/books/al-muwafaqat/reader" class="book-title-link">الموافقات في أصول الشريعة</a>
                     </td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">al-muwafaqat</td>
                     <td>
                       <div style="font-weight: 700;"><a href="/authors" style="color: var(--text-main); text-decoration: none;">الإمام الشاطبي</a></div>
                     </td>
@@ -3530,43 +3543,91 @@
                         <span>الرقم</span>
                       </label>
                       <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(3, this.checked, 'manuscriptsDataTable')">
+                        <span>الكود</span>
+                      </label>
+                      <label class="column-toggle-item">
                         <input type="checkbox" checked disabled title="عمود أساسي">
                         <span>العنوان</span>
                       </label>
                       <label class="column-toggle-item">
-                        <input type="checkbox" checked onchange="toggleColumnVisibility(4, this.checked, 'manuscriptsDataTable')">
-                        <span>الفهرس</span>
-                      </label>
-                      <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(5, this.checked, 'manuscriptsDataTable')">
-                        <span>الناسخ</span>
+                        <span>العنوان الأصلي</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(6, this.checked, 'manuscriptsDataTable')">
-                        <span>الخط</span>
+                        <span>الفهرس</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(7, this.checked, 'manuscriptsDataTable')">
-                        <span>الأوراق</span>
+                        <span>الأجزاء</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(8, this.checked, 'manuscriptsDataTable')">
-                        <span>الخزانة</span>
+                        <span>بخطه</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(9, this.checked, 'manuscriptsDataTable')">
-                        <span>الوصف</span>
+                        <span>الناسخ</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(10, this.checked, 'manuscriptsDataTable')">
-                        <span>الملفات</span>
+                        <span>تاريخ النسخ</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(11, this.checked, 'manuscriptsDataTable')">
-                        <span>التاريخ</span>
+                        <span>القرن</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(12, this.checked, 'manuscriptsDataTable')">
+                        <span>الخط</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(13, this.checked, 'manuscriptsDataTable')">
+                        <span>الأبعاد</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(14, this.checked, 'manuscriptsDataTable')">
+                        <span>الأسطر</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(15, this.checked, 'manuscriptsDataTable')">
+                        <span>الأوراق</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(16, this.checked, 'manuscriptsDataTable')">
+                        <span>الخزانة</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(17, this.checked, 'manuscriptsDataTable')">
+                        <span>الوصف</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(18, this.checked, 'manuscriptsDataTable')">
+                        <span>التقييدات</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(19, this.checked, 'manuscriptsDataTable')">
+                        <span>الفاتحة</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(20, this.checked, 'manuscriptsDataTable')">
+                        <span>الخاتمة</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(21, this.checked, 'manuscriptsDataTable')">
+                        <span>الملاحظات</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(22, this.checked, 'manuscriptsDataTable')">
+                        <span>الملفات</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(23, this.checked, 'manuscriptsDataTable')">
+                        <span>تاريخ الإضافة</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(24, this.checked, 'manuscriptsDataTable')">
                         <span>الإجراءات</span>
                       </label>
                       <div class="columns-menu-divider"></div>
@@ -3610,15 +3671,27 @@
                       <input type="checkbox" onchange="toggleSelectAllTable(this, 'manuscriptsDataTable', 'bulkActionsStrip_manuscripts', 'bulkSelectedCount_manuscripts')" style="cursor: pointer;">
                     </th>
                     <th style="width: 70px;" class="sortable">الرقم ⇅</th>
+                    <th style="width: 90px;" class="sortable">الكود ⇅</th>
                     <th class="sortable">العنوان ⇅</th>
+                    <th class="sortable">العنوان الأصلي ⇅</th>
                     <th style="width: 90px;" class="sortable">الفهرس ⇅</th>
+                    <th style="width: 75px;" class="sortable">الأجزاء ⇅</th>
+                    <th style="width: 85px; text-align: center;" class="sortable">بخطه ⇅</th>
                     <th style="width: 120px;" class="sortable">الناسخ ⇅</th>
+                    <th style="width: 85px;" class="sortable">تاريخ النسخ ⇅</th>
+                    <th style="width: 80px;" class="sortable">القرن ⇅</th>
                     <th style="width: 90px;" class="sortable">الخط ⇅</th>
+                    <th style="width: 85px;" class="sortable">الأبعاد ⇅</th>
+                    <th style="width: 70px;" class="sortable">الأسطر ⇅</th>
                     <th style="width: 75px;" class="sortable">الأوراق ⇅</th>
                     <th style="width: 110px;" class="sortable">الخزانة ⇅</th>
                     <th class="sortable">الوصف</th>
+                    <th class="sortable">التقييدات</th>
+                    <th class="sortable">الفاتحة</th>
+                    <th class="sortable">الخاتمة</th>
+                    <th class="sortable">الملاحظات</th>
                     <th style="width: 85px; text-align: center;">الملفات</th>
-                    <th style="width: 85px;" class="sortable">التاريخ ⇅</th>
+                    <th style="width: 85px;" class="sortable">تاريخ الإضافة ⇅</th>
                     <th style="width: 110px; text-align: center;">الإجراءات</th>
                   </tr>
                 </thead>
@@ -3627,19 +3700,47 @@
                   <tr data-title="صحيح البخاري - المجلد الرابع (نسخة كوبريلي)" data-scribe="شرف الدين اليونيني" data-cat="KOP-4820">
                     <td style="text-align: center;"><input type="checkbox" class="row-checkbox" onchange="onTableRowCheckboxChange('manuscriptsDataTable', 'bulkActionsStrip_manuscripts', 'bulkSelectedCount_manuscripts')"></td>
                     <td style="font-family: 'Outfit', monospace; color: var(--text-dim); font-size: 0.75rem;">#20101</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 600;">MS-KOP-01</td>
                     <td>
                       <a href="/dev/manuscripter/sahih-bukhari-koprulu" class="book-title-link">صحيح البخاري - المجلد الرابع</a>
                     </td>
+                    <td style="font-size: 0.78rem; color: var(--text-muted);">الجامع المسند الصحيح المختصر</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">KOP-4820</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">المجلد 4</td>
+                    <td style="text-align: center;"><span style="color: var(--text-dim); font-size: 0.7rem;">مقابلة</span></td>
                     <td>
                       <div style="font-weight: 700;">شرف الدين اليونيني</div>
                     </td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem; color: var(--text-muted);">698هـ</td>
+                    <td style="font-size: 0.75rem;">القرن 7هـ</td>
                     <td><span class="role-chip chip-editor">نسخ أندلسي</span></td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">29 × 21 سم</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">25 سطر</td>
                     <td style="font-family: 'Outfit'; font-weight: 600;">342 ورقة</td>
                     <td>مكتبة كوبريلي</td>
                     <td>
                       <div class="cell-desc" title="نسخة خزائنية متقنة قوبلت وصُححت على أصل الحافظ اليونيني مع حواشٍ وضوابط نادرة.">
                         نسخة خزائنية متقنة قوبلت وصُححت على أصل الحافظ اليونيني مع حواشٍ وضوابط نادرة.
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="سماعات ومقابلات بخط اليونيني وابن مالك النحوي ومحمد بن أبي الفتح البعلي">
+                        سماعات ومقابلات بخط اليونيني وابن مالك النحوي ومحمد بن أبي الفتح البعلي
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="أخبرنا الشيخ الإمام الحافظ شرف الدين أبو الحسين علي بن أحمد المقدسي قراءة عليه ونحن نسمع...">
+                        أخبرنا الشيخ الإمام الحافظ شرف الدين أبو الحسين علي بن أحمد المقدسي قراءة عليه ونحن نسمع...
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="آخر كتاب الصوم من تجزئة سبعة، والحمد لله رب العالمين وصلواته على سيدنا محمد وآله وصحبه وسلم...">
+                        آخر كتاب الصوم من تجزئة سبعة، والحمد لله رب العالمين وصلواته على سيدنا محمد وآله وصحبه وسلم...
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="أصل عمدة المقابلة اليونينية المعتمدة في ضبط ألفاظ وروايات الجامع الصحيح">
+                        أصل عمدة المقابلة اليونينية المعتمدة في ضبط ألفاظ وروايات الجامع الصحيح
                       </div>
                     </td>
                     <td style="text-align: center;">
@@ -3663,19 +3764,47 @@
                   <tr data-title="ديوان الحماسة لأبي تمام" data-scribe="يحيى بن محمود الواسطي" data-cat="BNF-1140">
                     <td style="text-align: center;"><input type="checkbox" class="row-checkbox" onchange="onTableRowCheckboxChange('manuscriptsDataTable', 'bulkActionsStrip_manuscripts', 'bulkSelectedCount_manuscripts')"></td>
                     <td style="font-family: 'Outfit', monospace; color: var(--text-dim); font-size: 0.75rem;">#20102</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 600;">MS-BNF-02</td>
                     <td>
                       <a href="/dev/manuscripter/diwan-al-hamasa" class="book-title-link">ديوان الحماسة لأبي تمام</a>
                     </td>
+                    <td style="font-size: 0.78rem; color: var(--text-muted);">كتاب الحماسة المختارة من أشعار العرب</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">BNF-1140</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">كامل</td>
+                    <td style="text-align: center;"><span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight: 700; padding: 0.12rem 0.35rem; border-radius: 4px; font-size: 0.68rem;">✍️ أوتوغراف</span></td>
                     <td>
                       <div style="font-weight: 700;">يحيى الواسطي</div>
                     </td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem; color: var(--text-muted);">634هـ</td>
+                    <td style="font-size: 0.75rem;">القرن 7هـ</td>
                     <td><span class="role-chip chip-editor">كوفي مشرقي</span></td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">25 × 18 سم</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">17 سطر</td>
                     <td style="font-family: 'Outfit'; font-weight: 600;">128 ورقة</td>
                     <td>خزانة باريس</td>
                     <td>
                       <div class="cell-desc" title="مخطوط نادر مزخرف ومذهب يحوي نماذج من روائع الشعر العربي مع رسوم توضيحية فريدة.">
                         مخطوط نادر مزخرف ومذهب يحوي نماذج من روائع الشعر العربي مع رسوم توضيحية فريدة.
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="قيود تملك خزائنية لخزانة المستعصم بالله العباسي وقيد شراء بدمشق">
+                        قيود تملك خزائنية لخزانة المستعصم بالله العباسي وقيد شراء بدمشق
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="باب الحماسة، قال ظفر بن الحارث الكلابي: لعمرك ما خشيت على قريش...">
+                        باب الحماسة، قال ظفر بن الحارث الكلابي: لعمرك ما خشيت على قريش...
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="تم الديوان بحمد الله وعونه على يد مصوره وكاتبه يحيى بن محمود الواسطي سنة 634هـ">
+                        تم الديوان بحمد الله وعونه على يد مصوره وكاتبه يحيى بن محمود الواسطي سنة 634هـ
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="تحفة المدرسة البغدادية النادرة في التصوير الإسلامي والمنمنمات">
+                        تحفة المدرسة البغدادية النادرة في التصوير الإسلامي والمنمنمات
                       </div>
                     </td>
                     <td style="text-align: center;">
@@ -3699,19 +3828,47 @@
                   <tr data-title="الرسالة للإمام الشافعي" data-scribe="الربيع بن سليمان" data-cat="DKT-0891">
                     <td style="text-align: center;"><input type="checkbox" class="row-checkbox" onchange="onTableRowCheckboxChange('manuscriptsDataTable', 'bulkActionsStrip_manuscripts', 'bulkSelectedCount_manuscripts')"></td>
                     <td style="font-family: 'Outfit', monospace; color: var(--text-dim); font-size: 0.75rem;">#20103</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 600;">MS-DKT-03</td>
                     <td>
                       <a href="/dev/manuscripter/al-risala-shafii" class="book-title-link">الرسالة للإمام الشافعي</a>
                     </td>
+                    <td style="font-size: 0.78rem; color: var(--text-muted);">كتاب الرسالة في أصول الفقه</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">DKT-0891</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">جزء واحد</td>
+                    <td style="text-align: center;"><span style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; padding: 0.12rem 0.35rem; border-radius: 4px; font-size: 0.68rem;">✍️ بخط التلميذ</span></td>
                     <td>
                       <div style="font-weight: 700;">الربيع بن سليمان</div>
                     </td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem; color: var(--text-muted);">260هـ</td>
+                    <td style="font-size: 0.75rem;">القرن 3هـ</td>
                     <td><span class="role-chip chip-editor">نسخي قديم</span></td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">26 × 19 سم</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">19 سطر</td>
                     <td style="font-family: 'Outfit'; font-weight: 600;">210 ورقة</td>
                     <td>دار الكتب المصرية</td>
                     <td>
                       <div class="cell-desc" title="أقدم أصل أصولي مقروء على المصنف، يمثل الركيزة الأولى في علم أصول الفقه وتدوينه.">
                         أقدم أصل أصولي مقروء على المصنف، يمثل الركيزة الأولى في علم أصول الفقه وتدوينه.
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="سماع بقراءة الربيع بن سليمان على الإمام محمد بن إدريس الشافعي بفسطاط مصر سنة 204هـ">
+                        سماع بقراءة الربيع بن سليمان على الإمام محمد بن إدريس الشافعي بفسطاط مصر سنة 204هـ
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="الحمد لله الذي لا يؤدى شكر نعمة من نعمه إلا بنعمة منه توجب على مؤدي ماض شكرها...">
+                        الحمد لله الذي لا يؤدى شكر نعمة من نعمه إلا بنعمة منه توجب على مؤدي ماض شكرها...
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="آخر كتاب الرسالة، والحمد لله رب العالمين وصلى الله على سيدنا محمد وآله وصحبه وسلم كثيراً">
+                        آخر كتاب الرسالة، والحمد لله رب العالمين وصلى الله على سيدنا محمد وآله وصحبه وسلم كثيراً
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-desc" title="أقدم وثيقة ومخطوط فقهي أصولي أصيل متاح في العالم الإسلامي">
+                        أقدم وثيقة ومخطوط فقهي أصولي أصيل متاح في العالم الإسلامي
                       </div>
                     </td>
                     <td style="text-align: center;">
@@ -3720,7 +3877,7 @@
                         <span title="210 لوحة متوفرة" style="padding: 0.12rem 0.35rem; border-radius: 4px; background: rgba(99, 102, 241, 0.15); color: #818cf8; font-weight: 700;">📜 لوحات</span>
                       </div>
                     </td>
-                    <td style="font-size: 0.72rem; color: var(--text-dim); font-family: 'Outfit';">منذ 3 أسابيع</td>
+                    <td style="font-size: 0.72rem; color: var(--text-dim); font-family: 'Outfit';">منذ شهر</td>
                     <td>
                       <div class="table-actions-cell" style="justify-content: center;">
                         <a href="/dev/manuscripter/al-risala-shafii" class="table-btn-icon" title="معمل الفحص">🔬</a>
@@ -3924,34 +4081,46 @@
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(4, this.checked, 'audiosDataTable')">
-                        <span>الرمز</span>
+                        <span>الكود</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(5, this.checked, 'audiosDataTable')">
-                        <span>المدة</span>
+                        <span>المعرف</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(6, this.checked, 'audiosDataTable')">
-                        <span>الصيغة</span>
+                        <span>المدة</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(7, this.checked, 'audiosDataTable')">
-                        <span>الحجم</span>
+                        <span>الصيغة</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(8, this.checked, 'audiosDataTable')">
-                        <span>الوصف</span>
+                        <span>معدل البت</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(9, this.checked, 'audiosDataTable')">
-                        <span>الملفات</span>
+                        <span>التردد</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(10, this.checked, 'audiosDataTable')">
-                        <span>التاريخ</span>
+                        <span>الحجم</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(11, this.checked, 'audiosDataTable')">
+                        <span>الوصف</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(12, this.checked, 'audiosDataTable')">
+                        <span>الملفات</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(13, this.checked, 'audiosDataTable')">
+                        <span>التاريخ</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(14, this.checked, 'audiosDataTable')">
                         <span>الإجراءات</span>
                       </label>
                       <div class="columns-menu-divider"></div>
@@ -3992,9 +4161,12 @@
                     </th>
                     <th style="width: 70px;" class="sortable">الرقم ⇅</th>
                     <th class="sortable">العنوان ⇅</th>
-                    <th style="width: 95px;" class="sortable">الرمز ⇅</th>
+                    <th style="width: 95px;" class="sortable">الكود ⇅</th>
+                    <th style="width: 120px;" class="sortable">المعرف ⇅</th>
                     <th style="width: 80px;" class="sortable">المدة ⇅</th>
                     <th style="width: 75px;" class="sortable">الصيغة ⇅</th>
+                    <th style="width: 85px;" class="sortable">معدل البت ⇅</th>
+                    <th style="width: 85px;" class="sortable">التردد ⇅</th>
                     <th style="width: 75px;" class="sortable">الحجم ⇅</th>
                     <th class="sortable">الوصف</th>
                     <th style="width: 85px; text-align: center;">الملفات</th>
@@ -4011,8 +4183,11 @@
                       <a href="/dev/player/audio/sunan-abi-dawud-01" class="book-title-link">مجلس سنن أبي داود - باب الطهارة</a>
                     </td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">AUD-ABD-01</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">sunan-abi-dawud-01</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 700;">01:24:15</td>
-                    <td><span class="role-chip chip-editor">MP3 (320k)</span></td>
+                    <td><span class="role-chip chip-editor">MP3</span></td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">320 kbps</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">44.1 kHz</td>
                     <td style="font-family: 'Outfit'; font-size: 0.75rem;">115 MB</td>
                     <td>
                       <div class="cell-desc" title="تسجيل صوتي عالي النقاء لمجلس السنن مع ضبط الروايات والتعليق على الأحاديث.">
@@ -4044,8 +4219,11 @@
                       <a href="/dev/player/audio/sharh-kitab-tawhid-01" class="book-title-link">شرح كتاب التوحيد - المجلس الأول</a>
                     </td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">AUD-TWH-01</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">sharh-kitab-tawhid-01</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 700;">00:58:30</td>
-                    <td><span class="role-chip chip-editor">MP3 (320k)</span></td>
+                    <td><span class="role-chip chip-editor">MP3</span></td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">320 kbps</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">48.0 kHz</td>
                     <td style="font-family: 'Outfit'; font-size: 0.75rem;">82 MB</td>
                     <td>
                       <div class="cell-desc" title="مقدمة تمهيدية في بيان أصول العقيدة وأهمية تجريد التوحيد ودلائل ذلك من الكتاب والسنة.">
@@ -4077,8 +4255,11 @@
                       <a href="/dev/player/audio/ulum-al-quran-01" class="book-title-link">مقدمة في علوم القرآن والقراءات</a>
                     </td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">AUD-QRN-01</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">ulum-al-quran-01</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 700;">01:05:20</td>
-                    <td><span class="role-chip chip-editor">MP3 (256k)</span></td>
+                    <td><span class="role-chip chip-editor">MP3</span></td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">256 kbps</td>
+                    <td style="font-family: 'Outfit'; font-size: 0.75rem;">44.1 kHz</td>
                     <td style="font-family: 'Outfit'; font-size: 0.75rem;">75 MB</td>
                     <td>
                       <div class="cell-desc" title="محاضرة منهجية في نشأة علوم القرآن وتاريخ تدوين المصحف الشريف وضبط أحرفه.">
@@ -4274,30 +4455,34 @@
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(4, this.checked, 'videosDataTable')">
-                        <span>الرمز</span>
+                        <span>الكود</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(5, this.checked, 'videosDataTable')">
-                        <span>المدة</span>
+                        <span>المعرف</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(6, this.checked, 'videosDataTable')">
-                        <span>الصيغة</span>
+                        <span>المدة</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(7, this.checked, 'videosDataTable')">
-                        <span>الوصف</span>
+                        <span>الصيغة</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(8, this.checked, 'videosDataTable')">
-                        <span>الملفات</span>
+                        <span>الوصف</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(9, this.checked, 'videosDataTable')">
-                        <span>التاريخ</span>
+                        <span>الملفات</span>
                       </label>
                       <label class="column-toggle-item">
                         <input type="checkbox" checked onchange="toggleColumnVisibility(10, this.checked, 'videosDataTable')">
+                        <span>التاريخ</span>
+                      </label>
+                      <label class="column-toggle-item">
+                        <input type="checkbox" checked onchange="toggleColumnVisibility(11, this.checked, 'videosDataTable')">
                         <span>الإجراءات</span>
                       </label>
                       <div class="columns-menu-divider"></div>
@@ -4338,7 +4523,8 @@
                     </th>
                     <th style="width: 70px;" class="sortable">الرقم ⇅</th>
                     <th class="sortable">العنوان ⇅</th>
-                    <th style="width: 95px;" class="sortable">الرمز ⇅</th>
+                    <th style="width: 95px;" class="sortable">الكود ⇅</th>
+                    <th style="width: 120px;" class="sortable">المعرف ⇅</th>
                     <th style="width: 80px;" class="sortable">المدة ⇅</th>
                     <th style="width: 75px;" class="sortable">الصيغة ⇅</th>
                     <th class="sortable">الوصف</th>
@@ -4356,6 +4542,7 @@
                       <a href="/dev/player/video/nadwat-tahqiq-makhtutat" class="book-title-link">ندوة تحقيق المخطوطات والتحول الرقمي</a>
                     </td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">VID-NDW-01</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">nadwat-tahqiq-makhtutat</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 700;">02:15:00</td>
                     <td><span class="role-chip chip-super">MP4 4K</span></td>
                     <td>
@@ -4388,6 +4575,7 @@
                       <a href="/dev/player/video/mujam-al-udaba-01" class="book-title-link">قراءة منهجية في معجم الأدباء</a>
                     </td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">VID-UDM-01</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">mujam-al-udaba-01</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 700;">01:10:45</td>
                     <td><span class="role-chip chip-editor">MP4 1080p</span></td>
                     <td>
@@ -4420,6 +4608,7 @@
                       <a href="/dev/player/video/al-muqaddimah-al-hadramiyyah" class="book-title-link">المقدمة الحضرمية - فقه الشافعية</a>
                     </td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">VID-HMD-01</td>
+                    <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo);">al-muqaddimah-al-hadramiyyah</td>
                     <td style="font-family: 'Outfit', monospace; font-size: 0.75rem; color: var(--indigo); font-weight: 700;">00:45:10</td>
                     <td><span class="role-chip chip-editor">MP4 1080p</span></td>
                     <td>
