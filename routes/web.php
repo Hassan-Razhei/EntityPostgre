@@ -42,7 +42,7 @@ Route::post('logout', [App\Http\Controllers\Auth\LoginController::class, 'destro
 Route::get('/stream/videos/{path}', [App\Http\Controllers\MediaStreamController::class, 'streamVideo'])
     ->where('path', '.*')
     ->name('stream.video');
-    
+
 Route::get('/stream/audio/{path}', [App\Http\Controllers\MediaStreamController::class, 'streamAudio'])
     ->where('path', '.*')
     ->name('stream.audio');
@@ -74,6 +74,10 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // System Commands & Dashboard (Super Admin Only)
     Route::middleware(['role:super_admin'])->group(function () {
+        Route::get('/superadmin/dashboard', function () {
+            return Inertia\Inertia::render('AdminDashboard');
+        })->name('superadmin.dashboard');
+
         Route::post('api/system/run-command', [App\Http\Controllers\SystemController::class, 'runCommand'])->name('api.system.run-command');
         Route::post('api/system/list-files', [App\Http\Controllers\SystemController::class, 'listFiles'])->name('api.system.list-files');
 
@@ -138,39 +142,4 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::resource('comments', CommentController::class);
     Route::resource('notes', NoteController::class);
     Route::resource('deletions', DeletionController::class)->only(['index', 'show']);
-
 });
-
-// 🧪 SANDBOX ROUTES (Temporary for Development)
-Route::get('/dev/editor', function () {
-    return \Inertia\Inertia::render('Technologies/Editor/Sandbox');
-})->name('dev.editor');
-
-Route::get('/dev/player/{type}/{slug}', function ($type, $slug) {
-    $modelClass = match ($type) {
-        'audio' => \App\Models\Audio::class,
-        'video' => \App\Models\Video::class,
-        default => abort(404, 'Media type not found'),
-    };
-
-    $media = $modelClass::where('slug', $slug)->with(['authors', 'versions.publisher'])->firstOrFail();
-
-    return \Inertia\Inertia::render('Technologies/Player/Sandbox', [
-        'media' => $media,
-        'type' => $type
-    ]);
-})->name('dev.player');
-
-Route::get('/dev/manuscripter/{manuscript:slug}', [\App\Http\Controllers\ManuscriptController::class, 'sandbox'])->name('dev.manuscripter');
-
-// Reader Technology Routes
-Route::middleware(['auth', 'active'])->group(function () {
-    Route::get('/reader/{type}/{slug}/search', [App\Http\Controllers\ReaderController::class, 'search'])
-        ->name('reader.search');
-    Route::post('/api/reader/position', [App\Http\Controllers\ReaderController::class, 'savePosition'])
-        ->name('reader.save-position');
-});
-
-Route::get('/reader/{type}/{slug}/{childId?}', [App\Http\Controllers\ReaderController::class, 'show'])
-    ->name('reader.show');
-
