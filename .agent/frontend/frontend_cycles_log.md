@@ -8,9 +8,10 @@
 | رقم الدورة | اسم الدورة والمحور | ملفات الاختبار المنشأة | نتيجة الـ RED 🔴 | نتيجة الـ GREEN 🟢 | فحص عدم الانكسار 🛡️ | الحالة |
 |:---:|---|---|:---:|:---:|:---:|:---:|
 | **1** | **النواة التشغيلية وقمرة القيادة الحية (POC & AdminDashboard)** | `tests/Feature/SuperAdminDashboardTest.php` | 3 Failed (404) | 3 Passed (14 Assertions) | **340 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
-| **2** | **السايدبار الموحد وأكورديون المجموعات الخمس (Unified Sidebar & Accordion)** | `resources/js/__tests__/Sidebar.test.js` | 6 Failed | 6 Passed (19 Vitest Tests) | **19 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
+| **2** | **السايدبار الموحد وأكوردion المجموعات الخمس (Unified Sidebar & Accordion)** | `resources/js/__tests__/Sidebar.test.js` | 6 Failed | 6 Passed (19 Vitest Tests) | **19 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
 | **3** | **النافبار الموحد ومسار التتبع ثلاثي المستويات وقائمة المستخدم (Unified Navbar & Breadcrumbs)** | `resources/js/__tests__/Navbar.test.js` | 4 Failed | 4 Passed (23 Vitest Tests) | **23 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
 | **4** | **تغذية قمرة القيادة بالبيانات الحية من PostgreSQL (Live Stats & Dynamic Props)** | `tests/Feature/SuperAdminDashboardTest.php` | 1 Failed (Property [stats] missing) | 4 Passed (38 Assertions) | **23 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
+| **5** | **نظام الجداول عالي الكثافة وقائمة اختيار الأعمدة (ColumnsDropdown & High-Density Primitive)** | `resources/js/__tests__/ColumnsDropdown.test.js` | 1 Failed (Missing import) | 6 Passed (29 Vitest Tests) | **29 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -51,11 +52,11 @@
 
 ---
 
-## 🔹 الدورة 2: السايدبار الموحد وأكورديون المجموعات الخمس (Unified Sidebar & Accordion)
+## 🔹 الدورة 2: السايدبار الموحد وأكوردion المجموعات الخمس (Unified Sidebar & Accordion)
 
 - **تاريخ الإنجاز:** 2026-10-07
 - **الهدف المعماري:**  
-  ترقية السايدبار الأصلي المعتمد في المشروع [`resources/js/Layouts/Partials/Sidebar.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Layouts/Partials/Sidebar.vue) ليعكس بدقة 100% المجموعات الخمس الواردة في المرجع الحاكم `super_admin_dashboard_preview.html` (المكتبة، الأشخاص، التنظيم، الاستوديو، النظام)، مع إضافة شريط تحكم الأكورديون (توسيع وطي الكل)، وبادجات العدادات، وتمييز المجموعة السيادية، وحراسة المسارات بصلاحيات الأدوار عبر `useAuth()`.
+  ترقية السايدبار الأصلي المعتمد في المشروع [`resources/js/Layouts/Partials/Sidebar.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Layouts/Partials/Sidebar.vue) ليعكس بدقة 100% المجموعات الخمس الواردة في المرجع الحاكم `super_admin_dashboard_preview.html` (المكتبة، الأشخاص، التنظيم، الاستوديو، النظام)، مع إضافة شريط تحكم الأكوردion (توسيع وطي الكل)، وبادجات العدادات، وتمييز المجموعة السيادية، وحراسة المسارات بصلاحيات الأدوار عبر `useAuth()`.
 
 ---
 
@@ -64,7 +65,7 @@
   [`resources/js/__tests__/Sidebar.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/Sidebar.test.js)
 - **الحالات التي تم اختبارها:**
   1. `renders all five canonical groups matching super_admin_dashboard_preview.html`: فحص وجود المجموعات الخمس الأساسية.
-  2. `renders the accordion micro-toolbar with expand and collapse buttons`: فحص وجود شريط الأكورديون وزري التوسيع والطي.
+  2. `renders the accordion micro-toolbar with expand and collapse buttons`: فحص وجود شريط الأكوردion وزري التوسيع والطي.
   3. `toggles collapse state of a navigation group when header is clicked`: فحص سلوك طي وفرد المجموعة عند النقر.
   4. `collapses all groups when collapse-all button is clicked`: فحص طي كافة المجموعات دفعة واحدة.
   5. `expands all groups when expand-all button is clicked`: فحص توسيع كافة المجموعات دفعة واحدة.
@@ -166,3 +167,45 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
 - اختبارات الواجهة: كافة اختبارات Vitest الـ **23 اختباراً ناجحة بنسبة 100%**.
 - اختبارات الباك إند: كافة اختبارات `SuperAdminDashboardTest` ناجحة بنسبة 100%.
+
+---
+
+## 🔹 الدورة 5: نظام الجداول عالي الكثافة وقائمة تحديد الأعمدة (ColumnsDropdown & High-Density Table Primitive)
+
+- **تاريخ الإنجاز:** 2026-10-07
+- **الهدف المعماري:**  
+  بناء المكوّن الأساسي القابل لإعادة الاستخدام لإدارة رؤية أعمدة الجداول الكثيفة [`resources/js/Components/Table/ColumnsDropdown.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/ColumnsDropdown.vue) وفقاً لمواصفات وتصميم النموذج الحاكم `super_admin_dashboard_preview.html`. يتيح للمشرف إظهار وإخفاء الأعمدة ديناميكياً مع حماية الأعمدة السيادية الأساسية (مثل العنوان) من الإخفاء، وتوفير زر استعادة إظهار الكل، مع دعم كامل للثيمين الداكن والفاتح وقوائم التمرير المخصصة.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**  
+  [`resources/js/__tests__/ColumnsDropdown.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/ColumnsDropdown.test.js)
+- **الحالات التي تم اختبارها:**
+  1. `renders the columns dropdown toggle button with label الأعمدة`: التأكد من وجود زر تفعيل القائمة مع الأيقونة وعنوان "الأعمدة".
+  2. `toggles dropdown visibility when button is clicked`: اختبار فتح وإغلاق القائمة المنسدلة عند النقر على الزر.
+  3. `renders a checkbox item for each column in the menu`: التحقق من توليد خيارات الأعمدة كاملة داخل القائمة.
+  4. `disables checkbox for required primary columns`: التحقق من تعطيل إمكانية إلغاء تحديد الأعمدة الأساسية الإلزامية (`required: true`).
+  5. `emits toggle event with column key and visibility when a checkbox is toggled`: التحقق من إطلاق حدث `toggle-column` بالقيمة الجديدة ومعرف الحقل.
+  6. `emits reset-all event when إظهار الكل button is clicked`: التحقق من إطلاق حدث `reset-all` عند طلب إعادة ضبط الأعمدة.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل الاختبار بنجاح لعدم وجود المكوّن (`Failed to resolve import ColumnsDropdown.vue`).
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملف البرمجي المنشأ:**  
+  [`resources/js/Components/Table/ColumnsDropdown.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/ColumnsDropdown.vue)
+  * هيكلة زر التبديل بالأبعاد القياسية `h-[27px]` وتدرجات البوردر والتأثيرات الزجاجية.
+  * قائمة منسدلة بأقصى ارتفاع `max-h-[260px]` وشريط تمرير مخصص فائق النعومة (`custom-scrollbar`).
+  * دعم الإغلاق التلقائي عند النقر خارج القائمة عبر مستمع الأحداث العام للوثيقة `document.addEventListener('click')`.
+  * دعم الوضعين الداكن والفاتح بوضوح عالٍ وتباين بصري مثالي.
+- **نتيجة التشغيل (GREEN):**
+  * `ColumnsDropdown.test.js`: **6 Passed (100% نجاح)**.
+  * نجاح بناء حزم Vite للإنتاج دون أي أخطاء.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
+- **اختبارات جافاسكريبت بالكامل (Vitest):** **29 Passed (100% نجاح عبر 7 ملفات اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** **4 Passed (38 Assertions)** بنجاح تام.
