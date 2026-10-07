@@ -10,6 +10,7 @@
 | **1** | **النواة التشغيلية وقمرة القيادة الحية (POC & AdminDashboard)** | `tests/Feature/SuperAdminDashboardTest.php` | 3 Failed (404) | 3 Passed (14 Assertions) | **340 Passed** (100% نجاح) | ✅ مكتملة وموثقة |
 | **2** | **السايدبار الموحد وأكورديون المجموعات الخمس (Unified Sidebar & Accordion)** | `resources/js/__tests__/Sidebar.test.js` | 6 Failed | 6 Passed (19 Vitest Tests) | **19 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
 | **3** | **النافبار الموحد ومسار التتبع ثلاثي المستويات وقائمة المستخدم (Unified Navbar & Breadcrumbs)** | `resources/js/__tests__/Navbar.test.js` | 4 Failed | 4 Passed (23 Vitest Tests) | **23 Vitest + 3 PHP Passed** | ✅ مكتملة وموثقة |
+| **4** | **تغذية قمرة القيادة بالبيانات الحية من PostgreSQL (Live Stats & Dynamic Props)** | `tests/Feature/SuperAdminDashboardTest.php` | 1 Failed (Property [stats] missing) | 4 Passed (38 Assertions) | **23 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -130,3 +131,38 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
 - اختبارات الواجهة: `adaptiveUI.test.js` (6 Passed), `Sidebar.test.js` (6 Passed), `useAuth.test.js` (3 Passed).
 - اختبارات الباك إند: `SuperAdminDashboardTest` (3 Passed).
+
+---
+
+## 🔹 الدورة 4: تغذية قمرة القيادة بالبيانات الحية من PostgreSQL (Live Stats & Dynamic Props)
+
+- **تاريخ الإنجاز:** 2026-10-07
+- **الهدف المعماري:**  
+  فصل المنطق البرمجي لقمرة قيادة السوبر أدمن عبر متحكم مستقل [`SuperAdminDashboardController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SuperAdminDashboardController.php)، واستخراج أعداد الكيانات الحية من قاعدة البيانات وتمريرها عبر Inertia Props، وتغذية بطاقات الـ KPI وقوائم النشاطات في [`AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue) ببيانات حقيقية حية بدلاً من الأرقام الثابتة.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار:**  
+  [`tests/Feature/SuperAdminDashboardTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/SuperAdminDashboardTest.php)
+- **الحالات التي تم اختبارها:**
+  * `it_shares_live_database_statistics_and_recent_activities_to_admin_dashboard`: فحص تمرير إحصائيات دقيقة ومطابقة لأعداد قاعدة البيانات للكتب (5) والمخطوطات (3) والصوتيات (4) والمرئيات (2) والمؤلفين (6) وقائمة النشاطات.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل الاختبار بنجاح: `Property [stats] does not exist` (`1 Failed`).
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. [`app/Http/Controllers/SuperAdminDashboardController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SuperAdminDashboardController.php): بناء المتحكم وحساب أعداد الموديلات واسترجاع آخر النشاطات وتمريرها لـ Inertia.
+  2. [`routes/web.php`](file:///home/a/PhpstormProjects/EntityPostgre/routes/web.php): ربط مسار `/superadmin/dashboard` بالكونترولر الجديد.
+  3. [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue): استقبال خصائص `props.stats` و `props.recentActivities` وتطعيم بطاقات الـ KPI بالأرقام الحية المنسقة (`toLocaleString`).
+- **نتيجة التشغيل (GREEN):**
+  * `SuperAdminDashboardTest`: **4 Passed (38 Assertions) بنجاح 100%**.
+  * نجاح بناء حزم Vite للإنتاج: `AdminDashboard-BJ9GJhY-.js (211.04 kB)`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Zero Regression):
+- اختبارات الواجهة: كافة اختبارات Vitest الـ **23 اختباراً ناجحة بنسبة 100%**.
+- اختبارات الباك إند: كافة اختبارات `SuperAdminDashboardTest` ناجحة بنسبة 100%.

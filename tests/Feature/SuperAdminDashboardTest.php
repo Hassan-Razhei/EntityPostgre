@@ -3,6 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Book;
+use App\Models\Manuscript;
+use App\Models\Audio;
+use App\Models\Video;
+use App\Models\Author;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\Test;
@@ -62,6 +67,34 @@ class SuperAdminDashboardTest extends TestCase
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('AdminDashboard')
+            );
+    }
+
+    #[Test]
+    public function it_shares_live_database_statistics_and_recent_activities_to_admin_dashboard(): void
+    {
+        // تجهيز بيانات اختبارية حقيقية
+        Book::factory()->count(5)->create();
+        Manuscript::factory()->count(3)->create();
+        Audio::factory()->count(4)->create();
+        Video::factory()->count(2)->create();
+        Author::factory()->count(6)->create();
+
+        $response = $this->actingAs($this->superAdmin)
+            ->get('/superadmin/dashboard');
+
+        $response->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('AdminDashboard')
+                ->has('stats', fn (Assert $stats) => $stats
+                    ->where('books', 5)
+                    ->where('manuscripts', 3)
+                    ->where('audios', 4)
+                    ->where('videos', 2)
+                    ->where('authors', 6)
+                    ->etc()
+                )
+                ->has('recentActivities')
             );
     }
 }

@@ -74,9 +74,8 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // System Commands & Dashboard (Super Admin Only)
     Route::middleware(['role:super_admin'])->group(function () {
-        Route::get('/superadmin/dashboard', function () {
-            return Inertia\Inertia::render('AdminDashboard');
-        })->name('superadmin.dashboard');
+        Route::get('/superadmin/dashboard', [App\Http\Controllers\SuperAdminDashboardController::class, 'index'])
+            ->name('superadmin.dashboard');
 
         Route::post('api/system/run-command', [App\Http\Controllers\SystemController::class, 'runCommand'])->name('api.system.run-command');
         Route::post('api/system/list-files', [App\Http\Controllers\SystemController::class, 'listFiles'])->name('api.system.list-files');

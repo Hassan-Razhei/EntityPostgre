@@ -289,6 +289,29 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue';
 
+const props = defineProps({
+  stats: {
+    type: Object,
+    default: () => ({
+      books: 1482,
+      manuscripts: 428,
+      audios: 650,
+      videos: 185,
+      authors: 340,
+      publishers: 85,
+      categories: 42,
+      tags: 156,
+      users: 124,
+      deletions: 18,
+      versions: 842,
+    })
+  },
+  recentActivities: {
+    type: Array,
+    default: () => []
+  }
+});
+
 const viewCatalog = {
       // ========================================================
       // 1. BOOKS VIEW (المكتبة -> الكتب)
@@ -2676,7 +2699,7 @@ const viewCatalog = {
             <!-- Books KPI -->
             <div class="kpi-card" style="cursor: pointer;" onclick="loadView('books')">
               <div class="kpi-title">إجمالي الكتب والرسائل [Books]</div>
-              <div class="kpi-value icon-export">1,482</div>
+              <div class="kpi-value icon-export">' + (props.stats?.books ?? 1482).toLocaleString() + '</div>
               <div class="kpi-split-bar">
                 <div style="width: 75%; background: #3b82f6;"></div>
                 <div style="width: 25%; background: #f59e0b;"></div>
@@ -2687,7 +2710,7 @@ const viewCatalog = {
             <!-- Manuscripts KPI -->
             <div class="kpi-card" style="cursor: pointer;" onclick="loadView('manuscripts')">
               <div class="kpi-title">خزانة المخطوطات النادرة [Manuscripts]</div>
-              <div class="kpi-value icon-refresh">428</div>
+              <div class="kpi-value icon-refresh">' + (props.stats?.manuscripts ?? 428).toLocaleString() + '</div>
               <div class="kpi-split-bar">
                 <div style="width: 65%; background: #f59e0b;"></div>
                 <div style="width: 35%; background: #ef4444;"></div>
@@ -2698,7 +2721,7 @@ const viewCatalog = {
             <!-- Audios KPI -->
             <div class="kpi-card" style="cursor: pointer;" onclick="loadView('audios')">
               <div class="kpi-title">التسجيلات الصوتية المفرغة [Audios]</div>
-              <div class="kpi-value icon-import">650</div>
+              <div class="kpi-value icon-import">' + (props.stats?.audios ?? 650).toLocaleString() + '</div>
               <div class="kpi-split-bar">
                 <div style="width: 80%; background: #10b981;"></div>
                 <div style="width: 20%; background: #3b82f6;"></div>
@@ -2709,7 +2732,7 @@ const viewCatalog = {
             <!-- Videos KPI -->
             <div class="kpi-card" style="cursor: pointer;" onclick="loadView('videos')">
               <div class="kpi-title">المرئيات والندوات المصورة [Videos]</div>
-              <div class="kpi-value" style="color: #c084fc;">185</div>
+              <div class="kpi-value" style="color: #c084fc;">' + (props.stats?.videos ?? 185).toLocaleString() + '</div>
               <div class="kpi-split-bar">
                 <div style="width: 90%; background: #a855f7;"></div>
                 <div style="width: 10%; background: #10b981;"></div>
