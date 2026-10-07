@@ -63,6 +63,25 @@ class SystemCommandExecutionTest extends TestCase
     }
 
     #[Test]
+    public function it_allows_super_admin_to_run_seed_realistic_command(): void
+    {
+        $superAdmin = User::factory()->superAdmin()->create([
+            'email' => 'super_admin@archive.org',
+        ]);
+
+        $response = $this->actingAs($superAdmin)
+            ->postJson(route('api.system.run-command'), [
+                'command' => 'project:seed-realistic',
+                'args' => ['--count' => 1],
+            ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'success',
+        ]);
+    }
+
+    #[Test]
     public function it_rejects_unwhitelisted_commands_with_403(): void
     {
         $superAdmin = User::factory()->superAdmin()->create();

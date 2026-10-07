@@ -48,12 +48,16 @@ class SystemController extends Controller
         // ─── تقييد الوصول لأمر seed-realistic لمستخدمين محددين ──────────
         if ($command === 'project:seed-realistic') {
             $allowedEmails = array_filter(
-                explode(',', config('app.seed_allowed_users', env('SEED_ALLOWED_USERS', ''))
-            ));
+                explode(',', config('app.seed_allowed_users', env('SEED_ALLOWED_USERS', '')))
+            );
 
-            $currentEmail = auth()->user()?->email;
+            $currentUser = auth()->user();
+            $currentEmail = $currentUser?->email;
 
-            if (empty($allowedEmails) || !in_array($currentEmail, array_map('trim', $allowedEmails))) {
+            $isAuthorized = ($currentUser?->isSuperAdmin())
+                || (!empty($allowedEmails) && in_array($currentEmail, array_map('trim', $allowedEmails)));
+
+            if (!$isAuthorized) {
                 return response()->json([
                     'message' => 'غير مصرح لك بتشغيل هذا الأمر. تواصل مع مدير النظام.'
                 ], 403);

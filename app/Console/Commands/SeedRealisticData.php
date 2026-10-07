@@ -80,8 +80,8 @@ class SeedRealisticData extends Command
         // ─── تأكيد المستخدم (فقط عند التشغيل التفاعلي من CLI) ───────────
         // عند الاستدعاء من الويب (بدون TTY) يتم تخطي التأكيد
         // لأن SystemController تحقق بالفعل من صلاحية المستخدم
-        $isTty = stream_isatty(STDOUT);
-        if ($isTty) {
+        $isTty = defined('STDOUT') && is_resource(STDOUT) && stream_isatty(STDOUT);
+        if ($isTty && !$this->option('force') && $this->input->isInteractive()) {
             if (!$this->confirm('⚠️  سيتم حذف جميع البيانات الحالية وإعادة تعبئتها. هل أنت متأكد؟', false)) {
                 $this->info('تم الإلغاء.');
                 return Command::SUCCESS;

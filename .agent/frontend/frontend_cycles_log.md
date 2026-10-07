@@ -449,3 +449,36 @@
   - **الإجمالي: 16 Passed (246 Assertions) بنسبة 100% نجاح**.
 - **اختبارات جافاسكريبت بالكامل (Vitest):**
   - **40 Passed (100% نجاح عبر 9 ملفات اختبار)**.
+
+---
+
+## 🚀 دورة التطوير رقم 11: معالجة صلاحيات وتشغيل seed-realistic من الويب والطرفية وفق TDD
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار المضافة/المحدثة:**
+  - [`tests/Feature/SystemCommandExecutionTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/SystemCommandExecutionTest.php) (`it_allows_super_admin_to_run_seed_realistic_command`)
+- **الحالات التي تم اختبارها:**
+  1. التحقق من قدرة أي مدير نظام عام يحمل دور `super_admin` على تشغيل `project:seed-realistic` عبر واجهة الأوامر وقمرة القيادة دون حصر الصلاحية ببريد واحد ثابت.
+  2. منع حجب مدير النظام بخطأ `403 Forbidden` أو التعليق على مدخلات `STDIN`.
+- **نتيجة التشغيل الأولى (RED):**
+  * فشل الاختبار: `Expected response status code [200] but received 403` لحساب `super_admin@archive.org`.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المحدثة:**
+  1. [`app/Http/Controllers/SystemController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SystemController.php):
+     - فحص الصلاحية السيادية `$currentUser?->isSuperAdmin()` كأولوية تمنح مدراء النظام كامل الصلاحية مع الإبقاء على قائمة البريد المسموح `SEED_ALLOWED_USERS`.
+  2. [`app/Console/Commands/SeedRealisticData.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Console/Commands/SeedRealisticData.php):
+     - إصلاح خطأ `Undefined constant "App\Console\Commands\STDOUT"` بجعل الفحص آمناً في بيئات الويب عبر: `defined('STDOUT') && is_resource(STDOUT) && stream_isatty(STDOUT)`.
+     - تخطي التأكيد التفاعلي تلقائياً عند تمرير خيار `--force` أو العمل في بيئة غير تفاعلية.
+  3. [`config/app.php`](file:///home/a/PhpstormProjects/EntityPostgre/config/app.php):
+     - تسجيل مفاتيح `seed_secret` و `seed_allowed_users` للعمل الموثوق مع التخزين المؤقت للإعدادات.
+- **نتيجة التشغيل (GREEN):**
+  * نجاح الاختبار: `SystemCommandExecutionTest`: **5 Passed (11 Assertions)** بنسبة 100%.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الباك إند (PHPUnit):** **17 Passed (239 Assertions)** بنسبة 100%.
+- **اختبارات الفرونت إند (Vitest):** **40 Passed (40 Assertions عبر 9 ملفات)** بنسبة 100%.

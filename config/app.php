@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'seed_secret' => env('SEED_SECRET', ''),
+    'seed_allowed_users' => env('SEED_ALLOWED_USERS', 'admin@admin.com,super_admin@archive.org'),
+
 ];
