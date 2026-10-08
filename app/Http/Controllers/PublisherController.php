@@ -18,6 +18,7 @@ class PublisherController extends EntityController
 
     //Customization
     protected function getRelations(): array { return ['books', 'videos', 'audios', 'manuscripts']; }
+    protected function getWithCount(): array { return ['books', 'videos', 'audios', 'manuscripts']; }
     protected function getSearchFields(): array { return ['name']; }
     protected function getPerPage(): int { return 12; }
     protected function getFileUploads(): array { return ['logo' => 'logos']; }

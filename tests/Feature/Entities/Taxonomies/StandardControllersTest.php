@@ -31,6 +31,15 @@ class StandardControllersTest extends TestCase
     // ==========================================
 
     #[Test]
+    public function can_view_publishers_index()
+    {
+        Publisher::factory()->count(3)->create();
+        $response = $this->get(route('publishers.index'));
+
+        $response->assertOk();
+    }
+
+    #[Test]
     public function can_create_publisher()
     {
         $logo = UploadedFile::fake()->image('logo.jpg');

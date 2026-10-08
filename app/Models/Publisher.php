@@ -29,6 +29,66 @@ class Publisher extends Model
         return $this->hasMany(Version::class);
     }
 
+    /**
+     * الكتب المنشورة عبر هذا الناشر
+     */
+    public function books()
+    {
+        return $this->hasManyThrough(
+            Book::class,
+            Version::class,
+            'publisher_id',
+            'id',
+            'id',
+            'versionable_id'
+        )->where('versions.versionable_type', 'book');
+    }
+
+    /**
+     * الصوتيات المنشورة عبر هذا الناشر
+     */
+    public function audios()
+    {
+        return $this->hasManyThrough(
+            Audio::class,
+            Version::class,
+            'publisher_id',
+            'id',
+            'id',
+            'versionable_id'
+        )->where('versions.versionable_type', 'audio');
+    }
+
+    /**
+     * المرئيات المنشورة عبر هذا الناشر
+     */
+    public function videos()
+    {
+        return $this->hasManyThrough(
+            Video::class,
+            Version::class,
+            'publisher_id',
+            'id',
+            'id',
+            'versionable_id'
+        )->where('versions.versionable_type', 'video');
+    }
+
+    /**
+     * المخطوطات المنشورة عبر هذا الناشر
+     */
+    public function manuscripts()
+    {
+        return $this->hasManyThrough(
+            Manuscript::class,
+            Version::class,
+            'publisher_id',
+            'id',
+            'id',
+            'versionable_id'
+        )->where('versions.versionable_type', 'manuscript');
+    }
+
     protected static function boot()
     {
         parent::boot();
