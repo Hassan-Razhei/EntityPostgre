@@ -206,48 +206,57 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
         expect(output.textContent).toContain('Storage sync completed');
     });
 
-    it('renders native AssetTableView component when switching to books view', async () => {
+    it('renders full rich books table with interactive reader links, badges, and action buttons when switching to books view', async () => {
         const wrapper = createWrapper();
         window.loadView('books');
         await new Promise(r => setTimeout(r, 120));
 
-        const assetView = wrapper.findComponent({ name: 'AssetTableView' });
-        expect(assetView.exists()).toBe(true);
-        expect(assetView.props('assetTitle')).toBe('الكتب');
-        expect(wrapper.text()).toContain('فتح الباري شرح صحيح البخاري');
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('booksDataTable');
+        expect(contentArea.html()).toContain('booksSearchInput');
+        expect(contentArea.html()).toContain('booksCategoryFilter');
+        expect(contentArea.html()).toContain('columnsDropdownMenu');
+        expect(contentArea.html()).toContain('bulkActionsStrip');
+        expect(contentArea.html()).toContain('/books/fath-al-bari/reader');
+        expect(contentArea.html()).toContain('/studio/book/fath-al-bari');
+        expect(contentArea.html()).toContain('/authors');
+        expect(contentArea.html()).toContain('🖼️ غلاف');
+        expect(contentArea.html()).toContain('📄 PDF');
     });
 
-    it('renders native AssetTableView component when switching to manuscripts view', async () => {
+    it('renders full rich manuscripts table with restoration and folio badges when switching to manuscripts view', async () => {
         const wrapper = createWrapper();
         window.loadView('manuscripts');
         await new Promise(r => setTimeout(r, 120));
 
-        const assetView = wrapper.findComponent({ name: 'AssetTableView' });
-        expect(assetView.exists()).toBe(true);
-        expect(assetView.props('assetTitle')).toBe('المخطوطات');
-        expect(wrapper.text()).toContain('صحيح البخاري - المجلد الرابع (نسخة كوبريلي)');
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('manuscriptsDataTable');
+        expect(contentArea.html()).toContain('صحيح البخاري - المجلد الرابع');
+        expect(contentArea.html()).toContain('/dev/manuscripter/sahih-bukhari-koprulu');
+        expect(contentArea.html()).toContain('/studio/manuscript/sahih-bukhari-koprulu');
     });
 
-    it('renders native AssetTableView component when switching to authors view', async () => {
+    it('renders full rich authors view with scholar biography cards and works count when switching to authors view', async () => {
         const wrapper = createWrapper();
         window.loadView('authors');
         await new Promise(r => setTimeout(r, 120));
 
-        const assetView = wrapper.findComponent({ name: 'AssetTableView' });
-        expect(assetView.exists()).toBe(true);
-        expect(assetView.props('assetTitle')).toBe('المؤلفون');
-        expect(wrapper.text()).toContain('ابن حجر العسقلاني');
-        expect(wrapper.text()).toContain('الإمام البخاري');
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('ابن حجر العسقلاني');
+        expect(contentArea.html()).toContain('الإمام البخاري');
+        expect(contentArea.html()).toContain('تصفح المؤلفات 📚');
+        expect(contentArea.html()).toContain('تعديل السيرة ✏️');
     });
 
-    it('renders native AssetTableView component when switching to publishers view', async () => {
+    it('renders full rich publishers view with verified press cards and publication counts when switching to publishers view', async () => {
         const wrapper = createWrapper();
         window.loadView('publishers');
         await new Promise(r => setTimeout(r, 120));
 
-        const assetView = wrapper.findComponent({ name: 'AssetTableView' });
-        expect(assetView.exists()).toBe(true);
-        expect(assetView.props('assetTitle')).toBe('الناشرون');
-        expect(wrapper.text()).toContain('دار الرسالة العالمية');
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('دار الرسالة العالمية');
+        expect(contentArea.html()).toContain('دار المنهاج');
+        expect(contentArea.html()).toContain('مطبوعة مؤرشفة');
+        expect(contentArea.html()).toContain('عرض المنشورات 📖');
     });
 });
