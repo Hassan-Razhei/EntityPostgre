@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     total: {
@@ -20,11 +20,13 @@ const props = defineProps({
     },
     entityLabel: {
         type: String,
-        default: 'كياناً',
+        default: 'كتاب',
     },
 });
 
 const emit = defineEmits(['update:currentPage', 'update:perPage']);
+
+const jumpInput = ref(props.currentPage);
 
 const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.perPage)));
 
@@ -37,9 +39,30 @@ const to = computed(() => {
     return Math.min(props.currentPage * props.perPage, props.total);
 });
 
+const visiblePages = computed(() => {
+    const pages = [];
+    const maxVisible = 5;
+    let start = Math.max(1, props.currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages.value, start + maxVisible - 1);
+    if (end - start + 1 < maxVisible) {
+        start = Math.max(1, end - maxVisible + 1);
+    }
+    for (let i = start; i <= end; i++) {
+        pages.push(i);
+    }
+    return pages;
+});
+
 const goToPage = (page) => {
     if (page >= 1 && page <= totalPages.value && page !== props.currentPage) {
         emit('update:currentPage', page);
+        jumpInput.value = page;
+    }
+};
+
+const jumpToPage = () => {
+    if (jumpInput.value >= 1 && jumpInput.value <= totalPages.value) {
+        goToPage(jumpInput.value);
     }
 };
 
@@ -47,33 +70,27 @@ const handlePerPageChange = (e) => {
     const val = Number(e.target.value);
     emit('update:perPage', val);
     emit('update:currentPage', 1);
+    jumpInput.value = 1;
 };
 </script>
 
 <template>
-  <div class="table-pagination-bar flex flex-col sm:flex-row justify-between items-center gap-4 py-3 px-4 bg-gray-50/80 dark:bg-white/[0.02] border border-gray-200 dark:border-white/10 rounded-xl mt-4 text-xs">
-    <!-- Statement: عرض X - Y من أصل Z -->
-    <div class="pagination-info flex items-center gap-1.5 text-gray-500 dark:text-zinc-400">
-      <span>عرض</span>
-      <strong class="font-mono font-black text-gray-900 dark:text-white">
-        {{ from }} - {{ to }}
-      </strong>
-      <span>من أصل</span>
-      <strong class="font-mono font-black text-gray-900 dark:text-white">
-        {{ total.toLocaleString() }}
-      </strong>
-      <span>{{ entityLabel }}</span>
-    </div>
-
-    <!-- Controls: Per Page + Navigation Buttons -->
-    <div class="pagination-controls flex items-center gap-3">
-      <!-- Per Page Selector -->
-      <div class="flex items-center gap-1.5 text-gray-500 dark:text-zinc-400">
-        <span>في الصفحة:</span>
+  <div class="table-pagination-bar">
+    <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+      <div>
+        <span>عرض </span>
+        <strong style="color: var(--text-main); font-family: 'Outfit';">{{ from }} - {{ to }}</strong>
+        <span> من أصل </span>
+        <strong style="color: var(--text-main); font-family: 'Outfit';">{{ total.toLocaleString() }}</strong>
+        <span> {{ entityLabel }}</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span>عرض:</span>
         <select
           id="perPageSelect"
+          class="toolbar-select"
+          style="padding: 0.2rem 0.5rem; font-size: 0.75rem;"
           :value="perPage"
-          class="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-md py-1 px-2 text-xs font-mono font-bold text-gray-700 dark:text-zinc-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
           @change="handlePerPageChange"
         >
           <option
@@ -81,66 +98,86 @@ const handlePerPageChange = (e) => {
             :key="opt"
             :value="opt"
           >
-            {{ opt }}
+            {{ opt }} في الصفحة
           </option>
         </select>
       </div>
+    </div>
 
-      <!-- Nav Buttons -->
-      <div class="pagination-buttons flex items-center gap-1">
-        <!-- First Page -->
-        <button
-          type="button"
-          id="btnPageFirst"
-          :disabled="currentPage <= 1"
-          class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not-disabled:bg-gray-100 dark:hover:not-disabled:bg-white/10 cursor-pointer transition-colors"
-          title="الصفحة الأولى"
-          @click="goToPage(1)"
-        >
-          ««
-        </button>
+    <!-- Page navigation numbers -->
+    <div class="pagination-pages-group">
+      <button
+        type="button"
+        id="btnPageFirst"
+        class="page-btn"
+        :disabled="currentPage <= 1"
+        title="الصفحة الأولى"
+        @click="goToPage(1)"
+      >
+        ««
+      </button>
+      <button
+        type="button"
+        id="btnPagePrev"
+        class="page-btn"
+        :disabled="currentPage <= 1"
+        title="السابق"
+        @click="goToPage(currentPage - 1)"
+      >
+        ‹ السابق
+      </button>
 
-        <!-- Prev Page -->
-        <button
-          type="button"
-          id="btnPagePrev"
-          :disabled="currentPage <= 1"
-          class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not-disabled:bg-gray-100 dark:hover:not-disabled:bg-white/10 cursor-pointer transition-colors"
-          title="الصفحة السابقة"
-          @click="goToPage(currentPage - 1)"
-        >
-          ‹
-        </button>
+      <button
+        v-for="p in visiblePages"
+        :key="p"
+        type="button"
+        class="page-btn"
+        :class="{ active: p === currentPage }"
+        @click="goToPage(p)"
+      >
+        {{ p }}
+      </button>
 
-        <!-- Current Page Badge -->
-        <span class="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-md bg-indigo-600 text-white font-mono font-bold text-xs shadow-xs">
-          {{ currentPage }}
-        </span>
+      <button
+        type="button"
+        id="btnPageNext"
+        class="page-btn"
+        :disabled="currentPage >= totalPages"
+        title="التالي"
+        @click="goToPage(currentPage + 1)"
+      >
+        التالي ›
+      </button>
+      <button
+        type="button"
+        id="btnPageLast"
+        class="page-btn"
+        :disabled="currentPage >= totalPages"
+        title="الصفحة الأخيرة"
+        @click="goToPage(totalPages)"
+      >
+        »»
+      </button>
+    </div>
 
-        <!-- Next Page -->
-        <button
-          type="button"
-          id="btnPageNext"
-          :disabled="currentPage >= totalPages"
-          class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not-disabled:bg-gray-100 dark:hover:not-disabled:bg-white/10 cursor-pointer transition-colors"
-          title="الصفحة التالية"
-          @click="goToPage(currentPage + 1)"
-        >
-          ›
-        </button>
-
-        <!-- Last Page -->
-        <button
-          type="button"
-          id="btnPageLast"
-          :disabled="currentPage >= totalPages"
-          class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not-disabled:bg-gray-100 dark:hover:not-disabled:bg-white/10 cursor-pointer transition-colors"
-          title="الصفحة الأخيرة"
-          @click="goToPage(totalPages)"
-        >
-          »»
-        </button>
-      </div>
+    <!-- Quick jump to page -->
+    <div style="display: flex; align-items: center; gap: 0.4rem;">
+      <span>الانتقال لصفحة:</span>
+      <input
+        type="number"
+        min="1"
+        :max="totalPages"
+        v-model.number="jumpInput"
+        style="width: 55px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.2rem 0.4rem; color: var(--text-main); text-align: center; font-size: 0.75rem; font-family: 'Outfit'; outline: none;"
+      >
+      <button
+        type="button"
+        class="btn-action-small"
+        style="padding: 0.2rem 0.6rem; font-size: 0.72rem;"
+        @click="jumpToPage"
+      >
+        انتقال
+      </button>
     </div>
   </div>
 </template>

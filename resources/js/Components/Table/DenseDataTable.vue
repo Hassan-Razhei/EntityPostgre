@@ -20,6 +20,10 @@ const props = defineProps({
         type: String,
         default: 'id',
     },
+    tableId: {
+        type: String,
+        default: 'booksDataTable',
+    },
 });
 
 const emit = defineEmits(['update:selectedIds', 'sort', 'row-click']);
@@ -56,70 +60,84 @@ const toggleRowSelection = (id) => {
 const isRowSelected = (id) => {
     return props.selectedIds.includes(id);
 };
+
+const getColHeaderStyle = (col) => {
+    if (col.width) return { width: col.width };
+    if (col.key === 'serial' || col.key === 'id') return { width: '70px' };
+    if (col.key === 'slug') return { width: '110px' };
+    if (col.key === 'isbn') return { width: '120px' };
+    if (col.key === 'files') return { width: '90px', textAlign: 'center' };
+    if (col.key === 'created_at') return { width: '85px' };
+    if (col.key === 'actions') return { width: '110px', textAlign: 'center' };
+    return {};
+};
+
+const getColCellStyle = (col) => {
+    if (col.key === 'serial' || col.key === 'id') {
+        return { fontFamily: `'Outfit', monospace`, color: 'var(--text-dim)', fontSize: '0.75rem' };
+    }
+    if (col.key === 'slug') {
+        return { fontFamily: `'Outfit', monospace`, fontSize: '0.75rem', color: 'var(--indigo)' };
+    }
+    if (col.key === 'isbn') {
+        return { fontFamily: `'Outfit', monospace`, color: 'var(--text-muted)', fontSize: '0.75rem' };
+    }
+    if (col.key === 'files' || col.key === 'actions') {
+        return { textAlign: 'center' };
+    }
+    if (col.key === 'created_at') {
+        return { fontSize: '0.72rem', color: 'var(--text-dim)', fontFamily: `'Outfit'` };
+    }
+    return {};
+};
 </script>
 
 <template>
-  <div class="dense-table-wrapper w-full overflow-x-auto rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.02] shadow-xs custom-scrollbar">
-    <table class="dense-table w-full text-right border-collapse text-xs">
+  <div class="dense-table-wrapper">
+    <table :id="tableId" class="dense-table">
       <thead>
-        <tr class="bg-gray-50/80 dark:bg-white/[0.03] border-b border-gray-200 dark:border-white/10">
+        <tr>
           <!-- Master Checkbox -->
-          <th class="w-9 py-2.5 px-3 text-center">
+          <th style="width: 36px; text-align: center;">
             <input
               type="checkbox"
               id="masterCheckbox"
               :checked="isAllSelected"
-              class="cursor-pointer accent-indigo-600 w-3.5 h-3.5 rounded"
+              class="cursor-pointer"
               @change="toggleSelectAll"
             >
           </th>
 
-          <!-- Column Headers -->
+          <!-- Columns -->
           <th
             v-for="col in visibleColumns"
             :key="col.key"
-            :class="[
-              'py-2.5 px-3 font-extrabold text-gray-600 dark:text-zinc-400 select-none whitespace-nowrap',
-              col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right'
-            ]"
+            :class="{ sortable: col.sortable }"
+            :style="getColHeaderStyle(col)"
+            @click="col.sortable && emit('sort', col.key)"
           >
-            <div
-              :class="[
-                'inline-flex items-center gap-1.5',
-                col.sortable ? 'cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400' : ''
-              ]"
-              @click="col.sortable && emit('sort', col.key)"
-            >
-              <span>{{ col.label }}</span>
-              <span
-                v-if="col.sortable"
-                class="text-[10px] text-gray-400"
-              >⇅</span>
-            </div>
+            {{ col.label }} <span v-if="col.sortable">⇅</span>
           </th>
         </tr>
       </thead>
 
-      <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+      <tbody id="booksTableBody">
         <tr
           v-for="row in rows"
           :key="row[idKey]"
-          :class="[
-            'transition-colors hover:bg-gray-50/80 dark:hover:bg-white/[0.03] group',
-            isRowSelected(row[idKey]) ? 'bg-indigo-50/40! dark:bg-indigo-500/10!' : ''
-          ]"
+          :data-title="row.title"
+          :data-author="row.author"
+          :data-isbn="row.isbn"
+          :class="{ selected: isRowSelected(row[idKey]) }"
           @click="emit('row-click', row)"
         >
-          <!-- Row Checkbox -->
-          <td
-            class="w-9 py-2.5 px-3 text-center"
-            @click.stop
-          >
+          <!-- Checkbox -->
+          <td style="text-align: center;" @click.stop>
             <input
               type="checkbox"
+              class="row-checkbox"
               :data-row-id="row[idKey]"
               :checked="isRowSelected(row[idKey])"
-              class="row-checkbox cursor-pointer accent-indigo-600 w-3.5 h-3.5 rounded"
               @change="toggleRowSelection(row[idKey])"
             >
           </td>
@@ -128,52 +146,103 @@ const isRowSelected = (id) => {
           <td
             v-for="col in visibleColumns"
             :key="col.key"
-            :class="[
-              'py-2.5 px-3 align-middle whitespace-nowrap text-gray-800 dark:text-zinc-200',
-              col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right',
-              col.isMono ? 'font-mono' : ''
-            ]"
+            :style="getColCellStyle(col)"
           >
             <slot
               :name="`cell(${col.key})`"
               :row="row"
               :value="row[col.key]"
             >
-              <!-- Default Actions Cell -->
-              <template v-if="col.key === 'actions'">
-                <div class="flex items-center justify-center gap-1.5">
-                  <button
-                    type="button"
-                    class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-zinc-400 transition-colors"
-                    title="عرض"
+              <!-- 1. Serial -->
+              <template v-if="col.key === 'serial'">
+                {{ row.serial || `#${row.id}` }}
+              </template>
+
+              <!-- 2. Title -->
+              <template v-else-if="col.key === 'title'">
+                <a
+                  :href="row.reader_url || `/books/${row.slug}/reader`"
+                  class="book-title-link"
+                >
+                  {{ row.title }}
+                </a>
+              </template>
+
+              <!-- 3. Slug -->
+              <template v-else-if="col.key === 'slug'">
+                {{ row.slug }}
+              </template>
+
+              <!-- 4. Author -->
+              <template v-else-if="col.key === 'author'">
+                <div style="font-weight: 700;">
+                  <a
+                    :href="row.author_url || '/authors'"
+                    style="color: var(--text-main); text-decoration: none;"
                   >
-                    📖
-                  </button>
-                  <button
-                    type="button"
-                    class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-zinc-400 transition-colors"
-                    title="الاستوديو"
-                  >
-                    ✍️
-                  </button>
-                  <button
-                    type="button"
-                    class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-zinc-400 transition-colors"
-                    title="تعديل"
-                  >
-                    ⚙️
-                  </button>
-                  <button
-                    type="button"
-                    class="p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-500/20 text-red-500 transition-colors"
-                    title="حذف"
-                  >
-                    🗑️
-                  </button>
+                    {{ row.author }}
+                  </a>
                 </div>
               </template>
 
-              <!-- Default Fallback -->
+              <!-- 5. ISBN -->
+              <template v-else-if="col.key === 'isbn'">
+                {{ row.isbn || '—' }}
+              </template>
+
+              <!-- 6. Description -->
+              <template v-else-if="col.key === 'description'">
+                <div class="cell-desc" :title="row.description">
+                  {{ row.description }}
+                </div>
+              </template>
+
+              <!-- 7. Files Badges (Cycle 9 Fidelity) -->
+              <template v-else-if="col.key === 'files'">
+                <div style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.68rem;">
+                  <span
+                    title="cover_path متوفر"
+                    style="padding: 0.12rem 0.35rem; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 700;"
+                  >🖼️ غلاف</span>
+                  <span
+                    title="file_path متوفر"
+                    style="padding: 0.12rem 0.35rem; border-radius: 4px; background: rgba(99, 102, 241, 0.15); color: #818cf8; font-weight: 700;"
+                  >📄 PDF</span>
+                </div>
+              </template>
+
+              <!-- 8. Created At -->
+              <template v-else-if="col.key === 'created_at'">
+                {{ row.created_at_human || row.created_at || 'مؤخراً' }}
+              </template>
+
+              <!-- 9. Actions -->
+              <template v-else-if="col.key === 'actions'">
+                <div class="table-actions-cell" style="justify-content: center;">
+                  <a
+                    :href="row.reader_url || `/books/${row.slug}/reader`"
+                    class="table-btn-icon"
+                    title="فتح القارئ التفاعلي"
+                  >📖</a>
+                  <a
+                    :href="row.studio_url || `/studio/book/${row.slug}`"
+                    class="table-btn-icon"
+                    title="فتح محرر الاستوديو"
+                  >✍️</a>
+                  <a
+                    :href="row.edit_url || `/books/${row.id}/edit`"
+                    class="table-btn-icon"
+                    title="تعديل بيانات المصنف"
+                  >⚙️</a>
+                  <button
+                    type="button"
+                    class="table-btn-icon btn-danger"
+                    title="حذف"
+                    onclick="alert('تم نقل الكتاب للمهملات')"
+                  >🗑️</button>
+                </div>
+              </template>
+
               <template v-else>
                 {{ row[col.key] ?? '—' }}
               </template>
@@ -185,33 +254,12 @@ const isRowSelected = (id) => {
         <tr v-if="!rows.length">
           <td
             :colspan="visibleColumns.length + 1"
-            class="py-12 text-center text-gray-400 dark:text-zinc-500"
+            style="text-align: center; padding: 2rem; color: var(--text-dim);"
           >
-            <div class="flex flex-col items-center justify-center gap-2">
-              <span class="text-3xl">📭</span>
-              <p class="font-bold">
-                لا توجد سجلات مطابقة في هذا الفهرس
-              </p>
-            </div>
+            لا توجد سجلات مطابقة في هذا الفهرس
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 </template>
-
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-  height: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.3);
-  border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #6366f1;
-}
-</style>

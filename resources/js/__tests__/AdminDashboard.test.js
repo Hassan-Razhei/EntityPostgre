@@ -224,6 +224,47 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
         expect(contentArea.html()).toContain('📄 PDF');
     });
 
+    it('renders live database books from props.books via modular table engine preserving all Cycle 9 links and badges', async () => {
+        const liveBooksMock = [
+            {
+                id: 99,
+                serial: '#00099',
+                title: 'مقدمة ابن خلدون التاريخية',
+                slug: 'muqaddimah-ibn-khaldun',
+                author: 'ابن خلدون',
+                author_slug: 'ibn-khaldun',
+                isbn: '978-977-123-456-7',
+                description: 'ديوان المبتدأ والخبر في تاريخ العرب والبربر',
+                has_cover: true,
+                has_file: true,
+                created_at_human: 'منذ ساعة',
+                reader_url: '/books/muqaddimah-ibn-khaldun/reader',
+                studio_url: '/studio/book/muqaddimah-ibn-khaldun',
+                edit_url: '/books/99/edit',
+            },
+        ];
+
+        const wrapper = createWrapper({ books: liveBooksMock });
+        window.loadView('books');
+        await new Promise(r => setTimeout(r, 120));
+
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(wrapper.findComponent({ name: 'AssetTableView' }).exists()).toBe(true);
+        expect(contentArea.html()).toContain('مقدمة ابن خلدون التاريخية');
+        expect(contentArea.html()).toContain('/books/muqaddimah-ibn-khaldun/reader');
+        expect(contentArea.html()).toContain('/studio/book/muqaddimah-ibn-khaldun');
+        expect(contentArea.html()).toContain('/books/99/edit');
+        expect(contentArea.html()).toContain('ابن خلدون');
+        expect(contentArea.html()).toContain('🖼️ غلاف');
+        expect(contentArea.html()).toContain('📄 PDF');
+        expect(contentArea.html()).toContain('booksDataTable');
+        expect(contentArea.html()).toContain('booksSearchInput');
+        expect(contentArea.html()).toContain('booksCategoryFilter');
+        expect(contentArea.html()).toContain('columnsDropdownMenu');
+        expect(contentArea.html()).toContain('bulkActionsStrip');
+        expect(contentArea.html()).toContain('enterprise-card');
+    });
+
     it('renders full rich manuscripts table with restoration and folio badges when switching to manuscripts view', async () => {
         const wrapper = createWrapper();
         window.loadView('manuscripts');

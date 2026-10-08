@@ -9,7 +9,7 @@ import TablePagination from './TablePagination.vue';
 const props = defineProps({
     assetTitle: {
         type: String,
-        default: 'الأصول',
+        default: 'الكتب',
     },
     stats: {
         type: Object,
@@ -124,12 +124,20 @@ const filteredRows = computed(() => {
             );
         });
     }
+    if (filterValue.value) {
+        const cat = filterValue.value.toLowerCase();
+        result = result.filter(row => {
+            return Object.values(row).some(val =>
+                String(val || '').toLowerCase().includes(cat)
+            );
+        });
+    }
     return result;
 });
 </script>
 
 <template>
-  <div class="asset-table-view space-y-4">
+  <div class="asset-table-view">
     <!-- 1. Horizontal Split Header Banner -->
     <AssetHeaderBanner
       :stats="stats"
@@ -143,105 +151,109 @@ const filteredRows = computed(() => {
       @refresh="emit('refresh')"
     />
 
-    <!-- 2. Table Toolbar (Search, Filter, Columns, View Mode) -->
-    <TableToolbar
-      v-model:search-query="searchQuery"
-      v-model:filter-value="filterValue"
-      v-model:view-mode="viewMode"
-      :filter-placeholder="filterPlaceholder"
-      :filter-options="filterOptions"
-      :columns="internalColumns"
-      @toggle-column="handleToggleColumn"
-      @reset-all-columns="handleResetAllColumns"
-    />
-
-    <!-- 3. Bulk Actions Strip -->
-    <BulkActionsStrip
-      :selected-count="selectedIds.length"
-      @export-selected="handleExportSelected"
-      @delete-selected="handleDeleteSelected"
-      @clear-selection="handleClearSelection"
-    />
-
-    <!-- 4. Dense Data Table (Table View) -->
-    <div v-show="viewMode === 'table'">
-      <DenseDataTable
+    <!-- Enterprise High-Density Table Card -->
+    <div class="enterprise-card">
+      <!-- 2. Table Toolbar (Search, Filter, Columns, View Mode) -->
+      <TableToolbar
+        v-model:search-query="searchQuery"
+        v-model:filter-value="filterValue"
+        v-model:view-mode="viewMode"
+        :asset-title="assetTitle"
+        :filter-placeholder="filterPlaceholder"
+        :filter-options="filterOptions"
         :columns="internalColumns"
-        :rows="filteredRows"
-        v-model:selected-ids="selectedIds"
-      >
-        <!-- Forward all custom slots -->
-        <template
-          v-for="(_, slotName) in $slots"
-          #[slotName]="slotProps"
-        >
-          <slot
-            :name="slotName"
-            v-bind="slotProps"
-          />
-        </template>
-      </DenseDataTable>
-    </div>
+        @toggle-column="handleToggleColumn"
+        @reset-all-columns="handleResetAllColumns"
+      />
 
-    <!-- 4. Alt: Cards Grid (Cards View) -->
-    <div
-      v-show="viewMode === 'cards'"
-      class="cards-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-    >
+      <!-- 3. Bulk Actions Strip -->
+      <BulkActionsStrip
+        :selected-count="selectedIds.length"
+        @export-selected="handleExportSelected"
+        @delete-selected="handleDeleteSelected"
+        @clear-selection="handleClearSelection"
+      />
+
+      <!-- 4. Dense Data Table (Table View) -->
+      <div v-show="viewMode === 'table'" id="booksTableView" class="dense-table-wrapper">
+        <DenseDataTable
+          table-id="booksDataTable"
+          :columns="internalColumns"
+          :rows="filteredRows"
+          v-model:selected-ids="selectedIds"
+        >
+          <!-- Forward all custom slots -->
+          <template
+            v-for="(_, slotName) in $slots"
+            #[slotName]="slotProps"
+          >
+            <slot
+              :name="slotName"
+              v-bind="slotProps"
+            />
+          </template>
+        </DenseDataTable>
+      </div>
+
+      <!-- 4. Alt: Cards Grid (Cards View) -->
       <div
-        v-for="row in filteredRows"
-        :key="row.id"
-        class="bg-white dark:bg-white/[0.025] border border-gray-200 dark:border-white/10 rounded-2xl p-4 hover:border-indigo-500/50 transition-all shadow-xs flex flex-col justify-between"
+        v-show="viewMode === 'cards'"
+        id="booksGridView"
+        class="catalog-grid"
+        style="padding: 1.25rem;"
       >
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <span class="font-mono text-xs font-bold text-gray-400">{{ row.serial || row.code || `#${row.id}` }}</span>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold">
-              {{ row.format || row.status || row.madhab || assetTitle }}
+        <div
+          v-for="row in filteredRows"
+          :key="row.id"
+          class="entity-card"
+        >
+          <div>
+            <span class="entity-tag tag-public">{{ row.format || row.status || 'منشور 🌐' }}</span>
+            <h3 class="entity-title">
+              {{ row.title }}
+            </h3>
+            <div class="entity-meta-tags">
+              <span v-if="row.author" class="meta-chip">{{ row.author }}</span>
+              <span v-if="row.isbn" class="meta-chip">{{ row.isbn }}</span>
+            </div>
+            <p
+              v-if="row.description"
+              style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;"
+            >
+              {{ row.description }}
+            </p>
+          </div>
+          <div class="card-footer">
+            <div class="card-actions-strip">
+              <a
+                :href="row.reader_url || `/books/${row.slug}/reader`"
+                class="btn-indigo-small"
+              >
+                📖 القارئ
+              </a>
+              <a
+                :href="row.studio_url || `/studio/book/${row.slug}`"
+                class="btn-emerald-small"
+              >
+                ✍️ الاستوديو
+              </a>
+            </div>
+            <span style="font-size: 0.65rem; color: var(--text-dim); font-family: 'Outfit';">
+              {{ row.created_at_human || row.created_at || 'مؤخراً' }}
             </span>
           </div>
-          <h4 class="font-black text-sm text-gray-900 dark:text-white truncate mb-1">
-            {{ row.title || row.name }}
-          </h4>
-          <p
-            v-if="row.author || row.century_lived || row.country"
-            class="text-xs text-gray-500 dark:text-zinc-400 font-medium truncate mb-2"
-          >
-            {{ row.author || row.century_lived || row.country }}
-            <span v-if="row.lifespan" class="text-indigo-500 dark:text-indigo-400 font-mono text-[11px] mr-1">({{ row.lifespan }})</span>
-          </p>
-          <div v-if="row.works_count || row.publications_count || row.original_region || row.established_year" class="flex flex-wrap items-center gap-1.5 mb-2">
-            <span v-if="row.works_count || row.publications_count" class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
-              {{ row.works_count || row.publications_count }}
-            </span>
-            <span v-if="row.original_region || row.established_year" class="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-zinc-400">
-              {{ row.original_region || `تأسيس ${row.established_year}` }}
-            </span>
-          </div>
-          <p
-            v-if="row.description || row.bio"
-            class="text-xs text-gray-400 dark:text-zinc-500 line-clamp-2 mb-3"
-          >
-            {{ row.description || row.bio }}
-          </p>
-        </div>
-        <div class="pt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs">
-          <a :href="createUrl ? createUrl.replace('/create', `/${row.id}`) : '#'" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
-            عرض التفاصيل ↗
-          </a>
-          <span class="text-gray-400 text-[11px]">{{ row.created_at || 'معتمد' }}</span>
         </div>
       </div>
-    </div>
 
-    <!-- 5. Advanced Pagination -->
-    <TablePagination
-      :total="total || filteredRows.length"
-      :per-page="perPage"
-      :current-page="currentPage"
-      :entity-label="assetTitle"
-      @update:current-page="emit('update:currentPage', $event)"
-      @update:per-page="emit('update:perPage', $event)"
-    />
+      <!-- 5. Advanced Pagination -->
+      <TablePagination
+        :total="total || filteredRows.length"
+        :per-page="perPage"
+        :current-page="currentPage"
+        :entity-label="assetTitle"
+        @update:current-page="emit('update:currentPage', $event)"
+        @update:per-page="emit('update:perPage', $event)"
+      />
+    </div>
   </div>
 </template>

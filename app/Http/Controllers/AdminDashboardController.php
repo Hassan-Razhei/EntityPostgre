@@ -83,10 +83,35 @@ class AdminDashboardController extends Controller
                 ];
             });
 
+        // جلب قائمة الكتب الحية لقمرة القيادة مع العلاقات والتفاصيل التنفيذية
+        $books = Book::with(['authors', 'versions'])
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($book) {
+                return [
+                    'id' => $book->id,
+                    'serial' => '#' . str_pad($book->serial_number ?? 1, 5, '0', STR_PAD_LEFT),
+                    'title' => $book->title,
+                    'slug' => $book->slug,
+                    'author' => $book->author ?: ($book->authors->first()?->name ?? 'غير محدد'),
+                    'author_slug' => $book->authors->first()?->slug ?? 'authors',
+                    'isbn' => $book->isbn ?? '—',
+                    'description' => $book->description ?? 'لا يوجد وصف متاح للمصنف حالياً.',
+                    'has_cover' => (bool)$book->cover_path,
+                    'has_file' => (bool)$book->file_path || $book->versions->isNotEmpty(),
+                    'created_at_human' => $book->created_at?->diffForHumans() ?? 'مؤخراً',
+                    'reader_url' => "/books/{$book->slug}/reader",
+                    'studio_url' => "/studio/book/{$book->slug}",
+                    'edit_url' => "/books/{$book->id}/edit",
+                ];
+            });
+
         return Inertia::render('AdminDashboard', [
             'stats' => $stats,
             'recentActivities' => $recentActivities,
             'recentUsers' => $recentUsers,
+            'books' => $books,
         ]);
     }
 }

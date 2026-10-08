@@ -275,7 +275,18 @@
        ============================================================ -->
   <main class="app-main" id="appMain">
     <div id="dynamicContentArea">
-      <!-- Populated dynamically via loadView() -->
+      <!-- 1. Native Reactive Vue Component for Books Asset Table -->
+      <AssetTableView
+        v-if="currentViewKey === 'books'"
+        asset-title="الكتب"
+        :stats="booksKpiStats"
+        :columns="booksColumns"
+        :rows="activeBooksRows"
+        :total="props.stats?.books || activeBooksRows.length"
+        create-url="/books/create"
+      />
+      <!-- 2. Dynamic Viewport for other views -->
+      <div v-else-if="currentViewHtml" v-html="currentViewHtml" />
     </div>
 
     <!-- Entity Brand Footer (as in Dashboard.vue / AuthenticatedLayout) -->
@@ -291,7 +302,9 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import AssetTableView from '@/Components/Table/AssetTableView.vue';
+import { booksColumns, sampleBooksRows } from '@/Config/assetTableConfigs';
 import axios from 'axios';
 
 const props = defineProps({
@@ -319,8 +332,29 @@ const props = defineProps({
   recentUsers: {
     type: Array,
     default: () => []
+  },
+  books: {
+    type: Array,
+    default: () => []
   }
 });
+
+const currentViewKey = ref(typeof window !== 'undefined' && (window.location.hash || "").replace("#", "") || "stats");
+const currentViewHtml = ref('');
+
+const activeBooksRows = computed(() => {
+  if (props.books && props.books.length > 0) {
+    return props.books;
+  }
+  return sampleBooksRows;
+});
+
+const booksKpiStats = computed(() => ({
+  total: props.stats?.books || 248510,
+  published: 184200,
+  scholarly: 42150,
+  draft: 18630,
+}));
 
 const viewCatalog = {
       // ========================================================
@@ -3226,6 +3260,7 @@ const viewCatalog = {
     }
 
     function loadView(viewKey) {
+      currentViewKey.value = viewKey;
       const view = viewCatalog[viewKey] || viewCatalog.stats;
 
       // Update active sidebar item
@@ -3265,7 +3300,11 @@ const viewCatalog = {
         contentArea.style.transition = 'all 0.2s ease-out';
 
         setTimeout(() => {
-          contentArea.innerHTML = view.render();
+          if (viewKey === 'books') {
+            currentViewHtml.value = '';
+          } else {
+            currentViewHtml.value = typeof view.render === 'function' ? view.render() : '';
+          }
           contentArea.style.opacity = '1';
           contentArea.style.transform = 'translateY(0)';
         }, 50);
@@ -3412,12 +3451,14 @@ const viewCatalog = {
 
       if (dark) {
         document.body.classList.remove('light-mode');
+        document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
         if (sunIcon) sunIcon.style.display = 'block';
         if (moonIcon) moonIcon.style.display = 'none';
         if (toggleBtn) toggleBtn.title = 'تفعيل الوضع النهاري (Light Mode)';
       } else {
         document.body.classList.add('light-mode');
+        document.documentElement.classList.remove('dark');
         localStorage.setItem('theme', 'light');
         if (sunIcon) sunIcon.style.display = 'none';
         if (moonIcon) moonIcon.style.display = 'block';
@@ -3618,6 +3659,10 @@ onMounted(() => {
 
   initTheme();
   const initialView = (typeof window !== 'undefined' && (window.location.hash || "").replace("#", "")) || "stats";
+  currentViewKey.value = initialView;
+  if (initialView !== 'books') {
+    currentViewHtml.value = typeof viewCatalog[initialView]?.render === 'function' ? viewCatalog[initialView].render() : '';
+  }
   loadView(initialView);
   updateToolbarState();
 

@@ -120,4 +120,28 @@ class SuperAdminDashboardTest extends TestCase
                 ->has('recentUsers', 3) // المستخدمون الثلاثة المنشأون في setUp
             );
     }
+
+    #[Test]
+    public function it_shares_live_books_data_to_admin_dashboard(): void
+    {
+        $book = Book::factory()->create([
+            'title' => 'مقدمة ابن خلدون',
+            'slug' => 'muqaddimah-ibn-khaldun',
+            'author' => 'ابن خلدون',
+        ]);
+
+        $response = $this->actingAs($this->superAdmin)
+            ->get('/superadmin/dashboard');
+
+        $response->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('AdminDashboard')
+                ->has('books', 1)
+                ->where('books.0.title', 'مقدمة ابن خلدون')
+                ->where('books.0.slug', 'muqaddimah-ibn-khaldun')
+                ->where('books.0.author', 'ابن خلدون')
+                ->where('books.0.reader_url', '/books/muqaddimah-ibn-khaldun/reader')
+                ->where('books.0.studio_url', '/studio/book/muqaddimah-ibn-khaldun')
+            );
+    }
 }
