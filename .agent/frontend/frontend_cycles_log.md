@@ -549,3 +549,44 @@
 ### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
 - **اختبارات جافاسكريبت بالكامل (Vitest):** **40 Passed (40 Assertions عبر 9 ملفات)** بنسبة 100%.
 - **بناء حزم الإنتاج (Vite Build):** نجاح تام لـ `npm run build` في 17.96 ثانية.
+
+---
+
+## 🚀 دورة التطوير رقم 14: إعادة هيكلة وتنظيم مجلد tests/Feature حسب النطاقات وتوحيد سمات #[Test]
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **المشكلة:**
+  1. انتشار وتناثر 30+ ملف اختبار بشكل عشوائي داخل جذر `tests/Feature/`، مما يعطي انطباعاً بعدم الترتيب ويصعب صيانة وتتبع اختبارات الكيانات ومكونات قمرة القيادة.
+  2. خلط الأنماط بين Pest closures و PHPUnit Test classes ووجود ملفات أمثلة وهمية (`ExampleTest.php` ومجلد مكرر `tests/Feature/Feature/`).
+  3. استخدام وسوم PHPDoc القديمة `/** @test */` في عشرات الملفات بدلاً من سمات PHP 8 الحديثة `#[Test]`، مع وجود تعليقات متكررة وغير منضبطة تسببت في أخطاء تكرار السمات.
+- **التوكيدات المختبرة:**
+  1. التحقق من سلامة كافة مسارات ونطاقات الكيانات (`Entities/Books`, `Entities/Manuscripts`, `Entities/Media`, `Entities/Taxonomies`, `Entities/Common`, `ContentNodes`, `Dashboard`, `System`, `Console`, `Storage`, `Unit/Services`).
+  2. التأكد من نجاح تشغيل الحزمة بالكامل دون أي تراجع (Zero Regression).
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات المنظمة والمنقولة والمحدثة:**
+  1. نقل 29 ملف اختبار إلى مجلدات النطاقات المعمارية الدقيقة مع تحديث أسماء الـ `namespace`:
+     - `tests/Feature/Entities/Books/`: (`BookChildTest`, `BookControllerTest`, `BookEditorControllerTest`, `BookExportTest`, `BookWorkflowTest`).
+     - `tests/Feature/Entities/Manuscripts/`: (`ManuscriptContentNodeTest`, `ManuscriptCreationIntegrationTest`).
+     - `tests/Feature/Entities/Media/`: (`MediaControllersTest`).
+     - `tests/Feature/Entities/Taxonomies/`: (`CategoryAndTagControllerTest`, `StandardControllersTest`).
+     - `tests/Feature/Entities/Common/`: (`BulkDeletionTest`, `CoreEntitiesCRUDTest`, `EntityControllerTest`, `EntitySlugRoutingTest`, `EntityVersioningTest`, `EntityWorkflowTest`).
+     - `tests/Feature/ContentNodes/`: (`ContentNodeArchitectureTest`, `PolymorphicRelationsIntegrationTest`, `UnifiedContentTest`).
+     - `tests/Feature/Dashboard/`: (`SuperAdminDashboardTest`).
+     - `tests/Feature/System/`: (`ControllerAccessTest`, `GlobalSearchTest`, `InertiaResponseTest`, `PageAccessibilityTest`, `RouteCheckTest`, `SecurityValidationTest`, `SystemCommandExecutionTest`).
+     - `tests/Feature/Console/`: (`ConsoleCommandsTest`).
+     - `tests/Feature/Storage/`: (`SyncProtectionTest`).
+     - `tests/Unit/Services/`: (`MarkdownStructureParserTest`).
+  2. حذف الملفات الوهمية والمكررة: `tests/Feature/ExampleTest.php`, `tests/Unit/ExampleTest.php`, `tests/Feature/Feature/PolymorphicRelationsIntegrationTest.php`.
+  3. استبدال كافة وسوم `/** @test */` بسمة PHP 8 الحديثة `#[Test]` مع استيراد `use PHPUnit\Framework\Attributes\Test;` وتنظيف التعليقات المتكررة عبر `tests/Feature/` و `tests/Unit/`.
+- **نتيجة التشغيل (GREEN):**
+  * نجاح الاختبارات: **544 Passed (2645 Assertions)** واختبار واحد معلق مسبقاً (`1 incomplete`) بنسبة نجاح 100%.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الباك إند بالكامل (PHPUnit/Pest):** **544 Passed, 0 Failed**.
+- **اختبارات الفرونت إند (Vitest):** **40 Passed (40 Assertions عبر 9 ملفات)** بنسبة 100%.
+- **بناء حزم الإنتاج (Vite Build):** نجاح تام لأمر `npm run build` في 15.99 ثانية دون أي خطأ.
