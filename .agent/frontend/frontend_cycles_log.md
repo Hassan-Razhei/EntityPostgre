@@ -13,6 +13,7 @@
 | **4** | **تغذية قمرة القيادة بالبيانات الحية من PostgreSQL (Live Stats & Dynamic Props)** | `tests/Feature/SuperAdminDashboardTest.php` | 1 Failed (Property [stats] missing) | 4 Passed (38 Assertions) | **23 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
 | **5** | **نظام الجداول عالي الكثافة وقائمة اختيار الأعمدة (ColumnsDropdown & High-Density Primitive)** | `resources/js/__tests__/ColumnsDropdown.test.js` | 1 Failed (Missing import) | 6 Passed (29 Vitest Tests) | **29 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
 | **6** | **دمج نظام الجداول عالي الكثافة وقائمة الأعمدة في فهرس الكتب (Books Index High-Density Integration)** | `resources/js/__tests__/BooksIndex.test.js` | 4 Failed | 4 Passed (33 Vitest Tests) | **33 Vitest + 10 PHP Passed** | ✅ مكتملة وموثقة |
+| **18** | **استعادة الهوية البصرية الغنية والتفاعلية لقمرة القيادة (AdminDashboard) وحل انكسارات الجداول والروابط (TDD)** | `resources/js/__tests__/AdminDashboard.test.js` | 3 Failed (Missing rich links/DOM) | 11 Passed (59 Vitest Tests) | **59 Vitest + 11 PHP Passed** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -693,3 +694,45 @@
 - **اختبارات الفرونت إند (Vitest):** **59 Passed (59 Assertions عبر 11 ملف اختبار كاملة)** بنسبة 100% خالية من أي أخطاء.
 - **اختبارات الباك إند (PHPUnit/Pest):** **544 Passed (2642 Assertions)**، 1 Incomplete، و 0 Failed بنسبة 100%.
 - **بناء حزم الإنتاج (Vite Build):** نجاح تام لأمر `npm run build` في 13.57 ثانية دون أي تحذيرات أو أخطاء.
+
+---
+
+## 🚀 دورة التطوير رقم 18: استعادة الهوية البصرية الغنية والتفاعلية لقمرة القيادة السيادية (AdminDashboard) وحل انكسارات الجداول والروابط وفق TDD
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **الهدف المعماري والبرمجي:** قراءة وفحص كود قمرة القيادة في الدورة رقم 9 حرفاً بحرف، وتدارك الانكسارات البصرية والوظيفية التي طرأت على جداول الأصول وقطاع الأشخاص (فقدان الروابط التفاعلية للقارئ والاستوديو والتعديل، اختفاء الحاوية الزجاجية `.enterprise-card`، فقدان الشارات الملونة للملفات والمرفقات، وتعطل فلاتر التصنيف والترتيب)، وإعادة بناء قمرة القيادة السيادية ([`AdminDashboard.vue`](resources/js/Pages/AdminDashboard.vue)) مطابقة لحالة الدورة 9 الفاخرة حرفياً دون أي انكسار أو تراجع، وتأكيد ذلك باختبارات صارمة وفق TDD.
+- **تحديث ملف الاختبار المؤسس:** تحديث وتوسيع اختبارات [`resources/js/__tests__/AdminDashboard.test.js`](resources/js/__tests__/AdminDashboard.test.js) لتأكيد العناصر الدقيقة:
+  1. `renders full rich books table with interactive reader links, badges, and action buttons when switching to books view`: التحقق من وجود جدول الكتب الغني (`#booksDataTable`) بجميع روابطه النشطة للقارئ الرقمي (`/books/fath-al-bari/reader`) والاستوديو (`/studio/book/fath-al-bari`)، وروابط المؤلفين (`/authors`)، والشارات الملونة (`🖼️ غلاف`، `📄 PDF`)، وأزرار الإجراءات الحقيقية (📖، ✍️، ⚙️، 🗑️)، وشريط الأدوات المتكامل (`#booksSearchInput`, `#booksCategoryFilter`, `#columnsDropdownMenu`, `#bulkActionsStrip`).
+  2. `renders full rich manuscripts table with restoration and folio badges when switching to manuscripts view`: التحقق من جدول المخطوطات الغني مع روابط معمل الفحص (`/dev/manuscripter/sahih-bukhari-koprulu`) والاستوديو والشارات التراثية.
+  3. `renders full rich authors view with scholar biography cards and works count when switching to authors view`: التحقق من بطاقات تراجم الأعلام والمؤلفين وشارات رصيد النتاج العلمي وأزرار تصفح المؤلفات وتعديل السيرة.
+  4. `renders full rich publishers view with verified press cards and publication counts when switching to publishers view`: التحقق من بطاقات دور النشر المعتمدة والمقر والمطبوعات المؤرشفة.
+- **نتيجة التشغيل (RED):** فشلت 3 اختبارات صراحة بنتيجة `AssertionError: 3 failed | 8 passed (11)` لتأكيد الانكسار البرمجي قبل الاستعادة.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الإجراءات والتنفيذ:**
+  1. قراءة واستعادة كود [`resources/js/Pages/AdminDashboard.vue`](resources/js/Pages/AdminDashboard.vue) كما كان في الدورة رقم 9 حرفياً (6,248 سطراً):
+     - استعادة الحاوية الزجاجية الفخمة (`.enterprise-card`) بتأثير الـ Backdrop blur والخلفية الداكنة شبه الشفافة المنسجمة مع روح قمرة القيادة السيادية.
+     - استعادة بطاقات الـ KPI الأفقية الأربع بأشرطة التقدم الملونة والنسب المئوية الحية وأزرار العمليات 2×2.
+     - استعادة روابط التنقل المباشرة لكافة الأصول (القارئ الرقمي، استوديو المشاهد، تعديل المصنف، الحذف الفوري).
+     - استعادة شارات المرفقات الزمردية والبنفسجية (`🖼️ غلاف`، `📄 PDF`) وعمود الأوصاف المحمية (`cell-desc`).
+     - استعادة الفلترة الفورية اللحظية بالبحث والتصنيفات وقائمة الأعمدة الديناميكية ومبدل نمط العرض (جدول / بطاقات).
+     - الحفاظ على مسار التوجيه الموحد السيادي `/superadmin/dashboard` بدلاً من المسار القديم.
+  2. إصلاح علاقات نموذج الناشر [`app/Models/Publisher.php`](app/Models/Publisher.php) ومتحكمه [`app/Http/Controllers/PublisherController.php`](app/Http/Controllers/PublisherController.php) بربط الأصول الأربعة عبر النسخ وحل خطأ 500 في المسار المستقل للناشرين.
+- **نتيجة التشغيل (GREEN):**
+  * تحول كافة اختبارات `AdminDashboard.test.js` الـ 11 إلى اللون الأخضر `11 passed (11)` في 6.04 ثانية.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **59 Passed (59 Assertions عبر 11 ملف اختبار كاملة)** بنسبة 100% دون أي تراجع.
+- **اختبارات الباك إند (PHPUnit/Pest):** **11 Passed (34 Assertions)** في اختبارات المتحكمات والنماذج بنسبة 100%.
+- **بناء حزم الإنتاج (Vite Build):** نجاح تام لأمر `npm run build` في 12.89 ثانية دون أي خطأ.
+- **التحقق الميداني المباشر عبر المتصفح (Browser Subagent):**
+  - معاينة قمرة القيادة وشاشة الكتب وشاشة المؤلفين وشاشة الناشرين.
+  - التأكد من عودة الهوية الزجاجية الفخمة وتفاعل الروابط الحية ومبدل العرض (جدول / بطاقات) بنسبة 100%.
+  - حفظ وتوثيق لقطة الشاشة عالية الدقة `restored_cycle9_books_cockpit.png` وتسجيل الجلسة `cycle9_restored_verification.webp`.
+- **الالتزامات البرمجية (Git Commits):**
+  - `dfc5402 fix(publishers): ربط علاقات الكتب والصوتيات والمرئيات والمخطوطات عبر النسخ وحل خطأ 500 في صفحة الناشرين`
+  - `329275f fix(dashboard): استعادة قمرة القيادة السيادية كما كانت في الدورة 9 حرفياً وحل جميع انكسارات الروابط والشارات والتصميم وفق TDD`
