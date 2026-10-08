@@ -1,5 +1,4 @@
 <?php
-// tests/Unit/Models/CategoryTest.php
 
 namespace Tests\Unit\Models;
 
@@ -14,7 +13,7 @@ class CategoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function category_can_be_created_with_basic_fields()
     {
         // 1. Arrange
@@ -35,10 +34,7 @@ class CategoryTest extends TestCase
         $this->assertDatabaseHas('categories', $data);
     }
 
-    /** @test */
-    // tests/Unit/Models/CategoryTest.php
-
-    /** @test */
+    #[Test]
     public function category_slug_is_generated_from_name_if_not_provided()
     {
         // 1. Arrange
@@ -58,7 +54,7 @@ class CategoryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function category_slug_is_unique_and_incremented_on_conflict()
     {
         // 1. Arrange - إنشاء أول كاتيجوري
@@ -80,10 +76,7 @@ class CategoryTest extends TestCase
         ]);
     }
 
-    /** @test */
-    // tests/Unit/Models/CategoryTest.php
-
-    /** @test */
+    #[Test]
     public function category_can_have_parent_category()
     {
         // 1. Arrange
@@ -104,7 +97,7 @@ class CategoryTest extends TestCase
         $this->assertTrue($child->parent->is($parent));
     }
 
-    /** @test */
+    #[Test]
     public function category_can_have_children_categories()
     {
         // 1. Arrange
@@ -134,7 +127,7 @@ class CategoryTest extends TestCase
         $this->assertTrue($children->contains($child2));
     }
 
-    /** @test */
+    #[Test]
     public function category_returns_root_categories_when_parent_id_is_null()
     {
         // 1. Arrange
@@ -150,9 +143,7 @@ class CategoryTest extends TestCase
         $this->assertTrue($roots->contains($root2));
     }
 
-    // tests/Unit/Models/CategoryTest.php
-
-    /** @test */
+    #[Test]
     public function category_can_have_polymorphic_relationship_with_entities()
     {
         // 1. Arrange
@@ -168,9 +159,8 @@ class CategoryTest extends TestCase
         $this->assertCount(1, $category->fresh()->books);
         $this->assertCount(1, $category->fresh()->videos);
     }
-    // tests/Unit/Models/CategoryTest.php
 
-    /** @test */
+    #[Test]
     public function category_name_is_required()
     {
         // 1. Arrange
@@ -183,7 +173,7 @@ class CategoryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function category_slug_is_unique()
     {
         // 1. Arrange
@@ -201,7 +191,7 @@ class CategoryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function category_can_be_soft_deleted_if_configured()
     {
         // 1. Arrange
@@ -216,9 +206,7 @@ class CategoryTest extends TestCase
         $this->assertNull(Category::find($category->id));
     }
 
-    /** @test */
-    // tests/Unit/Models/CategoryTest.php
-    /** @test */
+    #[Test]
     public function category_can_get_parent_hierarchy()
     {
         // 1. Arrange

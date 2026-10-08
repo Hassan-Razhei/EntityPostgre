@@ -1,5 +1,4 @@
 <?php
-// tests/Unit/Observers/EntityCacheObserverTest.php
 
 namespace Tests\Unit\Observers;
 
@@ -28,7 +27,7 @@ class EntityCacheObserverTest extends TestCase
         Category::observe($observer);
     }
 
-    /** @test */
+    #[Test]
     public function it_invalidates_cache_when_entity_is_created()
     {
         // Arrange
@@ -45,7 +44,7 @@ class EntityCacheObserverTest extends TestCase
         $this->assertFalse(Cache::has('entities.Book.all'));
     }
 
-    /** @test */
+    #[Test]
     public function it_invalidates_tag_cache_when_tag_is_created()
     {
         // Arrange
@@ -58,7 +57,7 @@ class EntityCacheObserverTest extends TestCase
         $this->assertFalse(Cache::has('Tags.all'));
     }
 
-    /** @test */
+    #[Test]
     public function it_invalidates_category_cache_when_category_is_created()
     {
         // Arrange
@@ -71,7 +70,7 @@ class EntityCacheObserverTest extends TestCase
         $this->assertFalse(Cache::has('Categories.all'));
     }
 
-    /** @test */
+    #[Test]
     public function it_clears_all_entity_cache()
     {
         // Arrange
@@ -90,10 +89,7 @@ class EntityCacheObserverTest extends TestCase
         $this->assertFalse(Cache::has('entities.Book.all'));
     }
 
-    /** @test */
-    // في tests/Unit/Observers/EntityCacheObserverTest.php
-
-    /** @test */
+    #[Test]
     public function it_generates_entity_stats_cache()
     {
         // Arrange
@@ -103,7 +99,7 @@ class EntityCacheObserverTest extends TestCase
         $cacheKey = "entity.Book.{$book->id}.stats";
 
         // انتظر قليلاً لضمان عمل الـ Observer
-        sleep(0.1);
+        usleep(100000);
 
         // Assert - تحقق من وجود الكاش
         $this->assertTrue(Cache::has($cacheKey));
@@ -115,9 +111,7 @@ class EntityCacheObserverTest extends TestCase
         $this->assertArrayHasKey('categories_count', $cachedStats);
     }
 
-// أو
-
-    /** @test */
+    #[Test]
     public function it_warms_entity_cache_when_created()
     {
         // Arrange & Act

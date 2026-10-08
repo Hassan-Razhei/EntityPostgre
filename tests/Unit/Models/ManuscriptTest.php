@@ -11,16 +11,14 @@ class ManuscriptTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function manuscript_extends_entity()
     {
         $manuscript = new Manuscript(['title' => 'Test Manuscript']);
         $this->assertInstanceOf(\App\Models\Entity::class, $manuscript);
     }
 
-    /** @test */
-    // tests/Unit/Models/ManuscriptTest.php
-    /** @test */
+    #[Test]
     public function manuscript_has_historical_properties()
     {
         $manuscript = Manuscript::create([
@@ -37,7 +35,7 @@ class ManuscriptTest extends TestCase
         $this->assertFalse($manuscript->isModern());
     }
 
-    /** @test */
+    #[Test]
     public function manuscript_calculates_age_correctly()
     {
         $manuscript = Manuscript::create([

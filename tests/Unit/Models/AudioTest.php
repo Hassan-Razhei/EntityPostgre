@@ -11,14 +11,14 @@ class AudioTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function audio_extends_entity()
     {
         $audio = new Audio(['title' => 'Test Audio']);
         $this->assertInstanceOf(\App\Models\Entity::class, $audio);
     }
 
-    /** @test */
+    #[Test]
     public function audio_has_audio_specific_properties()
     {
         $audio = Audio::create([
@@ -37,7 +37,7 @@ class AudioTest extends TestCase
         $this->assertEquals(44100, $audio->sample_rate);
     }
 
-    /** @test */
+    #[Test]
     public function audio_formats_duration_correctly()
     {
         $audio = Audio::create([

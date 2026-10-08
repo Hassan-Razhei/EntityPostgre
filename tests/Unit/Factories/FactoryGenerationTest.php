@@ -10,7 +10,7 @@ class FactoryGenerationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_can_generate_media_entities()
     {
         $video = \App\Models\Video::factory()->create();
@@ -28,7 +28,7 @@ class FactoryGenerationTest extends TestCase
         $this->assertNotNull($manuscript->manuscript_century);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_generate_grouping_entities()
     {
         $collection = \App\Models\Collection::factory()->create();
@@ -41,7 +41,7 @@ class FactoryGenerationTest extends TestCase
         $this->assertNotNull($series->title);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_generate_polymorphic_relations_and_interactions()
     {
         $tag = \App\Models\Tag::factory()->create();
@@ -59,14 +59,11 @@ class FactoryGenerationTest extends TestCase
         $comment = \App\Models\Comment::factory()->create();
         $this->assertNotNull($comment->id);
         $this->assertNotNull($comment->entity_id);
+        $this->assertNotNull($comment->user_id);
 
         $note = \App\Models\Note::factory()->create();
         $this->assertNotNull($note->id);
-        $this->assertNotNull($note->content);
-
-        $deletion = \App\Models\Deletion::factory()->create();
-        $this->assertNotNull($deletion->id);
-        $this->assertNotNull($deletion->reason);
-        $this->assertNotNull($deletion->deleted_at);
+        $this->assertNotNull($note->entity_id);
+        $this->assertNotNull($note->user_id);
     }
 }

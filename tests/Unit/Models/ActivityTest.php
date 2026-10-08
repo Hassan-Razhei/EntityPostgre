@@ -20,7 +20,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class ActivityTest extends TestCase
 {
     use RefreshDatabase;
- 
+
     protected User $user;
 
     protected function setUp(): void
@@ -31,6 +31,7 @@ class ActivityTest extends TestCase
         $this->user = User::factory()->create();
     }
 
+    #[Test]
     public function testActivityCanRecordEventsForAllEntityTypes()
     {
         // تحقق من وجود مستخدمين
@@ -52,7 +53,8 @@ class ActivityTest extends TestCase
 
         $this->assertInstanceOf(Activity::class, $activity);
     }
-    /** @test */
+
+    #[Test]
     public function activity_can_record_events_for_all_entity_types()
     {
         $user = User::factory()->create();
@@ -77,7 +79,7 @@ class ActivityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function comment_can_be_added_to_all_entity_types()
     {
         $book = Book::create(['title' => 'Comment Test Book', 'author' => 'Author']);
@@ -94,7 +96,7 @@ class ActivityTest extends TestCase
         $this->assertEquals($book->id, $comment->entity->id);
     }
 
-    /** @test */
+    #[Test]
     public function note_can_be_attached_to_entities()
     {
         $video = Video::create(['title' => 'Note Test Video', 'duration' => 150]);
@@ -110,7 +112,7 @@ class ActivityTest extends TestCase
         $this->assertInstanceOf(Video::class, $note->entity);
     }
 
-    /** @test */
+    #[Test]
     public function deletion_records_entity_deletions()
     {
         $audio = Audio::create(['title' => 'To Delete Audio', 'duration' => 200]);
@@ -130,7 +132,7 @@ class ActivityTest extends TestCase
         $this->assertSoftDeleted($audio);
     }
 
-    /** @test */
+    #[Test]
     public function collection_can_contain_multiple_entity_types()
     {
         $collection = Collection::create([
@@ -152,7 +154,7 @@ class ActivityTest extends TestCase
         $this->assertInstanceOf(Video::class, $collection->entities[1]);
     }
 
-    /** @test */
+    #[Test]
     public function series_can_order_entities()
     {
         $series = Series::create([
@@ -175,7 +177,7 @@ class ActivityTest extends TestCase
         $this->assertEquals('Series MS 2', $entities[1]->title);
     }
 
-    /** @test */
+    #[Test]
     public function all_polymorphic_models_share_common_structure()
     {
         $models = [
@@ -197,7 +199,7 @@ class ActivityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function many_to_many_models_have_entities_relationship()
     {
         $models = [

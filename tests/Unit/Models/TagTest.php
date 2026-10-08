@@ -12,10 +12,10 @@ use App\Models\Video;
 class TagTest extends TestCase
 {
     use RefreshDatabase;
-    /** @test */
+
+    #[Test]
     public function tag_has_name_and_slug()
     {
-        // RED: Tag model غير موجود
         $tag = new Tag([
             'name' => 'PHP',
             'slug' => 'php'
@@ -25,7 +25,7 @@ class TagTest extends TestCase
         $this->assertEquals('php', $tag->slug);
     }
 
-    /** @test */
+    #[Test]
     public function tag_slug_is_generated_from_name()
     {
         $tag = Tag::create([
@@ -35,7 +35,7 @@ class TagTest extends TestCase
         $this->assertEquals('laravel-framework', $tag->slug);
     }
 
-    /** @test */
+    #[Test]
     public function tag_can_have_type()
     {
         $tag = Tag::create([
@@ -46,8 +46,7 @@ class TagTest extends TestCase
         $this->assertEquals('category', $tag->type);
     }
 
-    // tests/Unit/Models/TagTest.php - إضافة اختبار
-    /** @test */
+    #[Test]
     public function tag_has_polymorphic_taggables_relationship()
     {
         $tag = Tag::create(['name' => 'Test Tag']);

@@ -14,7 +14,7 @@ class BookRelationsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function book_has_versions_relationship()
     {
         $book = Book::factory()->create();
@@ -23,7 +23,7 @@ class BookRelationsTest extends TestCase
         $this->assertInstanceOf(MorphMany::class, $book->versions());
     }
 
-    /** @test */
+    #[Test]
     public function book_has_authors_relationship()
     {
         $book = Book::factory()->create();
@@ -32,7 +32,7 @@ class BookRelationsTest extends TestCase
         $this->assertInstanceOf(MorphToMany::class, $book->authors());
     }
 
-    /** @test */
+    #[Test]
     public function book_has_bookers_polymorphic_relationship()
     {
         $book = Book::factory()->create();
@@ -41,7 +41,7 @@ class BookRelationsTest extends TestCase
         $this->assertInstanceOf(MorphToMany::class, $book->bookers());
     }
 
-    /** @test */
+    #[Test]
     public function book_has_topics_relationship()
     {
         $book = Book::factory()->create();

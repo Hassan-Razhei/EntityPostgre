@@ -17,7 +17,7 @@ class EntityLifecycleObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function test_app_service_provider_registers_observer()
     {
         // اختبار عملي - إذا كانت slugs تعمل، فالـ Observer مسجل
@@ -34,7 +34,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertTrue(true, 'Observer is working correctly');
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_slug_when_book_is_created()
     {
         $book = Book::create([
@@ -45,7 +45,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('my-test-book', $book->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_change_slug_if_already_provided()
     {
         $book = Book::create([
@@ -57,7 +57,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('custom-slug-123', $book->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_works_for_video_entities()
     {
         $video = Video::create([
@@ -68,7 +68,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('my-test-video', $video->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_works_for_audio_entities()
     {
         $audio = Audio::create([
@@ -79,7 +79,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('my-test-audio', $audio->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_works_for_manuscript_entities()
     {
         $manuscript = Manuscript::create([
@@ -90,7 +90,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('my-test-manuscript', $manuscript->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_unique_slugs_for_duplicate_titles()
     {
         // Arrange
@@ -103,7 +103,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('duplicate-book-1', $book2->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_slug_when_title_changes()
     {
         // Arrange
@@ -119,7 +119,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('updated-title', $book->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_unique_slugs_for_duplicate_video_titles()
     {
         // Arrange
@@ -132,7 +132,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('duplicate-video-1', $video2->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_unique_slugs_for_duplicate_audio_titles()
     {
         // Arrange
@@ -145,7 +145,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('duplicate-audio-1', $audio2->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_unique_slugs_for_duplicate_manuscript_titles()
     {
         // Arrange
@@ -158,7 +158,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertEquals('duplicate-manuscript-01', $manuscript2->fresh()->slug);
     }
 
-    /** @test */
+    #[Test]
     public function verify_observer_is_registered_once()
     {
         // تحقق من أن slugs فريدة يتم إنشاؤها (وهذا يعني الـ observer يعمل)
@@ -176,7 +176,7 @@ class EntityLifecycleObserverTest extends TestCase
     }
 
 
-    /** @test */
+    #[Test]
     public function it_triggers_created_event_after_creation()
     {
         // لا نحتاج لـ Log mocking هنا، فقط نتحقق من أن العملية تعمل
@@ -195,7 +195,7 @@ class EntityLifecycleObserverTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_triggers_updated_event_after_update()
     {
         // Arrange
@@ -222,7 +222,7 @@ class EntityLifecycleObserverTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_triggers_deleting_event_before_deletion()
     {
         $book = Book::create([
@@ -243,7 +243,7 @@ class EntityLifecycleObserverTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_triggers_deleted_event_after_deletion()
     {
         $book = Book::create([
@@ -262,7 +262,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertFalse($book->trashed());
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_all_events_for_video_entities()
     {
         // اختبار عملي بدون Log mocking
@@ -296,7 +296,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertFalse($video->trashed());
     }
 
-    /** @test */
+    #[Test]
     public function it_logs_warning_for_relations_before_deletion()
     {
         $book = Book::create([
@@ -309,7 +309,7 @@ class EntityLifecycleObserverTest extends TestCase
         $this->assertSoftDeleted($book);
     }
 
-    /** @test */
+    #[Test]
     public function it_triggers_all_six_events_for_complete_lifecycle()
     {
         // دورة حياة كاملة
@@ -338,7 +338,7 @@ class EntityLifecycleObserverTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_events_without_logging_for_simplified_testing()
     {
         // اختبار بديل بدون تعقيدات Log mocking

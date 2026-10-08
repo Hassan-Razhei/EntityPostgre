@@ -1,5 +1,4 @@
 <?php
-// tests/Unit/Models/BookTest.php
 
 namespace Tests\Unit\Models;
 
@@ -22,7 +21,7 @@ class BookTest extends TestCase
         $this->assertInstanceOf(\App\Models\Entity::class, $book);
     }
 
-    /** @test */
+    #[Test]
     public function book_has_required_properties()
     {
         $book = Book::create([
@@ -35,7 +34,7 @@ class BookTest extends TestCase
         $this->assertNotNull($book->slug);
     }
 
-    /** @test */
+    #[Test]
     public function book_inherits_polymorphic_relations_from_entity()
     {
         $book = Book::create(['title' => 'Test Book', 'author' => 'Author']);
@@ -72,7 +71,7 @@ class BookTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function book_can_have_activities()
     {
         $user = User::factory()->create();
@@ -104,7 +103,7 @@ class BookTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function book_supports_soft_deletes()
     {
         $book = Book::create(['title' => 'Test Book', 'author' => 'Author']);
