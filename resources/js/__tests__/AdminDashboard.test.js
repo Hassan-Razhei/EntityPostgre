@@ -205,4 +205,26 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
         const output = document.getElementById('terminalOutput');
         expect(output.textContent).toContain('Storage sync completed');
     });
+
+    it('renders native AssetTableView component when switching to books view', async () => {
+        const wrapper = createWrapper();
+        window.loadView('books');
+        await new Promise(r => setTimeout(r, 120));
+
+        const assetView = wrapper.findComponent({ name: 'AssetTableView' });
+        expect(assetView.exists()).toBe(true);
+        expect(assetView.props('assetTitle')).toBe('الكتب');
+        expect(wrapper.text()).toContain('فتح الباري شرح صحيح البخاري');
+    });
+
+    it('renders native AssetTableView component when switching to manuscripts view', async () => {
+        const wrapper = createWrapper();
+        window.loadView('manuscripts');
+        await new Promise(r => setTimeout(r, 120));
+
+        const assetView = wrapper.findComponent({ name: 'AssetTableView' });
+        expect(assetView.exists()).toBe(true);
+        expect(assetView.props('assetTitle')).toBe('المخطوطات');
+        expect(wrapper.text()).toContain('صحيح البخاري - المجلد الرابع (نسخة كوبريلي)');
+    });
 });

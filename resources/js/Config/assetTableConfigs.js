@@ -1,0 +1,183 @@
+/**
+ * Configuration for Enterprise Asset Tables (Books, Manuscripts, Audios, Videos)
+ * Matched 1:1 with PostgreSQL Migrations and super_admin_dashboard_preview.html
+ */
+
+export const booksColumns = [
+    { key: 'serial', label: 'الرقم', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'title', label: 'العنوان', visible: true, required: true, sortable: true },
+    { key: 'slug', label: 'المعرف', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'author', label: 'المؤلف', visible: true, required: false, sortable: true },
+    { key: 'isbn', label: 'الرقم الدولي', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'description', label: 'الوصف', visible: true, required: false },
+    { key: 'files', label: 'الملفات', visible: true, required: false, align: 'center' },
+    { key: 'created_at', label: 'التاريخ', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'actions', label: 'الإجراءات', visible: true, required: true, align: 'center' },
+];
+
+export const manuscriptsColumns = [
+    { key: 'serial', label: 'الرقم', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'code', label: 'الكود', visible: true, required: true, sortable: true, isMono: true },
+    { key: 'title', label: 'العنوان', visible: true, required: true, sortable: true },
+    { key: 'original_title', label: 'العنوان الأصلي', visible: false, required: false },
+    { key: 'century', label: 'القرن', visible: true, required: false, align: 'center' },
+    { key: 'copy_date', label: 'تاريخ النسخ', visible: true, required: false, align: 'center', isMono: true },
+    { key: 'copyist', label: 'الناسخ', visible: true, required: false },
+    { key: 'parts_count', label: 'الأجزاء', visible: false, required: false, align: 'center' },
+    { key: 'dimensions', label: 'الأبعاد', visible: false, required: false, isMono: true },
+    { key: 'lines_count', label: 'الأسطر', visible: false, required: false, align: 'center' },
+    { key: 'script_type', label: 'الخط', visible: true, required: false },
+    { key: 'ink_color', label: 'الحبر', visible: false, required: false },
+    { key: 'paper_type', label: 'الورق', visible: false, required: false },
+    { key: 'binding_type', label: 'التجليد', visible: false, required: false },
+    { key: 'source_library', label: 'المصدر الخزائني', visible: true, required: false },
+    { key: 'shelf_number', label: 'رقم الحفظ', visible: true, required: false, isMono: true },
+    { key: 'condition', label: 'الحالة', visible: true, required: false, align: 'center' },
+    { key: 'incipit', label: 'الفاتحة', visible: false, required: false },
+    { key: 'explicit', label: 'الخاتمة', visible: false, required: false },
+    { key: 'colophon', label: 'الحرد', visible: false, required: false },
+    { key: 'notes', label: 'الملاحظات', visible: false, required: false },
+    { key: 'files', label: 'الملفات', visible: true, required: false, align: 'center' },
+    { key: 'created_at', label: 'التاريخ', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'actions', label: 'الإجراءات', visible: true, required: true, align: 'center' },
+];
+
+export const audiosColumns = [
+    { key: 'serial', label: 'الرقم', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'title', label: 'العنوان', visible: true, required: true, sortable: true },
+    { key: 'code', label: 'الكود', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'slug', label: 'المعرف', visible: false, required: false, isMono: true },
+    { key: 'duration', label: 'المدة', visible: true, required: false, isMono: true },
+    { key: 'format', label: 'الصيغة', visible: true, required: false, align: 'center' },
+    { key: 'bitrate', label: 'معدل البت', visible: true, required: false, isMono: true },
+    { key: 'sample_rate', label: 'التردد', visible: false, required: false },
+    { key: 'file_size', label: 'الحجم', visible: true, required: false, isMono: true },
+    { key: 'description', label: 'الوصف', visible: false, required: false },
+    { key: 'files', label: 'الملفات', visible: true, required: false, align: 'center' },
+    { key: 'created_at', label: 'التاريخ', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'actions', label: 'الإجراءات', visible: true, required: true, align: 'center' },
+];
+
+export const videosColumns = [
+    { key: 'serial', label: 'الرقم', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'title', label: 'العنوان', visible: true, required: true, sortable: true },
+    { key: 'code', label: 'الكود', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'slug', label: 'المعرف', visible: false, required: false, isMono: true },
+    { key: 'duration', label: 'المدة', visible: true, required: false, isMono: true },
+    { key: 'format', label: 'الصيغة', visible: true, required: false, align: 'center' },
+    { key: 'file_size', label: 'الحجم', visible: true, required: false, isMono: true },
+    { key: 'description', label: 'الوصف', visible: false, required: false },
+    { key: 'files', label: 'الملفات', visible: true, required: false, align: 'center' },
+    { key: 'created_at', label: 'التاريخ', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'actions', label: 'الإجراءات', visible: true, required: true, align: 'center' },
+];
+
+export const sampleBooksRows = [
+    {
+        id: 1,
+        serial: '#10401',
+        title: 'فتح الباري شرح صحيح البخاري',
+        slug: 'fath-al-bari',
+        author: 'ابن حجر العسقلاني',
+        isbn: '978-603-500-025-4',
+        description: 'أجل شروح صحيح الإمام البخاري وأعظمها نفعاً، تضمن تحرير الروايات وضبط الألفاظ واستنباط الأحكام.',
+        files: '🖼️ غلاف + 📄 PDF',
+        created_at: 'منذ ساعتين',
+    },
+    {
+        id: 2,
+        serial: '#10402',
+        title: 'المستصفى من علم الأصول',
+        slug: 'al-mustasfa',
+        author: 'الإمام الغزالي',
+        isbn: '978-9953-34-118-0',
+        description: 'من أمهات كتب أصول الفقه الشافعي والمقارن، وتقسيم مدارك الأحكام ومراتب الأدلة.',
+        files: '🖼️ غلاف + 📄 PDF',
+        created_at: 'أمس',
+    },
+    {
+        id: 3,
+        serial: '#10403',
+        title: 'مجموع الفتاوى لشيخ الإسلام',
+        slug: 'majmu-al-fatawa',
+        author: 'ابن تيمية',
+        isbn: '978-603-500-025-4',
+        description: 'الموسوعة الكبرى في العقيدة والفقه والسلوك، جمع الشيخ ابن قاسم رحمه الله.',
+        files: '🖼️ غلاف + 📄 PDF',
+        created_at: 'منذ 3 أيام',
+    },
+    {
+        id: 4,
+        serial: '#10404',
+        title: 'سير أعلام النبلاء',
+        slug: 'siyar-alam-al-nubala',
+        author: 'الإمام الذهبي',
+        isbn: '978-9953-500-02-1',
+        description: 'موسوعة تراجم كبرى لأعيان الأمة والعلماء والقراء والمحدثين عبر القرون الهجرية.',
+        files: '🖼️ غلاف + 📄 PDF',
+        created_at: 'منذ أسبوع',
+    },
+];
+
+export const sampleManuscriptsRows = [
+    {
+        id: 1,
+        serial: '#20401',
+        code: 'MS-KOP-01',
+        title: 'صحيح البخاري - المجلد الرابع (نسخة كوبريلي)',
+        original_title: 'الجامع المسند الصحيح المختصر',
+        century: 'القرن 7 هـ',
+        copy_date: '685 هـ',
+        copyist: 'علي بن محمد بن وضاح الشهرزوري',
+        parts_count: 'المجلد الرابع من 8',
+        dimensions: '28 × 20 سم',
+        lines_count: '21 سطراً',
+        script_type: 'ثلث مشرقي قديم',
+        ink_color: 'سواد كربوني، حمرة قانية',
+        paper_type: 'كاغد دمشقي مائي',
+        binding_type: 'جلد عثماني أصيل بصنجات',
+        source_library: 'مكتبة كوبريلي - إسطنبول',
+        shelf_number: 'MS-362/4',
+        condition: 'ممتازة 95%',
+        incipit: 'بسم الله الرحمن الرحيم، باب كيف كان بدء الوحي...',
+        explicit: '...وهو حسبي ونعم الوكيل تم السفر بحمد الله.',
+        colophon: 'فرغ من نسخه في العشر الأواخر من رجب المبارك.',
+        notes: 'عليه قيود سماع وإجازات بخط ابن حجر وابن الجزري.',
+        files: '🖼️ 420 لوحة (TIFF)',
+        created_at: 'منذ 3 ساعات',
+    },
+];
+
+export const sampleAudiosRows = [
+    {
+        id: 1,
+        serial: '#30101',
+        title: 'شرح كتاب التوحيد - المجلس الأول',
+        code: 'AUD-ABD-01',
+        slug: 'sharh-kitab-tawhid-01',
+        duration: '01:24:15',
+        format: 'MP3 High Quality',
+        bitrate: '320 kbps',
+        sample_rate: '44.1 kHz',
+        file_size: '115 MB',
+        description: 'المجلس الافتتاحي لشرح كتاب التوحيد لشيخ الإسلام محمد بن عبد الوهاب، قراءة وتحقيق متون.',
+        files: '🎧 صوتي + 🖼️ غلاف',
+        created_at: 'أمس',
+    },
+];
+
+export const sampleVideosRows = [
+    {
+        id: 1,
+        serial: '#40101',
+        title: 'ندوة فهارس المخطوطات والرقمنة السحابية',
+        code: 'VID-NDW-01',
+        slug: 'manuscripts-cataloging-seminar',
+        duration: '02:15:00',
+        format: 'MP4 4K UltraHD',
+        file_size: '3.4 GB',
+        description: 'ندوة علمية تفاعلية حول رقمنة المخطوطات الإسلامية وحفظ الفهارس في البيئات السحابية الحديثة.',
+        files: '▶️ مرئي + 🖼️ غلاف',
+        created_at: 'منذ يومين',
+    },
+];

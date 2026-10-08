@@ -623,3 +623,39 @@
 - **اختبارات الفرونت إند (Vitest):** **51 Passed (51 Assertions عبر 10 ملفات اختبار كاملة)** بنسبة 100% دون أي تراجع.
 - **اختبارات الباك إند (PHPUnit/Pest):** **544 Passed (2633 Assertions)**، 1 Incomplete، و 0 Failed بنسبة 100%.
 - **بناء حزم الإنتاج (Vite Build):** نجاح تام لأمر `npm run build` في 15.94 ثانية خالية من أي أخطاء.
+---
+
+## 🚀 دورة التطوير رقم 16: تفكيك جداول الأصول الأربعة في قمرة القيادة واستبدال 1,766 سطراً بمكونات محرك الجداول عالي الكثافة (TDD)
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **الهدف البرمجي:** تفكيك كود جداول الأصول الأربعة (الكتب، المخطوطات، الصوتيات، المرئيات) المكدسة داخل [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue) عبر بناء المكون التركيبي الموحد [`AssetTableView.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/AssetTableView.vue) والجدول عالي الكثافة [`DenseDataTable.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/DenseDataTable.vue) وفق معايير Tailwind CSS v4 الصافية.
+- **الاختبار المؤسس:** إنشاء ملف الفحص [`resources/js/__tests__/DenseDataTable.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/DenseDataTable.test.js) لاختبار:
+  1. تصيير ترويسات وخلايا الأعمدة الظاهرة فقط وإخفاء غير المفعلة.
+  2. تحديد الكل (`select-all`) وتحديد الصفوف الفردية ومزامنة مصفوفة المعرفات المختارة `selectedIds`.
+  3. تكامل المكونات الخمسة المكونة لمحرك الجداول بسلاسة داخل [`AssetTableView.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/AssetTableView.vue).
+- **نتيجة التشغيل (RED):** فشل الفحص الصريح بنتيجة `Error: Failed to resolve import ../Components/Table/DenseDataTable.vue` قبل بناء المكونين.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **المكونات والملفات المنجزة:**
+  1. [`resources/js/Components/Table/DenseDataTable.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/DenseDataTable.vue):
+     - جدول عالي الكثافة مبني 100% بفئات Tailwind CSS v4، متوافق مع الوضعين الليلي والنهاري، يدعم تحديد الكل والتحديد الفردي، تمرير الـ Slots المخصصة للخلايا، والفرز وإخفاء الأعمدة وشريط التمرير المخصص.
+  2. [`resources/js/Components/Table/AssetTableView.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/AssetTableView.vue):
+     - مكون تركيبي تفاعلي يجمع (`AssetHeaderBanner` + `TableToolbar` + `BulkActionsStrip` + `DenseDataTable` + `TablePagination` + شبكة البطاقات البديلة).
+  3. [`resources/js/Config/assetTableConfigs.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Config/assetTableConfigs.js):
+     - توحيد مصفوفات الأعمدة والبيانات النموذجية للأصول الأربعة (الكتب 10 أعمدة، المخطوطات 24 عموداً، الصوتيات 14 عموداً، المرئيات 11 عموداً) مطابقة 1:1 للمايجريشن.
+  4. تحديث [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue):
+     - حذف **1,766 سطراً** من نصوص وسلاسل HTML الخام المكررة في `viewCatalog`، واستبدالها بالمكون النقي `<AssetTableView />` المتصل مباشرة بـ `currentViewKey`.
+  5. ترقية فحص قمرة القيادة [`resources/js/__tests__/AdminDashboard.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/AdminDashboard.test.js):
+     - إضافة اختبارات التحقق من تصيير المكون النقي وبياناته عند الانتقال لفهرس الكتب وفهرس المخطوطات.
+- **نتيجة التشغيل (GREEN):**
+  * نجاح 4/4 اختبارات في `DenseDataTable.test.js`.
+  * نجاح 9/9 اختبارات في `AdminDashboard.test.js`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **57 Passed (57 Assertions عبر 11 ملف اختبار كاملة)** بنسبة 100% دون أي أخطاء.
+- **اختبارات الباك إند (PHPUnit/Pest):** **544 Passed (2645 Assertions)**، 1 Incomplete، و 0 Failed بنسبة 100%.
+- **كفاءة التحزيم (Vite Build):** تقلص حجم حزمة `AdminDashboard` البرمجية بنسبة **45%** (من 221.15 kB إلى 122.15 kB). نجاح تام لأمر `npm run build` في 18.75 ثانية.
