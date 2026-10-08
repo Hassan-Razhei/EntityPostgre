@@ -515,3 +515,37 @@
 - **اختبارات الباك إند بالكامل (PHPUnit):** **100% نجاح عبر 40+ اختباراً**.
 - **اختبارات الفرونت إند (Vitest):** **40 Passed (40 Assertions)** بنسبة 100%.
 - **بناء حزم الإنتاج (Vite Build):** نجاح تام لـ `npm run build` في 14.8 ثانية بدون أي ملفات قديمة.
+
+---
+
+## 🚀 دورة التطوير رقم 13: توحيد مسار لوحة التحكم إلى /superadmin/dashboard وإعادة هيكلة routes/web.php
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **المشكلة:** تشتت مسارات لوحة التحكم بين `/dashboard` القديم و `/superadmin/dashboard`، مع عشوائية في ملف `routes/web.php` وازدواجية في تعريف المتحكمات.
+- **التوكيدات المختبرة:**
+  1. التحقق من توحيد مسار لوحة التحكم كـ `/superadmin/dashboard` لمدير النظام الشامل.
+  2. توجيه المسار القديم `/dashboard` تلقائياً إلى `/superadmin/dashboard`.
+  3. تحديث كافة الروابط في الواجهات الأمامية وقمرة القيادة والصفحات الجانبية ونظام المصادقة.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمحدثة:**
+  1. [`routes/web.php`](file:///home/a/PhpstormProjects/EntityPostgre/routes/web.php):
+     - إعادة هيكلة شاملة للملف وتقسيمه إلى 8 كتل معمارية واضحة (Public & Guest, Media Streaming, Core Authenticated, Sovereign Studio, Super Admin Cockpit, Primary Entities, Ecosystem & Taxonomies, Interactions & Trash Bin).
+     - استيراد كافة المتحكمات بنسق ألفبائي قياسي في رأس الملف وإزالة كافة الاستدعاءات العشوائية والتكرارات والتعليقات المهملة.
+     - جعل `/superadmin/dashboard` المسار السيادي المعتمد وإضافة إعادة توجيه تلقائية من `/dashboard`.
+  2. [`app/Http/Controllers/AdminDashboardController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/AdminDashboardController.php):
+     - بناء الكنترولر الموحد لتقديم `AdminDashboard.vue` بكامل مؤشراتها وأنشطتها الحية.
+  3. حذف `DashboardController.php` القديم، وجعل `SuperAdminDashboardController` يرث من الكنترولر الموحد لمنع أي انكسار رجعي.
+  4. تحديث روابط لوحة التحكم في: `LoginController`, `UnifiedEditorController`, `welcome.blade.php`, `Navbar.vue`, `Sidebar.vue`, `AdminDashboard.vue`, `StudioLayout.vue`, `Search/Index.vue`, `Errors/403.vue`, `System/Commands.vue`.
+  5. تحديث اختبارات الواجهة والباك إند: `Navbar.test.js`, `Sidebar.test.js`, `RouteCheckTest.php`, `InformativeDenialTest.php`, `RoutingZonesTest.php`, `InertiaAuthSharingTest.php`.
+- **نتيجة التشغيل (GREEN):**
+  * `InertiaAuthSharingTest`, `RouteCheckTest`, `InformativeDenialTest`, `RoutingZonesTest`, `SuperAdminDashboardTest`: **28 Passed (435 Assertions)** بنسبة 100%.
+  * `SeedRealisticEnhancementsTest`, `ConsoleCommandsTest`, `SystemCommandExecutionTest`: **12 Passed (187 Assertions)** بنسبة 100%.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات جافاسكريبت بالكامل (Vitest):** **40 Passed (40 Assertions عبر 9 ملفات)** بنسبة 100%.
+- **بناء حزم الإنتاج (Vite Build):** نجاح تام لـ `npm run build` في 17.96 ثانية.

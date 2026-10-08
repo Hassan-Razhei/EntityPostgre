@@ -77,7 +77,7 @@ class RoutingZonesTest extends TestCase
     {
         // المستخدم المجمد يُطرد حتى لو كان مديراً عاماً
         $this->actingAs($this->inactiveUser)
-            ->get('/dashboard')
+            ->get('/superadmin/dashboard')
             ->assertStatus(403);
     }
 }

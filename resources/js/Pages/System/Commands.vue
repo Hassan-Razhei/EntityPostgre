@@ -139,7 +139,7 @@ const openBrowser = () => {
                     </div>
                 </div>
                 
-                <a href="/dashboard" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm">
+                <a href="/superadmin/dashboard" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm">
                     العودة للرئيسية
                 </a>
             </header>

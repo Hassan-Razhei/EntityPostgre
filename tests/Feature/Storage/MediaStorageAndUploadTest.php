@@ -7,12 +7,15 @@ use App\Models\Book;
 use App\Models\Manuscript;
 use App\Models\User;
 use App\Models\Video;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class MediaStorageAndUploadTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected array $createdFiles = [];
 
     protected function tearDown(): void

@@ -15,7 +15,7 @@ describe('Navbar Navigation & Profile Component (TDD)', () => {
         // Mock Ziggy route() helper
         global.route = vi.fn((name) => {
             const routes = {
-                'dashboard': '/dashboard',
+                'dashboard': '/superadmin/dashboard', 'superadmin.dashboard': '/superadmin/dashboard',
                 'logout': '/logout',
                 'search': '/search',
                 'login': '/login',

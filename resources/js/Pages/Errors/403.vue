@@ -23,12 +23,12 @@ const { user, roleLabel, badgeColor } = useAuth();
 const homeUrl = computed(() => {
     try {
         if (typeof route === 'function') {
-            return user.value ? route('dashboard') : route('home');
+            return user.value ? route('superadmin.dashboard') : route('home');
         }
     } catch (e) {
         // Fallback إذا كان المسار غير معرف
     }
-    return user.value ? '/dashboard' : '/';
+    return user.value ? '/superadmin/dashboard' : '/';
 });
 
 const logoutUrl = computed(() => {

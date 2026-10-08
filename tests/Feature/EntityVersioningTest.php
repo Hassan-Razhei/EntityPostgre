@@ -5,13 +5,13 @@ namespace Tests\Feature;
 use App\Models\Manuscript;
 use App\Models\Audio;
 use App\Models\Video;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class EntityVersioningTest extends TestCase
 {
-    // use RefreshDatabase; // Skipping RefreshDatabase to preserve seeded data for manual inspection if needed, or use separate test DB. 
-    // Ideally use RefreshDatabase in CI/CD. For now, we will just create and delete.
+    use RefreshDatabase;
 
     public function test_can_store_manuscript_with_detailed_metadata()
     {
@@ -47,7 +47,7 @@ class EntityVersioningTest extends TestCase
 
         // Fetch cousins using the logic we plan to use in Controller
         $siblingsValid = Manuscript::where('code', $code)->get();
-        
+
         $this->assertEquals(2, $siblingsValid->count());
         $this->assertTrue($siblingsValid->contains($m1));
         $this->assertTrue($siblingsValid->contains($m2));
@@ -86,8 +86,8 @@ class EntityVersioningTest extends TestCase
         $mSibling = Manuscript::create(['title' => 'Sibling Copy', 'slug' => 'sibling-' . uniqid(), 'code' => $code]);
 
         // 2. act as user
-        $user = \App\Models\User::factory()->superAdmin()->create();
-        
+        $user = User::factory()->superAdmin()->create();
+
         // 3. Make Request to Show Page
         $response = $this->actingAs($user)->get(route('manuscripts.show', $mMain->slug));
 

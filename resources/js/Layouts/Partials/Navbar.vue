@@ -129,7 +129,7 @@ onUnmounted(() => {
       <!-- 3-Tier Breadcrumbs: الرئيسية ‹ المجموعة ‹ الصفحة -->
       <div class="breadcrumbs flex items-center gap-1.5 text-xs font-bold text-gray-400 dark:text-zinc-500 mr-1">
         <Link
-          href="/dashboard"
+          href="/superadmin/dashboard"
           class="breadcrumb-link text-gray-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           title="الرئيسية"
         >
@@ -255,7 +255,7 @@ onUnmounted(() => {
 
           <!-- Menu Items -->
           <Link
-            href="/dashboard"
+            href="/superadmin/dashboard"
             class="user-dropdown-item flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
             @click="isUserMenuOpen = false"
           >

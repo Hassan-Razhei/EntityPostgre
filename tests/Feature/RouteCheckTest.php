@@ -15,7 +15,7 @@ class RouteCheckTest extends TestCase
     {
         $user = User::factory()->superAdmin()->create();
         
-        $response = $this->actingAs($user)->get('/dashboard');
+        $response = $this->actingAs($user)->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
     }

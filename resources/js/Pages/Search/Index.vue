@@ -177,7 +177,7 @@
           حاول البحث باستخدام كلمات مفتاحية أخرى أو التأكد من سلامة النص المدخل
         </p>
         <Link
-          href="/dashboard"
+          href="/superadmin/dashboard"
           class="mt-8 px-6 py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl text-[10px] font-black transition-all uppercase tracking-widest"
         >
           العودة للرئيسية

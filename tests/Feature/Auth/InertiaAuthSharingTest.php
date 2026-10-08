@@ -38,7 +38,7 @@ class InertiaAuthSharingTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->get('/dashboard')
+            ->get('/superadmin/dashboard')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('AdminDashboard')
@@ -64,7 +64,7 @@ class InertiaAuthSharingTest extends TestCase
         $user = User::factory()->withRole($role)->create();
 
         $this->actingAs($user)
-            ->get('/dashboard')
+            ->get('/search')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->where('auth.user.role', $role->value)

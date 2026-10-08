@@ -360,7 +360,7 @@ class UnifiedEditorController extends Controller
             return redirect()->route('studio.show', ['type' => EntityType::BOOK->value, 'slug' => $book->slug]);
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->route('superadmin.dashboard');
     }
 
     /**

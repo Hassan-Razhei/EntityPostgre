@@ -13,10 +13,12 @@ use Tests\TestCase;
  */
 class ManuscriptCreationIntegrationTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_complete_manuscript_creation_with_all_new_fields()
     {
         $user = User::factory()->superAdmin()->create();
-        
+
         $manuscriptData = [
             'title' => 'Test Manuscript - Complete Flow',
             'original_title' => 'الجامع الصحيح المسند',
@@ -112,7 +114,7 @@ class ManuscriptCreationIntegrationTest extends TestCase
     public function test_audio_and_video_code_field_works()
     {
         $user = User::factory()->superAdmin()->create();
-        
+
         // Test Audio
         $audioData = [
             'title' => 'Test Audio Recording',
@@ -122,7 +124,7 @@ class ManuscriptCreationIntegrationTest extends TestCase
 
         $audioResponse = $this->actingAs($user)->post(route('audios.store'), $audioData);
         $audioResponse->assertRedirect(route('audios.index'));
-        
+
         $this->assertDatabaseHas('audios', [
             'title' => 'Test Audio Recording',
             'code' => $audioData['code'],
@@ -137,7 +139,7 @@ class ManuscriptCreationIntegrationTest extends TestCase
 
         $videoResponse = $this->actingAs($user)->post(route('videos.store'), $videoData);
         $videoResponse->assertRedirect(route('videos.index'));
-        
+
         $this->assertDatabaseHas('videos', [
             'title' => 'Test Video Recording',
             'code' => $videoData['code'],

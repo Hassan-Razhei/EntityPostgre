@@ -336,7 +336,7 @@ const handleInsertNode = ({ type, title, time }) => {
     <header class="h-12 bg-[#1e1e1e] border-b border-gray-800 flex items-center justify-between px-4 shrink-0 z-[90]">
       <div class="flex items-center gap-4">
         <!-- Logo / Home -->
-        <a href="/dashboard" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+        <a href="/superadmin/dashboard" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
           <div class="w-6 h-6 bg-lime-500 rounded-md flex items-center justify-center text-black font-bold text-xs">
             ES
           </div>

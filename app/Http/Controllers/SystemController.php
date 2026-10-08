@@ -75,6 +75,7 @@ class SystemController extends Controller
         try {
             $output = new BufferedOutput();
             // تمرير true لـ no-interaction كي لا يتوقف الأمر منتظراً إدخالاً
+            $args['--no-interaction'] = true;
             Artisan::call($command, $args, $output);
 
             return response()->json([

@@ -37,7 +37,7 @@ class InformativeDenialTest extends TestCase
     {
         $inactiveUser = User::factory()->superAdmin()->inactive()->create();
 
-        $response = $this->actingAs($inactiveUser)->get('/dashboard');
+        $response = $this->actingAs($inactiveUser)->get('/superadmin/dashboard');
 
         $response->assertStatus(403);
         $response->assertInertia(fn (Assert $page) => $page

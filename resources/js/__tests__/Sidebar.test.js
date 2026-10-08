@@ -9,7 +9,7 @@ describe('Sidebar Navigation & Accordion Component (TDD)', () => {
         // Mock Ziggy route() helper
         global.route = vi.fn((name) => {
             const routes = {
-                'dashboard': '/dashboard',
+                'dashboard': '/superadmin/dashboard',
                 'superadmin.dashboard': '/superadmin/dashboard',
                 'books.index': '/books',
                 'manuscripts.index': '/manuscripts',
