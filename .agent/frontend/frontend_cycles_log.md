@@ -590,3 +590,36 @@
 - **اختبارات الباك إند بالكامل (PHPUnit/Pest):** **544 Passed, 0 Failed**.
 - **اختبارات الفرونت إند (Vitest):** **40 Passed (40 Assertions عبر 9 ملفات)** بنسبة 100%.
 - **بناء حزم الإنتاج (Vite Build):** نجاح تام لأمر `npm run build` في 15.99 ثانية دون أي خطأ.
+---
+
+## 🚀 دورة التطوير رقم 15: تفكيك وبناء محرك الجداول عالي الكثافة (Enterprise Asset Tables Engine) بأسلوب Tailwind CSS النظيف
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **الهدف البرمجي:** البدء في التفكيك المعماري لملف قمرة القيادة الضخم واستخراج اللبنات المشتركة المكررة عبر جداول الأصول الأربعة (الكتب، المخطوطات، الصوتيات، المرئيات) وفقاً لقسم 2 من خريطة التفكيك [`decomposition_map.md`](file:///home/a/PhpstormProjects/EntityPostgre/.agent/frontend/decomposition_map.md)، بالاعتماد الحصري على معيار المشروع **Tailwind CSS v4 (Utility-First)** وتجنب ملفات CSS الأحادية المنفصلة.
+- **الاختبار المؤسس:** إنشاء ملف الاختبار الشامل [`resources/js/__tests__/TableEngineComponents.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/TableEngineComponents.test.js) لاختبار:
+  1. تصيير بطاقات الـ KPI الأربع والنسب والعدادات في البانر، وإطلاق حدث `@filter-status` وشبكة الأزرار التنفيذية 2×2.
+  2. تصيير حقل البحث وقوائم الفلاتر ومبدل نمط العرض (جدول/بطاقات) ودمج `ColumnsDropdown` في شريط الأدوات.
+  3. ظهور واختفاء شريط الإجراءات الجماعية بناءً على العداد وإطلاق أحداث التصدير والحذف والإلغاء.
+  4. حسابات مجالات السجلات وأزرار التنقل وحجم الصفحة لشريط الترقيم.
+- **نتيجة التشغيل (RED):** فشل الفحص الصريح بنتيجة `Error: Failed to resolve import ../Components/Table/AssetHeaderBanner.vue` نظراً لعدم بناء المكونات بعد.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **المكونات المشيدة في مجلد [`resources/js/Components/Table/`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/):**
+  1. [`AssetHeaderBanner.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/AssetHeaderBanner.vue):
+     - بطاقات الـ KPI الأفقية الأربع: (`الكل` 100%، `منشور` زمردي، `محكّم/معتمد` أزرق، `مسودات` عنبري) مع أشرطة التقدم الملونة وحساب النسب المئوية اللحظية، وشبكة أزرار العمليات التنفيذية 2×2 (`+ إضافة جديد`، `تصدير الفهرس`، `استيراد جماعي`، `تحديث الفهرس`).
+  2. [`TableToolbar.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/TableToolbar.vue):
+     - شريط الأدوات عالي الكثافة متضمناً البحث اللحظي، الفلاتر المنسدلة، دمج مكون [`ColumnsDropdown.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/ColumnsDropdown.vue)، ومبدل نمط العرض التفاعلي (`table` / `cards`).
+  3. [`BulkActionsStrip.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/BulkActionsStrip.vue):
+     - شريط الإجراءات الجماعية العائم بتأثير زجاجي متكيف (Dark/Light mode) يظهر تلقائياً عند تحديد السجلات مع عداد رقمي وزري التصدير والحذف التحذيري وإلغاء التحديد.
+  4. [`TablePagination.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/TablePagination.vue):
+     - شريط الترقيم المتقدم مع بيان النطاق المدار من إجمالي السجلات، قائمة حجم الصفحة، وأزرار التنقل السريع (««، ‹، ›، »»).
+- **نتيجة التشغيل (GREEN):** تحول كافة اختبارات الملف الـ 11 إلى اللون الأخضر `11 passed (11)` في 171ms.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **51 Passed (51 Assertions عبر 10 ملفات اختبار كاملة)** بنسبة 100% دون أي تراجع.
+- **اختبارات الباك إند (PHPUnit/Pest):** **544 Passed (2633 Assertions)**، 1 Incomplete، و 0 Failed بنسبة 100%.
+- **بناء حزم الإنتاج (Vite Build):** نجاح تام لأمر `npm run build` في 15.94 ثانية خالية من أي أخطاء.
