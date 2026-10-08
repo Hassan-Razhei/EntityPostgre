@@ -309,10 +309,14 @@ import {
   manuscriptsColumns,
   audiosColumns,
   videosColumns,
+  authorsColumns,
+  publishersColumns,
   sampleBooksRows,
   sampleManuscriptsRows,
   sampleAudiosRows,
   sampleVideosRows,
+  sampleAuthorsRows,
+  samplePublishersRows,
 } from '@/Config/assetTableConfigs';
 import axios from 'axios';
 
@@ -348,7 +352,7 @@ const props = defineProps({
 const currentViewKey = ref('stats');
 const currentViewHtml = ref('');
 
-const isAssetView = (key) => ['books', 'manuscripts', 'audios', 'videos'].includes(key);
+const isAssetView = (key) => ['books', 'manuscripts', 'audios', 'videos', 'authors', 'publishers'].includes(key);
 
 const activeAssetConfig = computed(() => {
   switch (currentViewKey.value) {
@@ -408,6 +412,34 @@ const activeAssetConfig = computed(() => {
         total: props.stats?.videos ?? sampleVideosRows.length,
         createUrl: '/videos/create',
       };
+    case 'authors':
+      return {
+        title: 'المؤلفون',
+        stats: {
+          total: props.stats?.authors ?? 340,
+          published: Math.round((props.stats?.authors ?? 340) * 0.75),
+          scholarly: Math.round((props.stats?.authors ?? 340) * 0.2),
+          draft: Math.round((props.stats?.authors ?? 340) * 0.05),
+        },
+        columns: authorsColumns,
+        rows: sampleAuthorsRows,
+        total: props.stats?.authors ?? sampleAuthorsRows.length,
+        createUrl: '/authors/create',
+      };
+    case 'publishers':
+      return {
+        title: 'الناشرون',
+        stats: {
+          total: props.stats?.publishers ?? 58,
+          published: Math.round((props.stats?.publishers ?? 58) * 0.8),
+          scholarly: Math.round((props.stats?.publishers ?? 58) * 0.15),
+          draft: Math.round((props.stats?.publishers ?? 58) * 0.05),
+        },
+        columns: publishersColumns,
+        rows: samplePublishersRows,
+        total: props.stats?.publishers ?? samplePublishersRows.length,
+        createUrl: '/publishers/create',
+      };
     default:
       return { title: '', stats: {}, columns: [], rows: [], total: 0, createUrl: '' };
   }
@@ -434,76 +466,12 @@ const viewCatalog = {
         group: 'المكتبة',
       },
 
+      // ========================================================
+      // 5. AUTHORS VIEW (الأشخاص -> المؤلفون)
+      // ========================================================
       authors: {
         title: 'المؤلفون',
         group: 'الأشخاص',
-        render: () => `
-          <div class="view-header-banner">
-            <div class="view-title-group">
-              <h2><span>👥 المؤلفون</span></h2>
-              <p>دليل الأعلام والتراجم والشخصيات العلمية وأصحاب المصنفات</p>
-            </div>
-            <div class="header-actions">
-              <a href="/authors/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <span>+ مؤلف جديد</span>
-              </a>
-              <button class="btn-action-small" onclick="alert('ترتيب زمني حسب قرون الوفاة...')">الترتيب الزمني ⏳</button>
-            </div>
-          </div>
-
-          <div class="catalog-grid">
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-scholarly">أمير المؤمنين في الحديث 🏛️</span>
-                <h3 class="entity-title">ابن حجر العسقلاني</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">773 - 852 هـ</span>
-                  <span class="meta-chip category">48 مصنفاً بالأرشيف</span>
-                  <span class="meta-chip">القاهرة</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">أحمد بن علي بن حجر العسقلاني، الإمام الحافظ المحدث، صاحب فتح الباري والإصابة وبلوغ المرام.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/authors/1" class="btn-indigo-small"><span>تصفح المؤلفات 📚</span></a>
-                <a href="/authors/1/edit" class="btn-action-small"><span>تعديل السيرة ✏️</span></a>
-              </div>
-            </div>
-
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-scholarly">صاحب الصحيح 🏛️</span>
-                <h3 class="entity-title">الإمام البخاري</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">194 - 256 هـ</span>
-                  <span class="meta-chip category">12 مصنفاً ومخطوطاً</span>
-                  <span class="meta-chip">بخارى</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">محمد بن إسماعيل بن إبراهيم البخاري، إمام الحديث والعلل، صاحب الجامع الصحيح والتاريخ الكبير.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/authors/2" class="btn-indigo-small"><span>تصفح المؤلفات 📚</span></a>
-                <a href="/authors/2/edit" class="btn-action-small"><span>تعديل السيرة ✏️</span></a>
-              </div>
-            </div>
-
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-scholarly">إمام أهل الحديث 🏛️</span>
-                <h3 class="entity-title">شمس الدين الذهبي</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">673 - 748 هـ</span>
-                  <span class="meta-chip category">35 مصنفاً بالأرشيف</span>
-                  <span class="meta-chip">دمشق</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">محمد بن أحمد بن عثمان الذهبي، إمام التاريخ والتراجم، صاحب سير أعلام النبلاء وتاريخ الإسلام وميزان الاعتدال.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/authors/3" class="btn-indigo-small"><span>تصفح المؤلفات 📚</span></a>
-                <a href="/authors/3/edit" class="btn-action-small"><span>تعديل السيرة ✏️</span></a>
-              </div>
-            </div>
-          </div>
-        `
       },
 
       // ========================================================
@@ -512,53 +480,6 @@ const viewCatalog = {
       publishers: {
         title: 'الناشرون',
         group: 'الأشخاص',
-        render: () => `
-          <div class="view-header-banner">
-            <div class="view-title-group">
-              <h2><span>🏢 الناشرون</span></h2>
-              <p>فهرس المطابع ودور النشر والمؤسسات الأكاديمية الراعية لإصدارات الأرشيف</p>
-            </div>
-            <div class="header-actions">
-              <a href="/publishers/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <span>+ دار نشر</span>
-              </a>
-            </div>
-          </div>
-
-          <div class="catalog-grid">
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-public">ناشر معتمد 🏢</span>
-                <h3 class="entity-title">دار الرسالة العالمية</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">بيروت - لبنان</span>
-                  <span class="meta-chip category">412 مطبوعة مؤرشفة</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">مؤسسة متخصصة في طباعة وتحقيق التراث الإسلامي وكتب السنة والفقه والعقيدة بأعلى معايير الطباعة الفاخرة.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/publishers/1" class="btn-indigo-small"><span>عرض المنشورات 📖</span></a>
-                <span style="font-size: 0.68rem; color: var(--text-dim);">منذ 1970</span>
-              </div>
-            </div>
-
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-public">ناشر معتمد 🏢</span>
-                <h3 class="entity-title">دار المنهاج للنشر والتوزيع</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">جدة - السعودية</span>
-                  <span class="meta-chip category">280 مطبوعة مؤرشفة</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">متخصصة في إخراج كتب المذاهب الفقهية المحققة على أمهات النسخ الخطية النفيسة مع العناية الفائقة بالإخراج.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/publishers/2" class="btn-indigo-small"><span>عرض المنشورات 📖</span></a>
-                <span style="font-size: 0.68rem; color: var(--text-dim);">منذ 1999</span>
-              </div>
-            </div>
-          </div>
-        `
       },
 
       // ========================================================

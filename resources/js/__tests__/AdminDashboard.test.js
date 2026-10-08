@@ -227,4 +227,27 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
         expect(assetView.props('assetTitle')).toBe('المخطوطات');
         expect(wrapper.text()).toContain('صحيح البخاري - المجلد الرابع (نسخة كوبريلي)');
     });
+
+    it('renders native AssetTableView component when switching to authors view', async () => {
+        const wrapper = createWrapper();
+        window.loadView('authors');
+        await new Promise(r => setTimeout(r, 120));
+
+        const assetView = wrapper.findComponent({ name: 'AssetTableView' });
+        expect(assetView.exists()).toBe(true);
+        expect(assetView.props('assetTitle')).toBe('المؤلفون');
+        expect(wrapper.text()).toContain('ابن حجر العسقلاني');
+        expect(wrapper.text()).toContain('الإمام البخاري');
+    });
+
+    it('renders native AssetTableView component when switching to publishers view', async () => {
+        const wrapper = createWrapper();
+        window.loadView('publishers');
+        await new Promise(r => setTimeout(r, 120));
+
+        const assetView = wrapper.findComponent({ name: 'AssetTableView' });
+        expect(assetView.exists()).toBe(true);
+        expect(assetView.props('assetTitle')).toBe('الناشرون');
+        expect(wrapper.text()).toContain('دار الرسالة العالمية');
+    });
 });

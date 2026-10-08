@@ -659,3 +659,37 @@
 - **اختبارات الفرونت إند (Vitest):** **57 Passed (57 Assertions عبر 11 ملف اختبار كاملة)** بنسبة 100% دون أي أخطاء.
 - **اختبارات الباك إند (PHPUnit/Pest):** **544 Passed (2645 Assertions)**، 1 Incomplete، و 0 Failed بنسبة 100%.
 - **كفاءة التحزيم (Vite Build):** تقلص حجم حزمة `AdminDashboard` البرمجية بنسبة **45%** (من 221.15 kB إلى 122.15 kB). نجاح تام لأمر `npm run build` في 18.75 ثانية.
+
+---
+
+## 🚀 دورة التطوير رقم 17: توحيد قطاع الأشخاص والجهات (المؤلفون والناشرون) بمحرك الجداول عالي الكثافة ونمط قطاع المكتبة (TDD)
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **الهدف البرمجي:** ترقية قطاع الأشخاص والجهات (المؤلفون `authors` والناشرون `publishers`) ليطابق 100% نمط وهندسة قطاع المكتبة عالي الكثافة، متضمناً بطاقات الـ KPI الأفقية، شبكة الأزرار التنفيذية 2×2، شريط البحث والفلترة وقائمة الأعمدة الديناميكية `ColumnsDropdown`، شريط الإجراءات الجماعية `BulkActionsStrip`، ومبدل نمط العرض التفاعلي بين الجدول عالي الكثافة `DenseDataTable` وشبكة البطاقات الأنيقة `cards-grid`، بالإضافة لشريط الترقيم المتقدم.
+- **تحديث ملف الاختبار:** إضافة اختبارين تأسيسيين إلى [`resources/js/__tests__/AdminDashboard.test.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/__tests__/AdminDashboard.test.js):
+  1. `renders native AssetTableView component when switching to authors view`: التحقق من تصيير المكون النقي لقطاع المؤلفين ببياناتهم وأعلامهم.
+  2. `renders native AssetTableView component when switching to publishers view`: التحقق من تصيير المكون النقي لقطاع الناشرين بدور النشر والمطابع.
+- **نتيجة التشغيل (RED):** فشل الاختبارين صراحة بنتيجة `AssertionError: expected false to be true` نظراً لاعتماد العرضين على نصوص HTML ثابتة في `viewCatalog`.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **التعديلات والمكونات المنجزة:**
+  1. [`resources/js/Config/assetTableConfigs.js`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Config/assetTableConfigs.js):
+     - تعريف مصفوفة أعمدة المؤلفين `authorsColumns` (الرقم، الاسم/العلم، المعرف، القرن، العصر والوفاة، الموطن، المذهب، المصنفات بالأرشيف، نبذة السيرة، الإجراءات) مع بيانات واقعية `sampleAuthorsRows` للأئمة والأعلام.
+     - تعريف مصفوفة أعمدة الناشرين `publishersColumns` (الرقم، دار النشر/المؤسسة، المعرف، المقر، سنة التأسيس، المطبوعات، حالة الاعتماد، تاريخ الإضافة، الإجراءات) مع بيانات `samplePublishersRows` لدور النشر الكبرى.
+  2. [`resources/js/Components/Table/AssetTableView.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Components/Table/AssetTableView.vue):
+     - تعميم وتوسيع شبكة البطاقات البديلة `cards-grid` لتدعم بسلاسة عرض الأعلام والتراجم ودور النشر (الاسم، القرن، العصر والوفاة، المذهب/البلد، عدد المصنفات/المنشورات، ونبذة السيرة ورابط عرض التفاصيل) بجانب أصول المكتبة.
+  3. [`resources/js/Pages/AdminDashboard.vue`](file:///home/a/PhpstormProjects/EntityPostgre/resources/js/Pages/AdminDashboard.vue):
+     - توسيع نطاق `isAssetView` ليشمل `'authors'` و `'publishers'`.
+     - إضافة إعدادات التغذية والإحصائيات لحالتي المؤلفين والناشرين داخل `activeAssetConfig`.
+     - تطهير وحذف نصوص HTML الخام المكررة من `viewCatalog.authors` و `viewCatalog.publishers` واستبدالها بروابط نظيفة تابعة لمحرك الجداول.
+- **نتيجة التشغيل (GREEN):**
+  * تحول كافة اختبارات `AdminDashboard.test.js` الـ 11 إلى اللون الأخضر `11 passed (11)`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **59 Passed (59 Assertions عبر 11 ملف اختبار كاملة)** بنسبة 100% خالية من أي أخطاء.
+- **اختبارات الباك إند (PHPUnit/Pest):** **544 Passed (2642 Assertions)**، 1 Incomplete، و 0 Failed بنسبة 100%.
+- **بناء حزم الإنتاج (Vite Build):** نجاح تام لأمر `npm run build` في 13.57 ثانية دون أي تحذيرات أو أخطاء.

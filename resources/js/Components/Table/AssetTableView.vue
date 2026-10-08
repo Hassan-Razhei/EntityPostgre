@@ -191,29 +191,46 @@ const filteredRows = computed(() => {
       <div
         v-for="row in filteredRows"
         :key="row.id"
-        class="bg-white dark:bg-white/[0.025] border border-gray-200 dark:border-white/10 rounded-2xl p-4 hover:border-indigo-500/50 transition-all shadow-xs"
+        class="bg-white dark:bg-white/[0.025] border border-gray-200 dark:border-white/10 rounded-2xl p-4 hover:border-indigo-500/50 transition-all shadow-xs flex flex-col justify-between"
       >
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <span class="font-mono text-xs font-bold text-gray-400">{{ row.serial || row.code || `#${row.id}` }}</span>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold">
-            {{ row.format || row.status || assetTitle }}
-          </span>
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="font-mono text-xs font-bold text-gray-400">{{ row.serial || row.code || `#${row.id}` }}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold">
+              {{ row.format || row.status || row.madhab || assetTitle }}
+            </span>
+          </div>
+          <h4 class="font-black text-sm text-gray-900 dark:text-white truncate mb-1">
+            {{ row.title || row.name }}
+          </h4>
+          <p
+            v-if="row.author || row.century_lived || row.country"
+            class="text-xs text-gray-500 dark:text-zinc-400 font-medium truncate mb-2"
+          >
+            {{ row.author || row.century_lived || row.country }}
+            <span v-if="row.lifespan" class="text-indigo-500 dark:text-indigo-400 font-mono text-[11px] mr-1">({{ row.lifespan }})</span>
+          </p>
+          <div v-if="row.works_count || row.publications_count || row.original_region || row.established_year" class="flex flex-wrap items-center gap-1.5 mb-2">
+            <span v-if="row.works_count || row.publications_count" class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
+              {{ row.works_count || row.publications_count }}
+            </span>
+            <span v-if="row.original_region || row.established_year" class="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-zinc-400">
+              {{ row.original_region || `تأسيس ${row.established_year}` }}
+            </span>
+          </div>
+          <p
+            v-if="row.description || row.bio"
+            class="text-xs text-gray-400 dark:text-zinc-500 line-clamp-2 mb-3"
+          >
+            {{ row.description || row.bio }}
+          </p>
         </div>
-        <h4 class="font-black text-sm text-gray-900 dark:text-white truncate mb-1">
-          {{ row.title }}
-        </h4>
-        <p
-          v-if="row.author"
-          class="text-xs text-gray-500 dark:text-zinc-400 font-medium truncate mb-2"
-        >
-          {{ row.author }}
-        </p>
-        <p
-          v-if="row.description"
-          class="text-xs text-gray-400 dark:text-zinc-500 line-clamp-2 mb-3"
-        >
-          {{ row.description }}
-        </p>
+        <div class="pt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs">
+          <a :href="createUrl ? createUrl.replace('/create', `/${row.id}`) : '#'" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+            عرض التفاصيل ↗
+          </a>
+          <span class="text-gray-400 text-[11px]">{{ row.created_at || 'معتمد' }}</span>
+        </div>
       </div>
     </div>
 
