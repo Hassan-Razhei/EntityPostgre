@@ -105,8 +105,8 @@ describe('Modular Dashboard Views (Cycle 23 TDD)', () => {
     });
   });
 
-  describe('4. DashboardTaxonomyView.vue', () => {
-    it('renders collections taxonomy table with actions and count badges', () => {
+  describe('4. DashboardTaxonomyView.vue (Cycle 25 Cognitive Explorer TDD)', () => {
+    it('renders collections dossier portfolio binder cards with asset breakdown badges and actions', () => {
       const collections = [
         {
           id: 'col-1',
@@ -114,6 +114,9 @@ describe('Modular Dashboard Views (Cycle 23 TDD)', () => {
           description: 'مختارات من نوادر المخطوطات والكتب الأندلسية',
           is_public: true,
           entities_count: 34,
+          books_count: 20,
+          manuscripts_count: 10,
+          audios_count: 4,
           user_name: 'د. طارق الحارثي',
           show_url: '/collections/col-1',
           edit_url: '/collections/col-1/edit',
@@ -132,9 +135,12 @@ describe('Modular Dashboard Views (Cycle 23 TDD)', () => {
       expect(wrapper.text()).toContain('34');
       expect(wrapper.text()).toContain('د. طارق الحارثي');
       expect(wrapper.find('a[href="/collections/col-1"]').exists()).toBe(true);
+      expect(wrapper.find('a[href="/collections/col-1/edit"]').exists()).toBe(true);
+      expect(wrapper.find('#taxonomySearchInput').exists()).toBe(true);
+      expect(wrapper.find('.collection-dossier-card').exists()).toBe(true);
     });
 
-    it('renders series taxonomy table correctly', () => {
+    it('renders series linear volume sequence cards with volume ordering and counts', () => {
       const series = [
         {
           id: 'ser-1',
@@ -143,6 +149,7 @@ describe('Modular Dashboard Views (Cycle 23 TDD)', () => {
           books_count: 12,
           order_column: 1,
           show_url: '/series/ser-1',
+          edit_url: '/series/ser-1/edit',
         },
       ];
 
@@ -156,6 +163,68 @@ describe('Modular Dashboard Views (Cycle 23 TDD)', () => {
       expect(wrapper.text()).toContain('السلاسل العلمية');
       expect(wrapper.text()).toContain('سلسلة أعلام المحدثين');
       expect(wrapper.text()).toContain('12 مصنفاً');
+      expect(wrapper.find('.series-volume-card').exists()).toBe(true);
+      expect(wrapper.text()).toContain('المجلد #1');
+    });
+
+    it('renders semantic tag cloud with proportional weight tags and count labels', () => {
+      const tags = [
+        { id: 1, name: 'فقه_مقارن', books_count: 145 },
+        { id: 2, name: 'مخطوطات_نادرة', books_count: 88 },
+      ];
+
+      const wrapper = mount(DashboardTaxonomyView, {
+        props: {
+          taxonomyType: 'tags',
+          items: tags,
+        },
+      });
+
+      expect(wrapper.text()).toContain('الأوسمة والكلمات المفتاحية');
+      expect(wrapper.find('.semantic-tag-cloud').exists()).toBe(true);
+      expect(wrapper.text()).toContain('#فقه_مقارن');
+      expect(wrapper.text()).toContain('(145)');
+    });
+
+    it('renders hierarchical categories tree with glowing connector nodes', () => {
+      const categories = [
+        { id: 1, name: 'علوم القرآن والتفسير', books_count: 2450 },
+      ];
+
+      const wrapper = mount(DashboardTaxonomyView, {
+        props: {
+          taxonomyType: 'categories',
+          items: categories,
+        },
+      });
+
+      expect(wrapper.text()).toContain('التصنيفات والفئات');
+      expect(wrapper.find('.categories-tree-explorer').exists()).toBe(true);
+      expect(wrapper.text()).toContain('علوم القرآن والتفسير');
+      expect(wrapper.text()).toContain('2,450 مصنفاً');
+    });
+
+    it('filters taxonomy items when typing into taxonomy search input', async () => {
+      const collections = [
+        { id: '1', name: 'خزانة التراث الأندلسي', description: 'أندلسيات', entities_count: 10 },
+        { id: '2', name: 'موسوعة الفقه الحنبلي', description: 'فقهيات', entities_count: 25 },
+      ];
+
+      const wrapper = mount(DashboardTaxonomyView, {
+        props: {
+          taxonomyType: 'collections',
+          items: collections,
+        },
+      });
+
+      expect(wrapper.text()).toContain('خزانة التراث الأندلسي');
+      expect(wrapper.text()).toContain('موسوعة الفقه الحنبلي');
+
+      const searchInput = wrapper.find('#taxonomySearchInput');
+      await searchInput.setValue('الحنبلي');
+
+      expect(wrapper.text()).not.toContain('خزانة التراث الأندلسي');
+      expect(wrapper.text()).toContain('موسوعة الفقه الحنبلي');
     });
   });
 
