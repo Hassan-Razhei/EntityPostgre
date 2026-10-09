@@ -4,6 +4,7 @@ import DashboardStatsView from '@/Pages/AdminDashboard/Views/DashboardStatsView.
 import DashboardCommandsView from '@/Pages/AdminDashboard/Views/DashboardCommandsView.vue';
 import DashboardOpsView from '@/Pages/AdminDashboard/Views/DashboardOpsView.vue';
 import DashboardTaxonomyView from '@/Pages/AdminDashboard/Views/DashboardTaxonomyView.vue';
+import DashboardStudioView from '@/Pages/AdminDashboard/Views/DashboardStudioView.vue';
 import axios from 'axios';
 
 vi.mock('axios', () => ({
@@ -155,6 +156,125 @@ describe('Modular Dashboard Views (Cycle 23 TDD)', () => {
       expect(wrapper.text()).toContain('السلاسل العلمية');
       expect(wrapper.text()).toContain('سلسلة أعلام المحدثين');
       expect(wrapper.text()).toContain('12 مصنفاً');
+    });
+  });
+
+  describe('5. DashboardStudioView.vue (Cycle 24 TDD)', () => {
+    it('renders studio books with high density table, progress bar, and editor link', () => {
+      const studioBooks = [
+        {
+          id: 101,
+          title: 'فتح الباري شرح صحيح البخاري',
+          slug: 'fath-al-bari',
+          current_node: 'كتاب الإيمان - باب علامة الإيمان حب الأنصار',
+          progress_percent: 88,
+          editor_name: 'د. عبد الله الشمري',
+          updated_at_human: 'منذ ساعة',
+          studio_url: '/studio/book/fath-al-bari',
+        },
+      ];
+
+      const wrapper = mount(DashboardStudioView, {
+        props: {
+          studioType: 'studio-books',
+          items: studioBooks,
+        },
+      });
+
+      expect(wrapper.text()).toContain('استوديو تحرير الكتب');
+      expect(wrapper.text()).toContain('فتح الباري شرح صحيح البخاري');
+      expect(wrapper.text()).toContain('كتاب الإيمان - باب علامة الإيمان حب الأنصار');
+      expect(wrapper.text()).toContain('88%');
+      expect(wrapper.text()).toContain('د. عبد الله الشمري');
+      expect(wrapper.find('a[href="/studio/book/fath-al-bari"]').exists()).toBe(true);
+      expect(wrapper.find('#studioSearchInput').exists()).toBe(true);
+      expect(wrapper.find('#btnStudioViewTable').exists()).toBe(true);
+      expect(wrapper.find('#btnStudioViewCards').exists()).toBe(true);
+    });
+
+    it('renders studio manuscripts with inspection indicators and cards view mode switch', async () => {
+      const manuscripts = [
+        {
+          id: 202,
+          title: 'مخطوطة موطأ مالك رواية يحيى',
+          slug: 'muwatta-malik-ms',
+          folio_count: 'اللوحة 45 (الوجه أ)',
+          author: 'الإمام مالك بن أنس',
+          studio_url: '/studio/manuscript/muwatta-malik-ms',
+        },
+      ];
+
+      const wrapper = mount(DashboardStudioView, {
+        props: {
+          studioType: 'studio-manuscripts',
+          items: manuscripts,
+        },
+      });
+
+      expect(wrapper.text()).toContain('استوديو المخطوطات');
+      expect(wrapper.text()).toContain('مخطوطة موطأ مالك رواية يحيى');
+      expect(wrapper.text()).toContain('اللوحة 45 (الوجه أ)');
+      expect(wrapper.find('a[href="/studio/manuscript/muwatta-malik-ms"]').exists()).toBe(true);
+
+      // Switch to cards view mode
+      const cardsBtn = wrapper.find('#btnStudioViewCards');
+      expect(cardsBtn.exists()).toBe(true);
+      await cardsBtn.trigger('click');
+
+      expect(wrapper.find('.studio-cards-grid').isVisible()).toBe(true);
+      expect(wrapper.find('.studio-entity-card').exists()).toBe(true);
+    });
+
+    it('filters studio items when typing into studio search input', async () => {
+      const books = [
+        { id: 1, title: 'سنن أبي داود', current_node: 'المقدمة', progress_percent: 50 },
+        { id: 2, title: 'سنن الترمذي', current_node: 'أبواب الطهارة', progress_percent: 70 },
+      ];
+
+      const wrapper = mount(DashboardStudioView, {
+        props: {
+          studioType: 'studio-books',
+          items: books,
+        },
+      });
+
+      expect(wrapper.text()).toContain('سنن أبي داود');
+      expect(wrapper.text()).toContain('سنن الترمذي');
+
+      const searchInput = wrapper.find('#studioSearchInput');
+      await searchInput.setValue('الترمذي');
+
+      expect(wrapper.text()).not.toContain('سنن أبي داود');
+      expect(wrapper.text()).toContain('سنن الترمذي');
+    });
+
+    it('renders versions view with version details and format chips', () => {
+      const versions = [
+        {
+          id: 501,
+          title: 'طبعة المكنز الإسلامي الفاخرة',
+          versionable_title: 'سنن النسائي الصغرى',
+          publisher_name: 'دار التأصيل',
+          file_size_human: '15.6 MB',
+          format: 'PDF',
+          created_at_human: 'منذ يومين',
+        },
+      ];
+
+      const wrapper = mount(DashboardStudioView, {
+        props: {
+          studioType: 'versions',
+          items: versions,
+          versions,
+        },
+      });
+
+      expect(wrapper.text()).toContain('الإصدارات والنسخ المقارنة');
+      expect(wrapper.text()).toContain('طبعة المكنز الإسلامي الفاخرة');
+      expect(wrapper.text()).toContain('سنن النسائي الصغرى');
+      expect(wrapper.text()).toContain('دار التأصيل');
+      expect(wrapper.text()).toContain('15.6 MB');
+      expect(wrapper.text()).toContain('PDF');
     });
   });
 });

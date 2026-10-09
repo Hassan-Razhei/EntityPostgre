@@ -30,6 +30,7 @@
 | **21** | **التمثيل الحي الشامل لكافة قطاعات المنظومة من PostgreSQL وتطهير الكود الميت (Full Live System & Dead Code Elimination)** | `resources/js/__tests__/AdminDashboard.test.js` + `SuperAdminDashboardTest.php` | 5 Failed (Live Data & Funnel) | 24 Passed (Vitest) + 8 Passed PHP (138 Assertions) | **24 Vitest + 548 PHP Passed (حجم الحزمة انخفض 53% وتمثيل حي 100%)** | ✅ مكتملة وموثقة |
 | **22** | **اكتمال منظومة التنظيم المعرفي الشامل (المجموعات والسلاسل والموضوعات) وترقية الفهارس والربط البوليمورفي** | `TaxonomyAttachmentTest.php` + `AdminDashboard.test.js` + `TableEngineComponents.test.js` | 2 Failed PHP + 6 Failed Vitest | 2 Passed PHP + 28 Passed Vitest + 13 Passed Table | **78 Vitest + 551 PHP Passed (100% نجاح)** | ✅ مكتملة وموثقة |
 | **23** | **تفكيك قمرة القيادة وفصل الواجهات الفرعية والأنماط المعمارية (Decoupled SFC Views & Modular Sub-Views)** | `resources/js/__tests__/ModularDashboardViews.test.js` | 6 Failed | 6 Passed (84 Vitest Tests) | **84 Vitest + 551 PHP Passed (انخفاض الحزمة لـ 104kB)** | ✅ مكتملة وموثقة |
+| **24** | **ترقية وتوحيد عروض الاستوديو بمحرك الجداول ونمط البطاقات الذكي (Studio High-Density Engine & Cards Grid)** | `resources/js/__tests__/ModularDashboardViews.test.js` | 3 Failed | 4 Passed (88 Vitest Tests) | **88 Vitest + 551 PHP Passed (100% نجاح)** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -1038,6 +1039,56 @@
 - **اختبارات الفرونت إند (Vitest):** **84/84 اختبار ناجح (100% نجاح عبر كامل ملفات الاختبار الـ 12)**.
 - **اختبارات الباك إند (PHPUnit):** **551/551 اختبار ناجح (2,763 assertions)** بنسبة نجاح 100%.
 - **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل في **14.37 ثانية** وانخفاض ملف `AdminDashboard` إلى **104.01 kB** (26.10 kB gzip).
+
+---
+
+## 🔹 الدورة 24: ترقية وتوحيد عروض الاستوديو بمحرك الجداول ونمط البطاقات الذكي (Studio High-Density Engine & Cards Grid)
+
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**
+  امتثالاً لتوجيهات وقواعد [`.agent/frontend/ui_rules.md`](.agent/frontend/ui_rules.md) (منهجية TDD الصارمة، منع الانكسار، صفر فقدان للبكسل):
+  1. **الترقية إلى معايير محرك الجداول عالي الكثافة (Enterprise High-Density UI):**
+     - استبدال جداول `users-table` البسيطة السابقة في [`DashboardStudioView.vue`](resources/js/Pages/AdminDashboard/Views/DashboardStudioView.vue) بمحرك الجداول عالي الكثافة مع بطاقات زجاجية فاخرة وخلفيات بلورية تفاعلية.
+     - دعم العروض الخمسة لقطاع الاستوديو والمختبر:
+       - ✍️ **استوديو تحرير الكتب (`studio-books`):** مصحوبة بمؤشرات نسبة الإنجاز التفاعلية (`kpi-split-bar`) والعقدة الحالية وشارة المحقق ورابط المحرر المباشر.
+       - 📜 **استوديو المخطوطات (`studio-manuscripts`):** مصحوبة برقم اللوحة والوجه وشارات المقابلة النصية وفك الطلاسم ورابط الاستوديو.
+       - 🎙️ **استوديو الصوتيات (`studio-audios`):** مصحوبة بمدة التسجيل ورصيد الشرائح ودقة المطابقة ورابط محرر الشرائح.
+       - 🎬 **استوديو المرئيات (`studio-videos`):** مصحوبة بمدة المحاضرة وعدد الفصول ورابط تقطيع الفصول.
+       - 🗂️ **الإصدارات والنسخ المقارنة (`versions`):** مصحوبة بالكيان التابع، الناشر، الحجم الفعلي والصيغة، وتاريخ الإضافة.
+  2. **شريط أدوات الاستوديو الذكي (Smart Studio Toolbar):**
+     - إضافة حقل بحث فوري لحظي `#studioSearchInput` يبحث عبر كافة الحقول والخصائص.
+     - إضافة شارة رصيد العناصر النشطة (`items-count-badge`).
+     - إضافة مبدل نمط العرض الفوري بين نمط الجدول المدمج (`#btnStudioViewTable`) ونمط شبكة بطاقات الاستوديو الفاخرة (`#btnStudioViewCards`).
+  3. **شبكة بطاقات الاستوديو الزجاجية (Studio Cards Grid):**
+     - عرض بطاقات أنيقة (`studio-entity-card`) تحتوي على شارات الحالة وأشرطة التقدم والبيانات الوصفية وأزرار التحرير المباشرة.
+  4. **الأنماط ذاتية الاحتواء والتوافق الشامل (Self-Contained Styles):**
+     - تضمين كامل التنسيقات وتوافق الوضعين الليلي والنهاري (Dark / Light Mode) مع خط `Outfit` للأرقام والنسب.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار:**
+  - [`resources/js/__tests__/ModularDashboardViews.test.js`](resources/js/__tests__/ModularDashboardViews.test.js): إضافة 4 اختبارات تفحص عروض الاستوديو والبحث الفوري والتبديل لنمط البطاقات.
+- **نتيجة التشغيل (RED):**
+  - فشل 3 اختبارات بنجاح (3 Failed) لعدم وجود حقل البحث وأزرار التبديل وشبكة البطاقات.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  - [`resources/js/Pages/AdminDashboard/Views/DashboardStudioView.vue`](resources/js/Pages/AdminDashboard/Views/DashboardStudioView.vue):
+    - إعادة بناء المكون بالكامل ليدعم التفاعل اللحظي والبحث والتبديل بين الجدول والبطاقات.
+    - إضافة التنسيقات الزجاجية المكتفية ذاتياً.
+- **نتيجة التشغيل (GREEN):**
+  - نجاح 10/10 اختبارات في `ModularDashboardViews.test.js`.
+  - نجاح 28/28 اختباراً في `AdminDashboard.test.js`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **88/88 اختباراً ناجحاً (100% نجاح عبر كافة الملفات الـ 12)**.
+- **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,754 assertions)** بنسبة نجاح 100%.
+- **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل في **13.62 ثانية** بنجاح مطلق.
 
 
 
