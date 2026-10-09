@@ -1178,3 +1178,32 @@
 - **اختبارات الفرونت إند (Vitest):** **102/102 اختباراً ناجحاً (100% نجاح عبر كافة ملفات الاختبار الـ 12)**.
 - **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,766 assertions)** بنسبة نجاح 100%.
 - **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل بنجاح تام وانخفاض ملحوظ في حجم ملف قمرة القيادة `AdminDashboard.vue`.
+
+---
+
+## 🔹 الدورة 27: تطهير وحذف الكود الميت وعزل شيفرات CSS الزائدة والمكررة (Dead Code Purge & Style Encapsulation)
+
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**
+  استجابة لتوجيه المستخدم بتنظيف الكود الميت وحذف الشيفرات المكررة والزائدة:
+  1. **حذف الدوال والبيانات الميتة في `<script setup>`:**
+     - حذف استيرادات الأعمدة والصفوف التجريبية التي لم تعد مستخدمة بعد استخراج قطاعي المكتبة والأشخاص (`booksColumns`, `manuscriptsColumns`, `audiosColumns`, `videosColumns`, `authorsColumns`, `publishersColumns`, وما يرتبط بها من صفوف تجريبية).
+     - حذف 12 خاصية محسوبة مهملة (`activeBooksRows`, `booksKpiStats`, `activeManuscriptsRows`, إلخ).
+     - حذف 13 دالة معالجة DOM قديمة للجداول وعمليات التحديد الجماعي وقوائم الأعمدة المنبثقة.
+     - تنظيف مستمعات الأحداث وكتل التهيئة في `onMounted` و `onUnmounted`.
+  2. **عزل وتوزيع ستايلات الـ CSS على مكوناتها المستخرجة (Encapsulation):**
+     - نقل وتضمين ستايلات القائمة الجانبية كاملة إلى [`AdminDashboardSidebar.vue`](resources/js/Pages/AdminDashboard/AdminDashboardSidebar.vue) مع دعم الوضع النهاري.
+     - نقل وتضمين ستايلات الشريط العلوي ومسار التتبع وقائمة المستخدم إلى [`AdminDashboardNavbar.vue`](resources/js/Pages/AdminDashboard/AdminDashboardNavbar.vue) مع دعم الوضع النهاري.
+     - نقل وتضمين ستايلات شريط أدوات الجداول، الترقيم، الإجراءات المجمعة، وقائمة إظهار الأعمدة إلى [`AssetTableView.vue`](resources/js/Components/Table/AssetTableView.vue).
+     - نقل وتضمين ستايلات الخط الزمني الحي لتدقيق الأنشطة إلى [`ActivitiesTimelineView.vue`](resources/js/Components/Timeline/ActivitiesTimelineView.vue).
+  3. **حذف وتطهير أكثر من 2,400 سطر CSS مكرر من `AdminDashboard.vue`:**
+     - تقليص حجم المكون من 3,448 سطراً إلى 773 سطراً فقط (انخفاض بنسبة تفوق 77%).
+     - الإبقاء حصرياً على متغيرات النسق العامة `:root` وتنسيقات الهيكل المحيطي العام (`*`, `body`, scrollbars, `.app-main`, `.app-footer`).
+
+---
+
+### 1. مرحلة التحقق والاختبار الأخضر 🟢 (GREEN & Regression Check):
+- **اختبارات الفرونت إند (Vitest):** **102/102 اختباراً ناجحاً (100% نجاح عبر 12 ملف اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,754 assertions)** بنسبة نجاح 100%.
+- **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل في **15.12 ثانية**، مع انخفاض حجم حزمة `AdminDashboard` إلى **18.76 kB** وخروج قطع مستقلة لكل مكون.
+

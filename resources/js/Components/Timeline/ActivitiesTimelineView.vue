@@ -135,3 +135,177 @@ const filteredActivities = computed(() => {
     </div>
   </div>
 </template>
+
+<style>
+/* View Header Banner */
+.activities-timeline-view .view-header-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: rgba(18, 18, 21, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+body.light-mode .activities-timeline-view .view-header-banner {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+.activities-timeline-view .view-title-group h2 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+body.light-mode .activities-timeline-view .view-title-group h2 {
+  color: #0f172a !important;
+}
+
+.activities-timeline-view .view-title-group p {
+  font-size: 0.75rem;
+  color: var(--text-dim, #71717a);
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+.activities-timeline-view .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.activities-timeline-view .section-card {
+  background: var(--bg-card, rgba(22, 22, 27, 0.7));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+body.light-mode .activities-timeline-view .section-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+.activities-timeline-view .btn-action-small {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  color: var(--text-main, #f4f4f5);
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.activities-timeline-view .btn-action-small:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.light-mode .activities-timeline-view .btn-action-small {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: var(--border-subtle, rgba(0, 0, 0, 0.08));
+  color: var(--text-muted, #475569);
+}
+
+body.light-mode .activities-timeline-view .btn-action-small:hover {
+  background: rgba(0, 0, 0, 0.07);
+  color: #0f172a;
+}
+
+/* Live Audit Timeline */
+.timeline-container {
+  position: relative;
+  padding-right: 1.5rem;
+  margin-top: 1rem;
+}
+
+.timeline-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 7px;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.6) 0%, rgba(255,255,255,0.05) 100%);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1rem;
+  padding-right: 1.25rem;
+}
+
+.timeline-dot {
+  position: absolute;
+  right: -1.75rem;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: #ef4444;
+  border: 2px solid var(--bg-surface, #121215);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+.timeline-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 1rem;
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+body.light-mode .timeline-box {
+  background: #f8fafc;
+  border-color: var(--border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+.timeline-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.timeline-body {
+  font-size: 0.78rem;
+  color: var(--text-main, #f4f4f5);
+}
+
+body.light-mode .timeline-body {
+  color: #0f172a !important;
+}
+
+.timeline-body strong {
+  color: #f87171;
+  margin-left: 0.25rem;
+}
+
+.timeline-time {
+  font-size: 0.68rem;
+  color: var(--text-dim, #71717a);
+  font-family: 'Outfit', sans-serif;
+  white-space: nowrap;
+}
+</style>

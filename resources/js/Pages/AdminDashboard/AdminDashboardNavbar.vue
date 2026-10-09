@@ -145,3 +145,282 @@ function handleLogout() {
   }
 }
 </script>
+
+<style>
+/* ============================================================
+   2. TOP FIXED NAVBAR
+   ============================================================ */
+.app-navbar {
+  position: fixed;
+  top: 0;
+  right: var(--sidebar-width, 270px);
+  left: 0;
+  height: var(--navbar-height, 64px);
+  background: var(--bg-navbar, rgba(13, 13, 16, 0.85));
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  z-index: 40;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-left, .navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted, #a1a1aa);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.nav-btn svg { width: 18px; height: 18px; }
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-dim, #71717a);
+}
+
+.breadcrumb-link {
+  color: var(--text-dim, #71717a);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.breadcrumb-link:hover {
+  color: var(--indigo, #6366f1);
+}
+
+.breadcrumb-sep {
+  width: 13px;
+  height: 13px;
+  transform: rotate(180deg);
+  color: var(--text-dim, #71717a);
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.breadcrumb-group {
+  color: var(--text-muted, #a1a1aa);
+  font-weight: 700;
+}
+
+.breadcrumbs span.current {
+  color: #fff;
+  font-weight: 800;
+}
+
+.search-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 9999px;
+  padding: 0.4rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted, #a1a1aa);
+  font-size: 0.75rem;
+  width: 240px;
+}
+
+.search-box input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 0.75rem;
+  width: 100%;
+}
+
+/* User Avatar and Dropdown */
+.user-menu-wrapper {
+  position: relative;
+}
+
+.user-avatar-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.user-avatar-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.user-avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #27272a, #3f3f46);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.85rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.user-avatar-inner span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transform: translateY(-1.5px);
+  user-select: none;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  width: 210px;
+  background: #121215;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 1rem;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.7);
+  padding: 0.5rem;
+  z-index: 100;
+  backdrop-filter: blur(16px);
+}
+
+.user-dropdown-header {
+  padding: 0.5rem 0.75rem 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  margin-bottom: 0.35rem;
+}
+
+.user-dropdown-name {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-main, #f4f4f5);
+}
+
+.user-dropdown-role {
+  font-size: 0.65rem;
+  color: var(--text-dim, #71717a);
+  margin-top: 0.15rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted, #a1a1aa);
+  text-decoration: none;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.user-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main, #f4f4f5);
+}
+
+.user-dropdown-item.text-danger {
+  color: #f87171;
+}
+
+.user-dropdown-item.text-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+/* Light mode overrides for navbar */
+body.light-mode .app-navbar {
+  background: var(--bg-navbar, rgba(255, 255, 255, 0.92));
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+body.light-mode .breadcrumbs span.current {
+  color: #0f172a !important;
+}
+
+body.light-mode .search-box {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: var(--border-subtle, rgba(0, 0, 0, 0.08));
+  color: var(--text-muted, #475569);
+}
+
+body.light-mode .search-box input {
+  color: #0f172a;
+}
+
+body.light-mode .search-box input::placeholder {
+  color: var(--text-dim, #64748b);
+}
+
+body.light-mode .nav-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: var(--border-subtle, rgba(0, 0, 0, 0.08));
+  color: var(--text-muted, #475569);
+}
+
+body.light-mode .nav-btn:hover {
+  background: rgba(0, 0, 0, 0.07);
+  color: #0f172a;
+}
+
+body.light-mode .user-avatar-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: var(--border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+body.light-mode .user-avatar-btn:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+body.light-mode .user-avatar-inner {
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+  color: #0f172a;
+}
+
+body.light-mode .user-dropdown-menu {
+  background: #ffffff;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.1);
+  border-color: var(--border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+body.light-mode .user-dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #0f172a;
+}
+</style>
