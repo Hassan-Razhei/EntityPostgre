@@ -1,362 +1,44 @@
 <template>
   <div class="admin-dashboard-container">
-<!-- ============================================================
-       1. FIXED RIGHT SIDEBAR (ORDERED FROM GENERAL TO SOVEREIGN)
+  <!-- ============================================================
+       1. FIXED RIGHT SIDEBAR (AdminDashboardSidebar - Option B)
        ============================================================ -->
-  <aside class="app-sidebar" id="appSidebar">
-    <div class="sidebar-header">
-      <a href="javascript:void(0)" onclick="loadView('stats')" class="sidebar-brand-link" title="Entity Dashboard">
-        <div class="sidebar-logo">
-          <span>E</span>
-        </div>
-        <span class="sidebar-title">Entity</span>
-      </a>
-    </div>
-
-    <nav class="sidebar-nav">
-
-      <!-- شريط التحكم الفني: توسيع وطي كافة المجموعات -->
-      <div class="sidebar-accordion-toolbar" id="sidebarAccordionToolbar">
-        <span class="toolbar-label">
-          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
-          خريطة المجموعات
-        </span>
-        <div class="pill-segmented-control">
-          <button type="button" class="seg-btn" id="btnExpandAll" onclick="expandAllGroups()" title="توسيع كافة المجموعات دفعة واحدة">
-            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 13l-7 7-7-7m14-8l-7 7-7-7"/></svg>
-            <span>توسيع</span>
-          </button>
-          <button type="button" class="seg-btn" id="btnCollapseAll" onclick="collapseAllGroups()" title="طي كافة المجموعات دفعة واحدة">
-            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 11l7-7 7 7M5 19l7-7 7 7"/></svg>
-            <span>طي</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- ========================================================
-           المجموعة 1: 📚 المكتبة الرقمية العامة (General Assets)
-           ======================================================== -->
-      <div class="nav-group" id="group-library">
-        <div class="nav-group-header" onclick="toggleNavGroup('group-library')" title="طي / توسيع المجموعة">
-          <div class="header-main">
-            <span>📚</span>
-            <span class="group-title">المكتبة</span>
-            <span class="group-badge">4</span>
-          </div>
-          <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="nav-group-items">
-          <div class="nav-item" id="nav-books" onclick="loadView('books')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-            <span>الكتب</span>
-            <span class="badge-count">{{ (props.stats?.books ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-manuscripts" onclick="loadView('manuscripts')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>المخطوطات</span>
-            <span class="badge-count">{{ (props.stats?.manuscripts ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-audios" onclick="loadView('audios')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-            <span>الصوتيات</span>
-            <span class="badge-count">{{ (props.stats?.audios ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-videos" onclick="loadView('videos')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            <span>المرئيات</span>
-            <span class="badge-count">{{ (props.stats?.videos ?? 0).toLocaleString() }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================
-           المجموعة 2: 👥 الأشخاص والجهات (Biographies & Publishers)
-           ======================================================== -->
-      <div class="nav-group" id="group-entities">
-        <div class="nav-group-header" onclick="toggleNavGroup('group-entities')" title="طي / توسيع المجموعة">
-          <div class="header-main">
-            <span>👥</span>
-            <span class="group-title">الأشخاص</span>
-            <span class="group-badge">2</span>
-          </div>
-          <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="nav-group-items">
-          <div class="nav-item" id="nav-authors" onclick="loadView('authors')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            <span>المؤلفون</span>
-            <span class="badge-count">{{ (props.stats?.authors ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-publishers" onclick="loadView('publishers')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            <span>الناشرون</span>
-            <span class="badge-count">{{ (props.stats?.publishers ?? 0).toLocaleString() }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================
-           المجموعة 3: 🏷️ البيانات والتنظيم المعرفي (Taxonomies)
-           ======================================================== -->
-      <div class="nav-group" id="group-taxonomy">
-        <div class="nav-group-header" onclick="toggleNavGroup('group-taxonomy')" title="طي / توسيع المجموعة">
-          <div class="header-main">
-            <span>🏷️</span>
-            <span class="group-title">التنظيم</span>
-            <span class="group-badge">5</span>
-          </div>
-          <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="nav-group-items">
-          <div class="nav-item" id="nav-categories" onclick="loadView('categories')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2zm5-3a2 2 0 100 4 2 2 0 000-4z"/></svg>
-            <span>التصنيفات</span>
-            <span class="badge-count">{{ (props.stats?.categories ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-tags" onclick="loadView('tags')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-            <span>الأوسمة</span>
-            <span class="badge-count">{{ (props.stats?.tags ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-collections" onclick="loadView('collections')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-            <span>المجموعات</span>
-            <span class="badge-count">{{ (props.stats?.collections ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-series" onclick="loadView('series')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-            <span>السلاسل</span>
-            <span class="badge-count">{{ (props.stats?.series ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-topics" onclick="loadView('topics')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-            <span>الموضوعات</span>
-            <span class="badge-count">{{ (props.stats?.topics ?? 0).toLocaleString() }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================
-           المجموعة 4: ✍️ استوديو الكيانات والتحقيق (Entity Studio - 4 Models)
-           ======================================================== -->
-      <div class="nav-group" id="group-studio">
-        <div class="nav-group-header" onclick="toggleNavGroup('group-studio')" title="طي / توسيع استوديو الكيانات">
-          <div class="header-main">
-            <span>✍️</span>
-            <span class="group-title">الاستوديو</span>
-            <span class="group-badge">5</span>
-          </div>
-          <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="nav-group-items">
-          <div class="nav-item" id="nav-studio-books" onclick="loadView('studio-books')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-            <span>الكتب</span>
-            <span class="badge-count">{{ (props.stats?.studio_books ?? 0).toLocaleString() }} مسودة</span>
-          </div>
-          <div class="nav-item" id="nav-studio-manuscripts" onclick="loadView('studio-manuscripts')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>المخطوطات</span>
-            <span class="badge-count">{{ (props.stats?.studio_manuscripts ?? 0).toLocaleString() }} لوحة</span>
-          </div>
-          <div class="nav-item" id="nav-studio-audios" onclick="loadView('studio-audios')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-            <span>الصوتيات</span>
-            <span class="badge-count">{{ (props.stats?.studio_audios ?? 0).toLocaleString() }} شريحة</span>
-          </div>
-          <div class="nav-item" id="nav-studio-videos" onclick="loadView('studio-videos')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            <span>المرئيات</span>
-            <span class="badge-count">{{ (props.stats?.studio_videos ?? 0).toLocaleString() }} مشهد</span>
-          </div>
-          <div class="nav-item" id="nav-versions" onclick="loadView('versions')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>الإصدارات</span>
-            <span class="badge-count" style="color: #38bdf8;">{{ (props.stats?.versions ?? 0).toLocaleString() }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================
-           المجموعة 5: 👑 الإدارة والحوكمة (Super Admin)
-           ======================================================== -->
-      <div class="nav-group sovereign-group" id="group-sovereignty">
-        <div class="nav-group-header" onclick="toggleNavGroup('group-sovereignty')" title="طي / توسيع مجموعة الإدارة والحوكمة">
-          <div class="header-main">
-            <span>👑</span>
-            <span class="group-title">النظام</span>
-            <span class="group-badge">6</span>
-          </div>
-          <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="nav-group-items">
-          <div class="nav-item active" id="nav-stats" onclick="loadView('stats')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            <span>الإحصائيات</span>
-          </div>
-          <div class="nav-item" id="nav-ops" onclick="loadView('ops')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            <span>العمليات</span>
-          </div>
-          <div class="nav-item" id="nav-users" onclick="loadView('users')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <span>المستخدمون</span>
-            <span class="badge-count">{{ (props.stats?.users ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-activities" onclick="loadView('activities')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>النشاطات</span>
-            <span class="badge-count">{{ (props.stats?.activities ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-deletions" onclick="loadView('deletions')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            <span>المهملات</span>
-            <span class="badge-count icon-refresh">{{ (props.stats?.deletions ?? 0).toLocaleString() }}</span>
-          </div>
-          <div class="nav-item" id="nav-commands" onclick="loadView('commands')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>الأوامر</span>
-          </div>
-        </div>
-      </div>
-
-    </nav>
-  </aside>
+  <AdminDashboardSidebar
+    :stats="props.stats"
+    :current-view-key="currentViewKey"
+    @load-view="loadView"
+  />
 
   <!-- ============================================================
-       2. TOP FIXED NAVBAR
+       2. TOP FIXED NAVBAR (AdminDashboardNavbar - Option B)
        ============================================================ -->
-  <header class="app-navbar" id="appNavbar">
-    <div class="navbar-right">
-      <button class="nav-btn" onclick="toggleSidebarCollapse()" title="طي/فرد القائمة الجانبية">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
-      </button>
+  <AdminDashboardNavbar
+    :current-group-title="currentGroupTitle"
+    :current-view-title="currentViewTitle"
+    @load-view="loadView"
+  />
 
-      <!-- Theme Toggle (Dark / Light Theme Toggle as in Navbar.vue) -->
-      <button class="nav-btn" id="themeToggleBtn" onclick="toggleTheme()" title="تبديل المظهر النهاري / الليلي">
-        <!-- Sun icon (shown in Dark mode to switch to Light) -->
-        <svg id="themeIconSun" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        <!-- Moon icon (shown in Light mode to switch to Dark) -->
-        <svg id="themeIconMoon" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-      </button>
-
-      <div class="breadcrumbs">
-        <a href="javascript:void(0)" onclick="loadView('stats')" class="breadcrumb-link" title="نظرة عامة على النظام">الرئيسية</a>
-        <svg class="breadcrumb-sep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="breadcrumb-group" id="breadcrumbGroup">المكتبة</span>
-        <svg class="breadcrumb-sep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="current" id="breadcrumbCurrent">الكتب</span>
-      </div>
-    </div>
-
-    <div class="navbar-left">
-      <div class="search-box">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" placeholder="بحث سريع...">
-      </div>
-
-      <button class="nav-btn" onclick="alert('تنبيهات النظام: الحالة مثالية، لا توجد مخاطر.')" title="التنبيهات">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-      </button>
-
-      <!-- User Avatar / Profile Menu (as in Navbar.vue / Dashboard.vue) -->
-      <div class="user-menu-wrapper">
-        <button class="user-avatar-btn" id="userAvatarBtn" onclick="toggleUserDropdown()" title="الملف الشخصي وحساب المستخدم">
-          <div class="user-avatar-inner">
-            <span>م</span>
-          </div>
-        </button>
-
-        <div id="userDropdownMenu" class="user-dropdown-menu" style="display: none;">
-          <div class="user-dropdown-header">
-            <p class="user-dropdown-name">د. إبراهيم الفاسي</p>
-            <p class="user-dropdown-role">super_admin@archive.org</p>
-          </div>
-          <a href="/superadmin/dashboard" class="user-dropdown-item">
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            <span>لوحة التحكم الرئيسية</span>
-          </a>
-          <div class="user-dropdown-item text-danger" onclick="alert('تم تسجيل الخروج بنجاح.'); location.reload();">
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-            <span>تسجيل الخروج</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
 
   <!-- ============================================================
        3. DYNAMIC CONTENT CONTAINER (SPA Router Driven)
        ============================================================ -->
   <main class="app-main" id="appMain">
     <div id="dynamicContentArea">
-      <!-- 1. Books Asset Table -->
-      <AssetTableView
-        v-if="currentViewKey === 'books'"
-        asset-title="الكتب"
-        asset-type="books"
-        :stats="booksKpiStats"
-        :columns="booksColumns"
-        :rows="activeBooksRows"
-        :total="props.stats?.books || activeBooksRows.length"
-        create-url="/books/create"
+      <!-- 1. Library Sector: Books, Manuscripts, Audios, Videos (Cycle 26 Modular Decoupling) -->
+      <DashboardLibraryView
+        v-if="['books', 'manuscripts', 'audios', 'videos'].includes(currentViewKey)"
+        :library-type="currentViewKey"
+        :items="getLibraryItems(currentViewKey)"
+        :stats="props.stats"
+        :create-url="`/${currentViewKey}/create`"
       />
-      <!-- 2. Manuscripts Asset Table -->
-      <AssetTableView
-        v-else-if="currentViewKey === 'manuscripts'"
-        asset-title="المخطوطات"
-        asset-type="manuscripts"
-        :stats="manuscriptsKpiStats"
-        :columns="manuscriptsColumns"
-        :rows="activeManuscriptsRows"
-        :total="props.stats?.manuscripts || activeManuscriptsRows.length"
-        create-url="/manuscripts/create"
-      />
-      <!-- 3. Audios Asset Table -->
-      <AssetTableView
-        v-else-if="currentViewKey === 'audios'"
-        asset-title="الصوتيات"
-        asset-type="audios"
-        :stats="audiosKpiStats"
-        :columns="audiosColumns"
-        :rows="activeAudiosRows"
-        :total="props.stats?.audios || activeAudiosRows.length"
-        create-url="/audios/create"
-      />
-      <!-- 4. Videos Asset Table -->
-      <AssetTableView
-        v-else-if="currentViewKey === 'videos'"
-        asset-title="المرئيات"
-        asset-type="videos"
-        :stats="videosKpiStats"
-        :columns="videosColumns"
-        :rows="activeVideosRows"
-        :total="props.stats?.videos || activeVideosRows.length"
-        create-url="/videos/create"
-      />
-      <!-- 5. Authors Asset Table (قطاع الأشخاص -> المؤلفون) -->
-      <AssetTableView
-        v-else-if="currentViewKey === 'authors'"
-        asset-title="المؤلفون"
-        asset-type="authors"
-        initial-view-mode="cards"
-        :stats="authorsKpiStats"
-        :columns="authorsColumns"
-        :rows="activeAuthorsRows"
-        :total="props.stats?.authors || activeAuthorsRows.length"
-        create-url="/authors/create"
-      />
-      <!-- 6. Publishers Asset Table (قطاع الأشخاص -> الناشرون) -->
-      <AssetTableView
-        v-else-if="currentViewKey === 'publishers'"
-        asset-title="الناشرون"
-        asset-type="publishers"
-        initial-view-mode="cards"
-        :stats="publishersKpiStats"
-        :columns="publishersColumns"
-        :rows="activePublishersRows"
-        :total="props.stats?.publishers || activePublishersRows.length"
-        create-url="/publishers/create"
+      <!-- 2. People Sector: Authors & Publishers (Cycle 26 Modular Decoupling - Tables Preserved) -->
+      <DashboardPeopleView
+        v-else-if="['authors', 'publishers'].includes(currentViewKey)"
+        :people-type="currentViewKey"
+        :items="getPeopleItems(currentViewKey)"
+        :stats="props.stats"
+        :create-url="`/${currentViewKey}/create`"
       />
       <!-- 7. Users Asset Table (النظام -> المستخدمون) -->
       <AssetTableView
@@ -439,6 +121,10 @@ import DashboardCommandsView from './AdminDashboard/Views/DashboardCommandsView.
 import DashboardOpsView from './AdminDashboard/Views/DashboardOpsView.vue';
 import DashboardStudioView from './AdminDashboard/Views/DashboardStudioView.vue';
 import DashboardTaxonomyView from './AdminDashboard/Views/DashboardTaxonomyView.vue';
+import DashboardLibraryView from './AdminDashboard/Views/DashboardLibraryView.vue';
+import DashboardPeopleView from './AdminDashboard/Views/DashboardPeopleView.vue';
+import AdminDashboardSidebar from './AdminDashboard/AdminDashboardSidebar.vue';
+import AdminDashboardNavbar from './AdminDashboard/AdminDashboardNavbar.vue';
 import {
   booksColumns, sampleBooksRows,
   manuscriptsColumns, sampleManuscriptsRows,
@@ -548,6 +234,24 @@ const props = defineProps({
 
 const currentViewKey = ref(typeof window !== 'undefined' && (window.location.hash || "").replace("#", "") || "stats");
 const currentViewHtml = ref('');
+
+const getLibraryItems = (key) => {
+  switch (key) {
+    case 'books': return props.books || [];
+    case 'manuscripts': return props.manuscripts || [];
+    case 'audios': return props.audios || [];
+    case 'videos': return props.videos || [];
+    default: return [];
+  }
+};
+
+const getPeopleItems = (key) => {
+  switch (key) {
+    case 'authors': return props.authors || [];
+    case 'publishers': return props.publishers || [];
+    default: return [];
+  }
+};
 
 const activeBooksRows = computed(() => {
   if (props.books && props.books.length > 0) {
@@ -721,6 +425,14 @@ const viewCatalog = {
   deletions: { title: 'المهملات', group: 'النظام' },
   commands: { title: 'الأوامر', group: 'النظام' },
 };
+
+const currentGroupTitle = computed(() => {
+  return viewCatalog[currentViewKey.value]?.group || 'النظام';
+});
+
+const currentViewTitle = computed(() => {
+  return viewCatalog[currentViewKey.value]?.title || 'الإحصائيات';
+});
 
     function toggleNavGroup(groupId) {
       if (isSidebarCollapsed) return;

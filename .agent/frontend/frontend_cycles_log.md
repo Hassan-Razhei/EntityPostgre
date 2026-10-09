@@ -32,6 +32,7 @@
 | **23** | **تفكيك قمرة القيادة وفصل الواجهات الفرعية والأنماط المعمارية (Decoupled SFC Views & Modular Sub-Views)** | `resources/js/__tests__/ModularDashboardViews.test.js` | 6 Failed | 6 Passed (84 Vitest Tests) | **84 Vitest + 551 PHP Passed (انخفاض الحزمة لـ 104kB)** | ✅ مكتملة وموثقة |
 | **24** | **ترقية وتوحيد عروض الاستوديو بمحرك الجداول ونمط البطاقات الذكي (Studio High-Density Engine & Cards Grid)** | `resources/js/__tests__/ModularDashboardViews.test.js` | 3 Failed | 4 Passed (88 Vitest Tests) | **88 Vitest + 551 PHP Passed (100% نجاح)** | ✅ مكتملة وموثقة |
 | **25** | **المستكشف المعرفي التفاعلي وتخصيص الهويات البصرية لفروع التنظيم (Cognitive Taxonomy Explorer)** | `resources/js/__tests__/ModularDashboardViews.test.js` | 5 Failed | 5 Passed (91 Vitest Tests) | **91 Vitest + 551 PHP Passed (100% نجاح)** | ✅ مكتملة وموثقة |
+| **26** | **التفكيك المعماري الشامل واستخراج غلاف القمرة وقطاعي المكتبة والأشخاص (Cockpit Shell & Sector Decoupling)** | `resources/js/__tests__/ModularDashboardViews.test.js` | 11 Failed | 11 Passed (102 Vitest Tests) | **102 Vitest + 551 PHP Passed (100% نجاح)** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -1138,6 +1139,42 @@
 - **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,748 assertions)** بنسبة نجاح 100%.
 - **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل في **22.41 ثانية** وخروج ملف `DashboardTaxonomyView` بحجم خفيف ومستقل **9.50 kB** (3.26 kB gzip).
 
+---
 
+## 🔹 الدورة 26: التفكيك المعماري الشامل واستخراج غلاف القمرة وقطاعي المكتبة والأشخاص (Cockpit Shell & Sector Decoupling)
 
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**  
+  إنجاز التفكيك المعماري النهائي لقمرة القيادة السيادية `AdminDashboard.vue`، وتجريد آخر الكتل الأحادية (Monolithic Blocks) عبر استخراج أربعة مكونات مستقلة:
+  1. `DashboardLibraryView.vue`: مكوّن قطاع المكتبة الرقمية العامة (الكتب، المخطوطات، الصوتيات، المرئيات) بكامل مؤشرات الأداء والروابط التفاعلية.
+  2. `DashboardPeopleView.vue`: مكوّن قطاع الأشخاص والجهات (المؤلفون والناشرون) مع الالتزام الصارم بشرط المستخدم: **البقاء في وضع الجداول عالي الكثافة (High-Density Table View Mode)** دون تحويلها لبطاقات.
+  3. `AdminDashboardSidebar.vue`: المكوّن المستقل للقائمة الجانبية لقمرة القيادة (وفق الخيار ب المعتمد من المستخدم) شاملاً المجموعات الخمس وشريط أدوات الأكوردion وبادجات العدادات الحية.
+  4. `AdminDashboardNavbar.vue`: المكوّن المستقل للشريط العلوي لقمرة القيادة (وفق الخيار ب) شاملاً مسار التتبع ثلاثي المستويات، أزرار الطي والمظهر الليلي والنهاري، وقائمة ملف المستخدم.
 
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار:**
+  - [`resources/js/__tests__/ModularDashboardViews.test.js`](resources/js/__tests__/ModularDashboardViews.test.js): إضافة اختبارات الوحدات لقطاع المكتبة وقطاع الأشخاص (مع فحص التزام الجداول) والسايدبار والنافبار.
+- **نتيجة التشغيل (RED):**
+  - فشل 11 اختباراً بنجاح (`11 Failed`) قبل إنشاء واستخراج المكونات.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. [`resources/js/Pages/AdminDashboard/Views/DashboardLibraryView.vue`](resources/js/Pages/AdminDashboard/Views/DashboardLibraryView.vue): بناء المكون بتمثيل شامل للأصول الأربعة ومحرك الجداول وبطاقات الإحصائيات.
+  2. [`resources/js/Pages/AdminDashboard/Views/DashboardPeopleView.vue`](resources/js/Pages/AdminDashboard/Views/DashboardPeopleView.vue): بناء المكون وفرض `initial-view-mode="table"` التزاماً برغبة المستخدم.
+  3. [`resources/js/Pages/AdminDashboard/AdminDashboardSidebar.vue`](resources/js/Pages/AdminDashboard/AdminDashboardSidebar.vue): استخراج القائمة الجانبية بالكامل مع الحفاظ على كافة المعرفات التوافقية والأحداث.
+  4. [`resources/js/Pages/AdminDashboard/AdminDashboardNavbar.vue`](resources/js/Pages/AdminDashboard/AdminDashboardNavbar.vue): استخراج الشريط العلوي مع مسار التتبع التفاعلي وقائمة المستخدم.
+  5. [`resources/js/Pages/AdminDashboard.vue`](resources/js/Pages/AdminDashboard.vue): استبدال الكتل الأحادية بالمكونات الجديدة وتمرير الخصائص التفاعلية.
+- **نتيجة التشغيل (GREEN):**
+  - نجاح 24/24 اختباراً في `ModularDashboardViews.test.js`.
+  - نجاح 28/28 اختباراً في `AdminDashboard.test.js`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **102/102 اختباراً ناجحاً (100% نجاح عبر كافة ملفات الاختبار الـ 12)**.
+- **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,766 assertions)** بنسبة نجاح 100%.
+- **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل بنجاح تام وانخفاض ملحوظ في حجم ملف قمرة القيادة `AdminDashboard.vue`.

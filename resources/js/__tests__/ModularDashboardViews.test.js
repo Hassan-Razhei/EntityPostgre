@@ -5,6 +5,10 @@ import DashboardCommandsView from '@/Pages/AdminDashboard/Views/DashboardCommand
 import DashboardOpsView from '@/Pages/AdminDashboard/Views/DashboardOpsView.vue';
 import DashboardTaxonomyView from '@/Pages/AdminDashboard/Views/DashboardTaxonomyView.vue';
 import DashboardStudioView from '@/Pages/AdminDashboard/Views/DashboardStudioView.vue';
+import DashboardLibraryView from '@/Pages/AdminDashboard/Views/DashboardLibraryView.vue';
+import DashboardPeopleView from '@/Pages/AdminDashboard/Views/DashboardPeopleView.vue';
+import AdminDashboardSidebar from '@/Pages/AdminDashboard/AdminDashboardSidebar.vue';
+import AdminDashboardNavbar from '@/Pages/AdminDashboard/AdminDashboardNavbar.vue';
 import axios from 'axios';
 
 vi.mock('axios', () => ({
@@ -346,5 +350,272 @@ describe('Modular Dashboard Views (Cycle 23 TDD)', () => {
       expect(wrapper.text()).toContain('PDF');
     });
   });
+
+  describe('6. DashboardLibraryView.vue (Cycle 26 TDD)', () => {
+    it('renders books view with high density table, active rows, and reader links', () => {
+      const books = [
+        {
+          id: 1,
+          title: 'صحيح البخاري - طبعة دار التأصيل',
+          author: 'محمد بن إسماعيل البخاري',
+          isbn: '978-1-23456-789-0',
+          category: 'الحديث النبوي وعلومه',
+          status: 'محقق معتمد',
+          reader_url: '/reader/book/bukhari-taseel',
+        },
+      ];
+
+      const wrapper = mount(DashboardLibraryView, {
+        props: {
+          libraryType: 'books',
+          items: books,
+          stats: { books: 1482 },
+          createUrl: '/books/create',
+        },
+      });
+
+      expect(wrapper.text()).toContain('الكتب');
+      expect(wrapper.text()).toContain('صحيح البخاري - طبعة دار التأصيل');
+      expect(wrapper.text()).toContain('محمد بن إسماعيل البخاري');
+      expect(wrapper.find('a[href="/reader/book/bukhari-taseel"]').exists()).toBe(true);
+    });
+
+    it('renders manuscripts view with folio badges and restoration indicators', () => {
+      const manuscripts = [
+        {
+          id: 'ms-1',
+          title: 'الموطأ للإمام مالك - رواية يحيى بن يحيى الليثي',
+          author: 'مالك بن أنس',
+          code: 'MS-AR-842',
+          condition: 'مرمم بالكامل',
+          script_type: 'كوفي أندلسي عتيق',
+          studio_url: '/studio/manuscript/muwatta-ms',
+        },
+      ];
+
+      const wrapper = mount(DashboardLibraryView, {
+        props: {
+          libraryType: 'manuscripts',
+          items: manuscripts,
+          stats: { manuscripts: 428 },
+          createUrl: '/manuscripts/create',
+        },
+      });
+
+      expect(wrapper.text()).toContain('المخطوطات');
+      expect(wrapper.text()).toContain('الموطأ للإمام مالك');
+      expect(wrapper.text()).toContain('MS-AR-842');
+      expect(wrapper.text()).toContain('مرمم بالكامل');
+    });
+
+    it('renders media views (audios and videos) with duration and player triggers', () => {
+      const audios = [
+        {
+          id: 'aud-1',
+          title: 'شرح العقيدة الواسطية - الشريط الأول',
+          speaker: 'الشيخ محمد بن صالح العثيمين',
+          duration: '45:20',
+          format: 'MP3',
+        },
+      ];
+
+      const wrapper = mount(DashboardLibraryView, {
+        props: {
+          libraryType: 'audios',
+          items: audios,
+          stats: { audios: 650 },
+          createUrl: '/audios/create',
+        },
+      });
+
+      expect(wrapper.text()).toContain('الصوتيات');
+      expect(wrapper.text()).toContain('شرح العقيدة الواسطية');
+      expect(wrapper.text()).toContain('45:20');
+      expect(wrapper.text()).toContain('MP3');
+    });
+  });
+
+  describe('7. DashboardPeopleView.vue (Cycle 26 TDD - Tables Preservation)', () => {
+    it('renders authors view in table mode preserving high density table structure', () => {
+      const authors = [
+        {
+          id: 'auth-1',
+          name: 'شمس الدين الذهبي',
+          bio: 'محدث العصر وإمام التراجم والتاريخ الإسلامي',
+          works_count: 84,
+          era: 'القرن الثامن الهجري',
+        },
+      ];
+
+      const wrapper = mount(DashboardPeopleView, {
+        props: {
+          peopleType: 'authors',
+          items: authors,
+          stats: { authors: 340 },
+          createUrl: '/authors/create',
+        },
+      });
+
+      expect(wrapper.text()).toContain('المؤلفون');
+      expect(wrapper.text()).toContain('شمس الدين الذهبي');
+      expect(wrapper.text()).toContain('محدث العصر وإمام التراجم');
+      expect(wrapper.text()).toContain('84');
+      // Preserves table mode as strictly requested
+      expect(wrapper.find('.dense-table, table, .asset-table-view').exists()).toBe(true);
+    });
+
+    it('renders publishers view in table mode preserving high density table structure', () => {
+      const publishers = [
+        {
+          id: 'pub-1',
+          name: 'دار المنهاج للنشر والتوزيع',
+          location: 'جدة، المملكة العربية السعودية',
+          publications_count: 312,
+          is_verified: true,
+        },
+      ];
+
+      const wrapper = mount(DashboardPeopleView, {
+        props: {
+          peopleType: 'publishers',
+          items: publishers,
+          stats: { publishers: 95 },
+          createUrl: '/publishers/create',
+        },
+      });
+
+      expect(wrapper.text()).toContain('الناشرون');
+      expect(wrapper.text()).toContain('دار المنهاج للنشر والتوزيع');
+      expect(wrapper.text()).toContain('312');
+      // Preserves table mode as strictly requested
+      expect(wrapper.find('.dense-table, table, .asset-table-view').exists()).toBe(true);
+    });
+  });
+
+  describe('8. AdminDashboardSidebar.vue (Cycle 26 Shell Extraction TDD)', () => {
+    const mockStats = {
+      books: 2450,
+      manuscripts: 430,
+      audios: 120,
+      videos: 85,
+      authors: 310,
+      publishers: 95,
+      categories: 48,
+      tags: 165,
+      collections: 24,
+      series: 18,
+      topics: 92,
+      studio_books: 32,
+      studio_manuscripts: 14,
+      studio_audios: 9,
+      studio_videos: 5,
+      versions: 140,
+      users: 52,
+      activities: 180,
+      deletions: 7,
+    };
+
+    it('renders all 5 navigation groups and live stats counters in badges', () => {
+      const wrapper = mount(AdminDashboardSidebar, {
+        props: {
+          stats: mockStats,
+          currentViewKey: 'books',
+        },
+      });
+
+      expect(wrapper.find('#appSidebar').exists()).toBe(true);
+      expect(wrapper.find('#group-library').exists()).toBe(true);
+      expect(wrapper.find('#group-entities').exists()).toBe(true);
+      expect(wrapper.find('#group-taxonomy').exists()).toBe(true);
+      expect(wrapper.find('#group-studio').exists()).toBe(true);
+      expect(wrapper.find('#group-sovereignty').exists()).toBe(true);
+
+      // Verify badges
+      expect(wrapper.find('#nav-books .badge-count').text()).toBe('2,450');
+      expect(wrapper.find('#nav-manuscripts .badge-count').text()).toBe('430');
+      expect(wrapper.find('#nav-studio-books .badge-count').text()).toContain('32');
+      expect(wrapper.find('#nav-collections .badge-count').text()).toBe('24');
+      expect(wrapper.find('#nav-deletions .badge-count').text()).toBe('7');
+    });
+
+    it('emits loadView event and triggers window.loadView when navigation item is clicked', async () => {
+      const wrapper = mount(AdminDashboardSidebar, {
+        props: {
+          stats: mockStats,
+          currentViewKey: 'stats',
+        },
+      });
+
+      const navBooks = wrapper.find('#nav-books');
+      await navBooks.trigger('click');
+
+      expect(wrapper.emitted('loadView')).toBeTruthy();
+      expect(wrapper.emitted('loadView')[0]).toEqual(['books']);
+    });
+
+    it('renders accordion toolbar with expand and collapse buttons', async () => {
+      const wrapper = mount(AdminDashboardSidebar, {
+        props: {
+          stats: mockStats,
+        },
+      });
+
+      expect(wrapper.find('#sidebarAccordionToolbar').exists()).toBe(true);
+      expect(wrapper.find('#btnExpandAll').exists()).toBe(true);
+      expect(wrapper.find('#btnCollapseAll').exists()).toBe(true);
+    });
+  });
+
+  describe('9. AdminDashboardNavbar.vue (Cycle 26 Shell Extraction TDD)', () => {
+    it('renders navbar shell with reactive 3-tier breadcrumbs matching props', () => {
+      const wrapper = mount(AdminDashboardNavbar, {
+        props: {
+          currentGroupTitle: 'المكتبة',
+          currentViewTitle: 'الكتب',
+        },
+      });
+
+      expect(wrapper.find('#appNavbar').exists()).toBe(true);
+      expect(wrapper.find('#breadcrumbGroup').text()).toBe('المكتبة');
+      expect(wrapper.find('#breadcrumbCurrent').text()).toBe('الكتب');
+    });
+
+    it('emits toggleSidebar event when collapse toggle button is clicked', async () => {
+      const wrapper = mount(AdminDashboardNavbar, {
+        props: {
+          currentGroupTitle: 'النظام',
+          currentViewTitle: 'الإحصائيات',
+        },
+      });
+
+      const toggleBtn = wrapper.find('button[title*="القائمة الجانبية"]');
+      expect(toggleBtn.exists()).toBe(true);
+      await toggleBtn.trigger('click');
+
+      expect(wrapper.emitted('toggleSidebar')).toBeTruthy();
+    });
+
+    it('renders theme toggle and user profile dropdown components', () => {
+      const wrapper = mount(AdminDashboardNavbar, {
+        props: {
+          currentGroupTitle: 'النظام',
+          currentViewTitle: 'المستخدمون',
+          user: {
+            name: 'د. طارق الحارثي',
+            email: 'tareq@entity.local',
+          },
+        },
+      });
+
+      expect(wrapper.find('#themeToggleBtn').exists()).toBe(true);
+      expect(wrapper.find('#themeIconSun').exists()).toBe(true);
+      expect(wrapper.find('#themeIconMoon').exists()).toBe(true);
+      expect(wrapper.find('#userAvatarBtn').exists()).toBe(true);
+      expect(wrapper.find('#userDropdownMenu').exists()).toBe(true);
+      expect(wrapper.find('.user-dropdown-name').text()).toBe('د. طارق الحارثي');
+      expect(wrapper.find('.user-dropdown-role').text()).toBe('tareq@entity.local');
+    });
+  });
 });
+
 
