@@ -126,12 +126,6 @@ import DashboardPeopleView from './AdminDashboard/Views/DashboardPeopleView.vue'
 import AdminDashboardSidebar from './AdminDashboard/AdminDashboardSidebar.vue';
 import AdminDashboardNavbar from './AdminDashboard/AdminDashboardNavbar.vue';
 import {
-  booksColumns, sampleBooksRows,
-  manuscriptsColumns, sampleManuscriptsRows,
-  audiosColumns, sampleAudiosRows,
-  videosColumns, sampleVideosRows,
-  authorsColumns, sampleAuthorsRows,
-  publishersColumns, samplePublishersRows,
   usersColumns, sampleUsersRows,
   deletionsColumns, sampleDeletionsRows
 } from '@/Config/assetTableConfigs';
@@ -253,48 +247,6 @@ const getPeopleItems = (key) => {
   }
 };
 
-const activeBooksRows = computed(() => {
-  if (props.books && props.books.length > 0) {
-    return props.books;
-  }
-  return sampleBooksRows;
-});
-
-const activeManuscriptsRows = computed(() => {
-  if (props.manuscripts && props.manuscripts.length > 0) {
-    return props.manuscripts;
-  }
-  return sampleManuscriptsRows;
-});
-
-const activeAudiosRows = computed(() => {
-  if (props.audios && props.audios.length > 0) {
-    return props.audios;
-  }
-  return sampleAudiosRows;
-});
-
-const activeVideosRows = computed(() => {
-  if (props.videos && props.videos.length > 0) {
-    return props.videos;
-  }
-  return sampleVideosRows;
-});
-
-const activeAuthorsRows = computed(() => {
-  if (props.authors && props.authors.length > 0) {
-    return props.authors;
-  }
-  return sampleAuthorsRows;
-});
-
-const activePublishersRows = computed(() => {
-  if (props.publishers && props.publishers.length > 0) {
-    return props.publishers;
-  }
-  return samplePublishersRows;
-});
-
 const activeUsersRows = computed(() => {
   if (props.recentUsers && props.recentUsers.length > 0) {
     return props.recentUsers;
@@ -307,54 +259,6 @@ const activeDeletionsRows = computed(() => {
     return props.deletions;
   }
   return sampleDeletionsRows;
-});
-
-const booksKpiStats = computed(() => ({
-  total: props.stats?.books || 248510,
-  published: 184200,
-  scholarly: 42150,
-  draft: 18630,
-}));
-
-const manuscriptsKpiStats = computed(() => ({
-  total: props.stats?.manuscripts || 48920,
-  published: 32450,
-  scholarly: 11200,
-  draft: 5270,
-}));
-
-const audiosKpiStats = computed(() => ({
-  total: props.stats?.audios || 14680,
-  published: 11820,
-  scholarly: 2140,
-  draft: 720,
-}));
-
-const videosKpiStats = computed(() => ({
-  total: props.stats?.videos || 8420,
-  published: 6150,
-  scholarly: 1820,
-  draft: 450,
-}));
-
-const authorsKpiStats = computed(() => {
-  const total = props.stats?.authors || activeAuthorsRows.value.length;
-  return {
-    total,
-    published: Math.round(total * 0.78),
-    scholarly: Math.round(total * 0.16),
-    draft: Math.max(0, total - Math.round(total * 0.94)),
-  };
-});
-
-const publishersKpiStats = computed(() => {
-  const total = props.stats?.publishers || activePublishersRows.value.length;
-  return {
-    total,
-    published: Math.round(total * 0.82),
-    scholarly: Math.round(total * 0.14),
-    draft: Math.max(0, total - Math.round(total * 0.96)),
-  };
 });
 
 const usersKpiStats = computed(() => {
@@ -377,14 +281,12 @@ const deletionsKpiStats = computed(() => {
   };
 });
 
-const sampleDeletions = sampleDeletionsRows;
-
 function getStudioItems(viewKey) {
   switch (viewKey) {
-    case 'studio-books': return props.studioBooks || activeBooksRows.value || [];
-    case 'studio-manuscripts': return props.manuscripts || activeManuscriptsRows.value || [];
-    case 'studio-audios': return props.audios || activeAudiosRows.value || [];
-    case 'studio-videos': return props.videos || activeVideosRows.value || [];
+    case 'studio-books': return props.studioBooks || props.books || [];
+    case 'studio-manuscripts': return props.manuscripts || [];
+    case 'studio-audios': return props.audios || [];
+    case 'studio-videos': return props.videos || [];
     case 'versions': return props.versions || [];
     default: return [];
   }
@@ -688,164 +590,8 @@ const currentViewTitle = computed(() => {
       updateToolbarState();
     });
   
-    // ========================================================
-    // UNIFIED TABLE & COLUMN PICKER LOGIC (FOR ALL ASSETS)
-    // ========================================================
-    function toggleColumnsDropdown(event, menuId) {
-      if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-      }
-      const targetMenu = menuId ? document.getElementById(menuId) : (document.getElementById('columnsDropdownMenu') || document.querySelector('.columns-dropdown-menu'));
-      
-      // Close all other open menus first
-      document.querySelectorAll('.columns-dropdown-menu').forEach(m => {
-        if (m !== targetMenu) m.classList.remove('show');
-      });
-
-      if (targetMenu) {
-        targetMenu.classList.toggle('show');
-      }
-    }
-
-    // Close any column menu when clicking outside
-    document.addEventListener('click', (e) => {
-      document.querySelectorAll('.columns-dropdown-menu.show').forEach(menu => {
-        const wrapper = menu.closest('.columns-picker-wrapper');
-        if (wrapper && !wrapper.contains(e.target)) {
-          menu.classList.remove('show');
-        }
-      });
-    });
-
-    // Column Visibility Toggle for Any Table
-    function toggleColumnVisibility(colIndex, isVisible, tableId) {
-      const table = tableId ? document.getElementById(tableId) : (document.getElementById('booksDataTable') || document.querySelector('.dense-table'));
-      if (!table) return;
-
-      const cells = table.querySelectorAll(`tr > :nth-child(${colIndex})`);
-      cells.forEach(cell => {
-        cell.style.display = isVisible ? '' : 'none';
-      });
-    }
-
-    // Reset All Columns
-    function resetAllColumns(tableId, menuId) {
-      const menu = menuId ? document.getElementById(menuId) : (document.getElementById('columnsDropdownMenu') || document.querySelector('.columns-dropdown-menu'));
-      if (menu) {
-        const checkboxes = menu.querySelectorAll('input[type="checkbox"]:not(:disabled)');
-        checkboxes.forEach(cb => { cb.checked = true; });
-      }
-
-      const table = tableId ? document.getElementById(tableId) : (document.getElementById('booksDataTable') || document.querySelector('.dense-table'));
-      if (table) {
-        const allCells = table.querySelectorAll('th, td');
-        allCells.forEach(c => c.style.display = '');
-      }
-    }
-
-    // Unified View Switcher (جدول / بطاقات) for Any Asset
-    function toggleViewMode(asset, mode) {
-      const tableView = document.getElementById(asset + 'TableView');
-      const gridView = document.getElementById(asset + 'GridView');
-      const btnTable = document.getElementById('btnViewTable_' + asset) || document.getElementById('btnViewTable');
-      const btnGrid = document.getElementById('btnViewGrid_' + asset) || document.getElementById('btnViewGrid');
-
-      if (mode === 'grid') {
-        if (tableView) tableView.style.display = 'none';
-        if (gridView) gridView.style.display = 'grid';
-        if (btnTable) btnTable.classList.remove('active');
-        if (btnGrid) btnGrid.classList.add('active');
-      } else {
-        if (tableView) tableView.style.display = '';
-        if (gridView) gridView.style.display = 'none';
-        if (btnTable) btnTable.classList.add('active');
-        if (btnGrid) btnGrid.classList.remove('active');
-      }
-    }
-
-    // Backward compatibility for books
-    function toggleBooksView(mode) {
-      toggleViewMode('books', mode);
-    }
-
-    // Generic Select All
-    function toggleSelectAllTable(master, tableId, stripId, countId) {
-      const table = document.getElementById(tableId);
-      if (!table) return;
-      const checkboxes = table.querySelectorAll('tbody .row-checkbox');
-      checkboxes.forEach(cb => {
-        cb.checked = master.checked;
-        const row = cb.closest('tr');
-        if (row) {
-          row.classList.toggle('row-selected', master.checked);
-        }
-      });
-      updateGenericBulkState(tableId, stripId, countId);
-    }
-
-    // Backward compatibility for books
-    function toggleSelectAllBooks(master) {
-      toggleSelectAllTable(master, 'booksDataTable', 'bulkActionsStrip', 'bulkSelectedCount');
-    }
-
-    // Generic Row Checkbox Change
-    function onTableRowCheckboxChange(tableId, stripId, countId) {
-      const table = document.getElementById(tableId);
-      if (!table) return;
-      const checkboxes = table.querySelectorAll('tbody .row-checkbox');
-      const master = table.querySelector('thead input[type="checkbox"]');
-      const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-      if (master) master.checked = checkboxes.length > 0 && allChecked;
-
-      checkboxes.forEach(cb => {
-        const row = cb.closest('tr');
-        if (row) {
-          row.classList.toggle('row-selected', cb.checked);
-        }
-      });
-      updateGenericBulkState(tableId, stripId, countId);
-    }
-
-    // Backward compatibility for books
-    function onBookRowCheckboxChange() {
-      onTableRowCheckboxChange('booksDataTable', 'bulkActionsStrip', 'bulkSelectedCount');
-    }
-
-    function updateGenericBulkState(tableId, stripId, countId) {
-      const table = document.getElementById(tableId);
-      if (!table) return;
-      const selected = table.querySelectorAll('tbody .row-checkbox:checked').length;
-      const strip = document.getElementById(stripId);
-      const countEl = document.getElementById(countId);
-      if (strip) {
-        strip.style.display = selected > 0 ? 'flex' : 'none';
-      }
-      if (countEl) {
-        countEl.textContent = 'المحدد (' + selected + ')';
-      }
-    }
-
-    // Universal Live Table Filter
-    function filterTable(tableId, val) {
-      const query = (val || '').trim().toLowerCase();
-      const table = document.getElementById(tableId);
-      if (!table) return;
-      const rows = table.querySelectorAll('tbody tr');
-      rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        const match = !query || text.includes(query);
-        row.style.display = match ? '' : 'none';
-      });
-    }
-
-    // Books Filter
-    function filterBooksTable(val) {
-      filterTable('booksDataTable', val !== undefined ? val : document.getElementById('booksSearchInput')?.value);
-    }
-
 onMounted(() => {
-  // Expose global methods to window for inline onclick handlers
+  // Expose global methods to window for inline onclick handlers and tests
   window.loadView = loadView;
   window.toggleNavGroup = toggleNavGroup;
   window.expandAllGroups = expandAllGroups;
@@ -855,18 +601,6 @@ onMounted(() => {
   window.toggleTheme = toggleTheme;
   window.initTheme = initTheme;
   window.setTheme = setTheme;
-  window.toggleColumnsDropdown = toggleColumnsDropdown;
-  window.toggleColumnVisibility = toggleColumnVisibility;
-  window.resetAllColumns = resetAllColumns;
-  window.toggleViewMode = toggleViewMode;
-  window.toggleBooksView = toggleBooksView;
-  window.toggleSelectAllTable = toggleSelectAllTable;
-  window.toggleSelectAllBooks = toggleSelectAllBooks;
-  window.onTableRowCheckboxChange = onTableRowCheckboxChange;
-  window.onBookRowCheckboxChange = onBookRowCheckboxChange;
-  window.updateGenericBulkState = updateGenericBulkState;
-  window.filterTable = filterTable;
-  window.filterBooksTable = filterBooksTable;
   window.runCmd = runCmd;
   window.triggerOpsCacheClear = triggerOpsCacheClear;
   window.runPresetCmd = runPresetCmd;
@@ -904,18 +638,6 @@ onUnmounted(() => {
   delete window.toggleTheme;
   delete window.initTheme;
   delete window.setTheme;
-  delete window.toggleColumnsDropdown;
-  delete window.toggleColumnVisibility;
-  delete window.resetAllColumns;
-  delete window.toggleViewMode;
-  delete window.toggleBooksView;
-  delete window.toggleSelectAllTable;
-  delete window.toggleSelectAllBooks;
-  delete window.onTableRowCheckboxChange;
-  delete window.onBookRowCheckboxChange;
-  delete window.updateGenericBulkState;
-  delete window.filterTable;
-  delete window.filterBooksTable;
   delete window.runCmd;
   delete window.triggerOpsCacheClear;
   delete window.runPresetCmd;
