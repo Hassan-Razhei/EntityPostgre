@@ -442,7 +442,7 @@ class AdminDashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('AdminDashboard', [
+        return Inertia::render('AdminDashboard/Index', [
             'stats' => $stats,
             'recentActivities' => $recentActivities,
             'recentUsers' => $recentUsers,

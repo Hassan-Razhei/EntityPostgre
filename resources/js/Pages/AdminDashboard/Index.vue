@@ -116,15 +116,15 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AssetTableView from '@/Components/Table/AssetTableView.vue';
 import ActivitiesTimelineView from '@/Components/Timeline/ActivitiesTimelineView.vue';
-import DashboardStatsView from './AdminDashboard/Views/DashboardStatsView.vue';
-import DashboardCommandsView from './AdminDashboard/Views/DashboardCommandsView.vue';
-import DashboardOpsView from './AdminDashboard/Views/DashboardOpsView.vue';
-import DashboardStudioView from './AdminDashboard/Views/DashboardStudioView.vue';
-import DashboardTaxonomyView from './AdminDashboard/Views/DashboardTaxonomyView.vue';
-import DashboardLibraryView from './AdminDashboard/Views/DashboardLibraryView.vue';
-import DashboardPeopleView from './AdminDashboard/Views/DashboardPeopleView.vue';
-import AdminDashboardSidebar from './AdminDashboard/AdminDashboardSidebar.vue';
-import AdminDashboardNavbar from './AdminDashboard/AdminDashboardNavbar.vue';
+import DashboardStatsView from './Views/DashboardStatsView.vue';
+import DashboardCommandsView from './Views/DashboardCommandsView.vue';
+import DashboardOpsView from './Views/DashboardOpsView.vue';
+import DashboardStudioView from './Views/DashboardStudioView.vue';
+import DashboardTaxonomyView from './Views/DashboardTaxonomyView.vue';
+import DashboardLibraryView from './Views/DashboardLibraryView.vue';
+import DashboardPeopleView from './Views/DashboardPeopleView.vue';
+import AdminDashboardSidebar from './AdminDashboardSidebar.vue';
+import AdminDashboardNavbar from './AdminDashboardNavbar.vue';
 import {
   usersColumns, sampleUsersRows,
   deletionsColumns, sampleDeletionsRows

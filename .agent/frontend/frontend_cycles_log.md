@@ -1207,3 +1207,27 @@
 - **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,754 assertions)** بنسبة نجاح 100%.
 - **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل في **15.12 ثانية**، مع انخفاض حجم حزمة `AdminDashboard` إلى **18.76 kB** وخروج قطع مستقلة لكل مكون.
 
+---
+
+## 🔹 الدورة 28: نقل ملف قمرة القيادة إلى AdminDashboard/Index.vue وتوحيد شجرة صفحات Inertia
+
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**
+  تنفيذاً للخيار الأول المعتمد من قبل المستخدم لتوحيد شجرة المجلدات:
+  1. **نقل ملف قمرة القيادة الرئيسي:**
+     - نقل `resources/js/Pages/AdminDashboard.vue` ليصبح [`resources/js/Pages/AdminDashboard/Index.vue`](resources/js/Pages/AdminDashboard/Index.vue) أسوة بباقي قطاعات التطبيق القياسية (`Books/Index.vue`, `Manuscripts/Index.vue`, إلخ).
+     - تحديث مسارات الاستيراد النسبية الداخلية لقطاعات العروض (`./Views/...`) ومكوني السايدبار والنافبار (`./AdminDashboardSidebar.vue`, `./AdminDashboardNavbar.vue`).
+  2. **تحديث مسار المكون في متحكم Laravel Inertia:**
+     - تعديل `AdminDashboardController.php` لتصيير `AdminDashboard/Index` بدلاً من المسار الفردي القديم.
+  3. **تحديث توكيدات الاختبارات في الباك إند والفرونت إند:**
+     - تحديث توكيدات `->component('AdminDashboard/Index')` في `InertiaAuthSharingTest.php` و `SuperAdminDashboardTest.php`.
+     - تحديث استيراد المكون في `AdminDashboard.test.js` ليشير إلى المسار الجديد.
+
+---
+
+### 1. مرحلة التحقق والاختبار الأخضر 🟢 (GREEN & Regression Check):
+- **اختبارات الفرونت إند (Vitest):** **102/102 اختباراً ناجحاً (100% نجاح عبر 12 ملف اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,745 assertions)** بنسبة نجاح 100%.
+- **بناء الإنتاج (Vite Production Build):** نجاح تام لبناء الحزمة وخروج حزمة قمرة القيادة باسم `Index-CxkxDY1r.js` بحجم خفيف 18.75 kB (6.14 kB gzip).
+
+

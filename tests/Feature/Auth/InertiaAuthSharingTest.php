@@ -41,7 +41,7 @@ class InertiaAuthSharingTest extends TestCase
             ->get('/superadmin/dashboard')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('AdminDashboard')
+                ->component('AdminDashboard/Index')
                 ->where('auth.user.id', $user->id)
                 ->where('auth.user.name', 'الحسن رضي')
                 ->where('auth.user.email', 'hassan@archive.org')

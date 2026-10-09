@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import * as inertia from '@inertiajs/vue3';
 import axios from 'axios';
-import AdminDashboard from '../Pages/AdminDashboard.vue';
+import AdminDashboard from '../Pages/AdminDashboard/Index.vue';
 
 vi.mock('axios', () => ({
     default: {

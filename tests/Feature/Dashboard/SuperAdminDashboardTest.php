@@ -66,7 +66,7 @@ class SuperAdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('AdminDashboard')
+                ->component('AdminDashboard/Index')
             );
     }
 
@@ -85,7 +85,7 @@ class SuperAdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('AdminDashboard')
+                ->component('AdminDashboard/Index')
                 ->has('stats', fn (Assert $stats) => $stats
                     ->where('books', 5)
                     ->where('manuscripts', 3)
@@ -115,7 +115,7 @@ class SuperAdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('AdminDashboard')
+                ->component('AdminDashboard/Index')
                 ->where('stats.deletions', 3)
                 ->has('recentUsers', 3) // المستخدمون الثلاثة المنشأون في setUp
             );
@@ -135,7 +135,7 @@ class SuperAdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('AdminDashboard')
+                ->component('AdminDashboard/Index')
                 ->has('books', 1)
                 ->where('books.0.title', 'مقدمة ابن خلدون')
                 ->where('books.0.slug', 'muqaddimah-ibn-khaldun')
@@ -185,7 +185,7 @@ class SuperAdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('AdminDashboard')
+                ->component('AdminDashboard/Index')
                 ->has('manuscripts', 1)
                 ->where('manuscripts.0.title', 'مخطوط صحيح البخاري')
                 ->where('manuscripts.0.code', 'MS-BKH-01')
@@ -234,7 +234,7 @@ class SuperAdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('AdminDashboard')
+                ->component('AdminDashboard/Index')
                 ->has('categories')
                 ->where('categories.0.name', 'علوم الحديث النبوي')
                 ->has('tags')
@@ -272,7 +272,7 @@ class SuperAdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('AdminDashboard')
+                ->component('AdminDashboard/Index')
                 ->has('collections')
                 ->where('collections.0.name', 'خزانة التراث الأندلسي')
                 ->has('series')
