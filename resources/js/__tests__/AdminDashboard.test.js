@@ -271,33 +271,249 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
         await new Promise(r => setTimeout(r, 120));
 
         const contentArea = wrapper.find('#dynamicContentArea');
+        expect(wrapper.findAllComponents({ name: 'AssetTableView' }).length).toBe(1);
         expect(contentArea.html()).toContain('manuscriptsDataTable');
-        expect(contentArea.html()).toContain('صحيح البخاري - المجلد الرابع');
+        expect(contentArea.html()).toContain('المخطوطات');
+    });
+
+    it('renders live database manuscripts from props.manuscripts via AssetTableView', async () => {
+        const liveManuscripts = [
+            {
+                id: 'ms-1',
+                serial: '#20101',
+                code: 'MS-KOP-01',
+                title: 'صحيح البخاري - نسخة كوبريلي الخزائنية',
+                slug: 'sahih-bukhari-koprulu',
+                century: 'القرن 7 هـ',
+                copy_date: '685 هـ',
+                copyist: 'شرف الدين اليونيني',
+                script_type: 'ثلث مشرقي',
+                source_library: 'مكتبة كوبريلي',
+                condition: 'ممتازة 95%',
+                has_cover: true,
+                created_at_human: 'منذ ساعتين',
+                reader_url: '/dev/manuscripter/sahih-bukhari-koprulu',
+                studio_url: '/studio/manuscript/sahih-bukhari-koprulu',
+                edit_url: '/manuscripts/ms-1/edit',
+            },
+        ];
+
+        const wrapper = createWrapper({ manuscripts: liveManuscripts });
+        window.loadView('manuscripts');
+        await new Promise(r => setTimeout(r, 120));
+
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('صحيح البخاري - نسخة كوبريلي الخزائنية');
+        expect(contentArea.html()).toContain('MS-KOP-01');
         expect(contentArea.html()).toContain('/dev/manuscripter/sahih-bukhari-koprulu');
         expect(contentArea.html()).toContain('/studio/manuscript/sahih-bukhari-koprulu');
+        expect(contentArea.html()).toContain('/manuscripts/ms-1/edit');
+    });
+
+    it('renders live database audios from props.audios via AssetTableView', async () => {
+        const liveAudios = [
+            {
+                id: 'aud-1',
+                serial: '#30101',
+                code: 'AUD-AJR-01',
+                title: 'شرح الآجرومية في علم العربية',
+                slug: 'sharh-ajrumiyyah',
+                duration: '01:15:30',
+                format: 'MP3',
+                author: 'الشيخ ابن عثيمين',
+                files: '🎧 صوتي + 🖼️ غلاف',
+                created_at_human: 'أمس',
+                player_url: '/audios/sharh-ajrumiyyah/player',
+                studio_url: '/studio/audio/sharh-ajrumiyyah',
+                edit_url: '/audios/aud-1/edit',
+            },
+        ];
+
+        const wrapper = createWrapper({ audios: liveAudios });
+        window.loadView('audios');
+        await new Promise(r => setTimeout(r, 120));
+
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('audiosDataTable');
+        expect(contentArea.html()).toContain('شرح الآجرومية في علم العربية');
+        expect(contentArea.html()).toContain('AUD-AJR-01');
+        expect(contentArea.html()).toContain('/audios/sharh-ajrumiyyah/player');
+        expect(contentArea.html()).toContain('/studio/audio/sharh-ajrumiyyah');
+    });
+
+    it('renders live database videos from props.videos via AssetTableView', async () => {
+        const liveVideos = [
+            {
+                id: 'vid-1',
+                serial: '#40101',
+                code: 'VID-HDT-01',
+                title: 'مجلس علوم الحديث ومناهج المحدثين',
+                slug: 'majlis-hadith',
+                duration: '02:00:00',
+                format: 'MP4',
+                author: 'د. طارق الحارثي',
+                files: '▶️ مرئي + 🖼️ غلاف',
+                created_at_human: 'منذ يومين',
+                player_url: '/videos/majlis-hadith/player',
+                studio_url: '/studio/video/majlis-hadith',
+                edit_url: '/videos/vid-1/edit',
+            },
+        ];
+
+        const wrapper = createWrapper({ videos: liveVideos });
+        window.loadView('videos');
+        await new Promise(r => setTimeout(r, 120));
+
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('videosDataTable');
+        expect(contentArea.html()).toContain('مجلس علوم الحديث ومناهج المحدثين');
+        expect(contentArea.html()).toContain('VID-HDT-01');
+        expect(contentArea.html()).toContain('/videos/majlis-hadith/player');
+        expect(contentArea.html()).toContain('/studio/video/majlis-hadith');
     });
 
     it('renders full rich authors view with scholar biography cards and works count when switching to authors view', async () => {
-        const wrapper = createWrapper();
+        const liveAuthors = [
+            {
+                id: 'auth-1',
+                name: 'ابن خلدون الحضرمي',
+                slug: 'ibn-khaldun',
+                century_lived: 'القرن 8 هـ',
+                lifespan: '732 - 808 هـ',
+                original_region: 'تونس / القاهرة',
+                works_count: '24 مصنفاً',
+                bio: 'مؤسس علم الاجتماع وصاحب المقدمة والتاريخ.',
+                profile_url: '/authors/auth-1',
+                edit_url: '/authors/auth-1/edit',
+            },
+        ];
+
+        const wrapper = createWrapper({ authors: liveAuthors });
         window.loadView('authors');
         await new Promise(r => setTimeout(r, 120));
 
         const contentArea = wrapper.find('#dynamicContentArea');
-        expect(contentArea.html()).toContain('ابن حجر العسقلاني');
-        expect(contentArea.html()).toContain('الإمام البخاري');
+        expect(contentArea.html()).toContain('المؤلفون');
+        expect(contentArea.html()).toContain('authorsDataTable');
+        expect(contentArea.html()).toContain('authorsSearchInput');
+        expect(contentArea.html()).toContain('authorsCategoryFilter');
+        expect(contentArea.html()).toContain('ابن خلدون الحضرمي');
+        expect(contentArea.html()).toContain('732 - 808 هـ');
+        expect(contentArea.html()).toContain('24 مصنفاً');
+        expect(contentArea.html()).toContain('/authors/auth-1');
+        expect(contentArea.html()).toContain('/authors/auth-1/edit');
         expect(contentArea.html()).toContain('تصفح المؤلفات 📚');
         expect(contentArea.html()).toContain('تعديل السيرة ✏️');
     });
 
     it('renders full rich publishers view with verified press cards and publication counts when switching to publishers view', async () => {
-        const wrapper = createWrapper();
+        const livePublishers = [
+            {
+                id: 'pub-1',
+                name: 'مؤسسة الرسالة ناشرون',
+                slug: 'muassasat-al-risalah',
+                country: 'بيروت - دمشق',
+                established_year: '1975',
+                publications_count: '520 مطبوعة مؤرشفة',
+                status: 'ناشر معتمد 🏢',
+                description: 'دار نشر متخصصة في تحقيق أمهات كتب السنة والتاريخ.',
+                profile_url: '/publishers/pub-1',
+                edit_url: '/publishers/pub-1/edit',
+            },
+        ];
+
+        const wrapper = createWrapper({ publishers: livePublishers });
         window.loadView('publishers');
         await new Promise(r => setTimeout(r, 120));
 
         const contentArea = wrapper.find('#dynamicContentArea');
-        expect(contentArea.html()).toContain('دار الرسالة العالمية');
-        expect(contentArea.html()).toContain('دار المنهاج');
-        expect(contentArea.html()).toContain('مطبوعة مؤرشفة');
+        expect(contentArea.html()).toContain('الناشرون');
+        expect(contentArea.html()).toContain('publishersDataTable');
+        expect(contentArea.html()).toContain('publishersSearchInput');
+        expect(contentArea.html()).toContain('publishersCategoryFilter');
+        expect(contentArea.html()).toContain('مؤسسة الرسالة ناشرون');
+        expect(contentArea.html()).toContain('520 مطبوعة مؤرشفة');
+        expect(contentArea.html()).toContain('/publishers/pub-1');
         expect(contentArea.html()).toContain('عرض المنشورات 📖');
     });
+
+    it('renders live users via modular table engine when switched to users view', async () => {
+        const liveUsers = [
+            {
+                id: 'usr-1',
+                name: 'د. عبد الله المنصور',
+                email: 'admin@entity.local',
+                role: 'super_admin',
+                created_at: 'منذ شهرين',
+            },
+        ];
+
+        const wrapper = createWrapper({ recentUsers: liveUsers });
+        window.loadView('users');
+        await new Promise(r => setTimeout(r, 120));
+
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('المستخدمون');
+        expect(contentArea.html()).toContain('usersDataTable');
+        expect(contentArea.html()).toContain('usersSearchInput');
+        expect(contentArea.html()).toContain('د. عبد الله المنصور');
+        expect(contentArea.html()).toContain('admin@entity.local');
+        expect(contentArea.html()).toContain('chip-admin');
+        expect(contentArea.html()).toContain('صلاحيات ⚙️');
+    });
+
+    it('renders live deletions in deletions view when soft-deleted items exist via modular table engine', async () => {
+        const liveDeletions = [
+            {
+                id: 'del-1',
+                title: 'مخطوطة السنن الكبرى المحذوفة مؤقتاً',
+                type_label: 'مخطوط / Manuscript',
+                type_chip: 'chip-academic',
+                deleted_at_human: 'منذ يومين',
+                days_remaining: 'باقي 28 يوماً',
+            },
+        ];
+
+        const wrapper = createWrapper({ deletions: liveDeletions });
+        window.loadView('deletions');
+        await new Promise(r => setTimeout(r, 120));
+
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('المهملات');
+        expect(contentArea.html()).toContain('deletionsDataTable');
+        expect(contentArea.html()).toContain('deletionsSearchInput');
+        expect(contentArea.html()).toContain('مخطوطة السنن الكبرى المحذوفة مؤقتاً');
+        expect(contentArea.html()).toContain('باقي 28 يوماً');
+        expect(contentArea.html()).toContain('استعادة الكيان ♻️');
+    });
+
+    it('renders native reactive ActivitiesTimelineView when switching to activities view', async () => {
+        const liveActivities = [
+            {
+                id: 'act-1',
+                user_name: 'د. عبد الله المنصور',
+                user_avatar_char: 'ع',
+                activity_type: 'إنشاء وتوثيق',
+                description: 'إضافة مخطوطة نفيسة في الفقه المقارن',
+                entity_title: 'صحيح البخاري - نسخة كوبريلي',
+                created_at: 'منذ 15 دقيقة',
+            },
+        ];
+
+        const wrapper = createWrapper({ recentActivities: liveActivities });
+        window.loadView('activities');
+        await new Promise(r => setTimeout(r, 120));
+
+        const contentArea = wrapper.find('#dynamicContentArea');
+        expect(contentArea.html()).toContain('activities-timeline-view');
+        expect(contentArea.html()).toContain('النشاطات');
+        expect(contentArea.html()).toContain('timeline-container');
+        expect(contentArea.html()).toContain('timeline-rail');
+        expect(contentArea.html()).toContain('د. عبد الله المنصور');
+        expect(contentArea.html()).toContain('إضافة مخطوطة نفيسة في الفقه المقارن');
+        expect(contentArea.html()).toContain('صحيح البخاري - نسخة كوبريلي');
+        expect(contentArea.html()).toContain('/activities');
+    });
 });
+
+

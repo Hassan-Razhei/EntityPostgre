@@ -275,17 +275,103 @@
        ============================================================ -->
   <main class="app-main" id="appMain">
     <div id="dynamicContentArea">
-      <!-- 1. Native Reactive Vue Component for Books Asset Table -->
+      <!-- 1. Books Asset Table -->
       <AssetTableView
         v-if="currentViewKey === 'books'"
         asset-title="الكتب"
+        asset-type="books"
         :stats="booksKpiStats"
         :columns="booksColumns"
         :rows="activeBooksRows"
         :total="props.stats?.books || activeBooksRows.length"
         create-url="/books/create"
       />
-      <!-- 2. Dynamic Viewport for other views -->
+      <!-- 2. Manuscripts Asset Table -->
+      <AssetTableView
+        v-else-if="currentViewKey === 'manuscripts'"
+        asset-title="المخطوطات"
+        asset-type="manuscripts"
+        :stats="manuscriptsKpiStats"
+        :columns="manuscriptsColumns"
+        :rows="activeManuscriptsRows"
+        :total="props.stats?.manuscripts || activeManuscriptsRows.length"
+        create-url="/manuscripts/create"
+      />
+      <!-- 3. Audios Asset Table -->
+      <AssetTableView
+        v-else-if="currentViewKey === 'audios'"
+        asset-title="الصوتيات"
+        asset-type="audios"
+        :stats="audiosKpiStats"
+        :columns="audiosColumns"
+        :rows="activeAudiosRows"
+        :total="props.stats?.audios || activeAudiosRows.length"
+        create-url="/audios/create"
+      />
+      <!-- 4. Videos Asset Table -->
+      <AssetTableView
+        v-else-if="currentViewKey === 'videos'"
+        asset-title="المرئيات"
+        asset-type="videos"
+        :stats="videosKpiStats"
+        :columns="videosColumns"
+        :rows="activeVideosRows"
+        :total="props.stats?.videos || activeVideosRows.length"
+        create-url="/videos/create"
+      />
+      <!-- 5. Authors Asset Table (قطاع الأشخاص -> المؤلفون) -->
+      <AssetTableView
+        v-else-if="currentViewKey === 'authors'"
+        asset-title="المؤلفون"
+        asset-type="authors"
+        initial-view-mode="cards"
+        :stats="authorsKpiStats"
+        :columns="authorsColumns"
+        :rows="activeAuthorsRows"
+        :total="props.stats?.authors || activeAuthorsRows.length"
+        create-url="/authors/create"
+      />
+      <!-- 6. Publishers Asset Table (قطاع الأشخاص -> الناشرون) -->
+      <AssetTableView
+        v-else-if="currentViewKey === 'publishers'"
+        asset-title="الناشرون"
+        asset-type="publishers"
+        initial-view-mode="cards"
+        :stats="publishersKpiStats"
+        :columns="publishersColumns"
+        :rows="activePublishersRows"
+        :total="props.stats?.publishers || activePublishersRows.length"
+        create-url="/publishers/create"
+      />
+      <!-- 7. Users Asset Table (النظام -> المستخدمون) -->
+      <AssetTableView
+        v-else-if="currentViewKey === 'users'"
+        asset-title="المستخدمون"
+        asset-type="users"
+        initial-view-mode="table"
+        :stats="usersKpiStats"
+        :columns="usersColumns"
+        :rows="activeUsersRows"
+        :total="props.stats?.users || activeUsersRows.length"
+      />
+      <!-- 8. Deletions Asset Table (النظام -> المهملات) -->
+      <AssetTableView
+        v-else-if="currentViewKey === 'deletions'"
+        asset-title="المهملات"
+        asset-type="deletions"
+        initial-view-mode="table"
+        :stats="deletionsKpiStats"
+        :columns="deletionsColumns"
+        :rows="activeDeletionsRows"
+        :total="props.stats?.deletions || activeDeletionsRows.length"
+      />
+      <!-- 9. Activities Timeline (النظام -> النشاطات) -->
+      <ActivitiesTimelineView
+        v-else-if="currentViewKey === 'activities'"
+        :activities="props.recentActivities"
+        :total="props.stats?.activities || (props.recentActivities ? props.recentActivities.length : 0)"
+      />
+      <!-- 10. Dynamic Viewport for other views -->
       <div v-else-if="currentViewHtml" v-html="currentViewHtml" />
     </div>
 
@@ -304,7 +390,17 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AssetTableView from '@/Components/Table/AssetTableView.vue';
-import { booksColumns, sampleBooksRows } from '@/Config/assetTableConfigs';
+import ActivitiesTimelineView from '@/Components/Timeline/ActivitiesTimelineView.vue';
+import {
+  booksColumns, sampleBooksRows,
+  manuscriptsColumns, sampleManuscriptsRows,
+  audiosColumns, sampleAudiosRows,
+  videosColumns, sampleVideosRows,
+  authorsColumns, sampleAuthorsRows,
+  publishersColumns, samplePublishersRows,
+  usersColumns, sampleUsersRows,
+  deletionsColumns, sampleDeletionsRows
+} from '@/Config/assetTableConfigs';
 import axios from 'axios';
 
 const props = defineProps({
@@ -336,6 +432,30 @@ const props = defineProps({
   books: {
     type: Array,
     default: () => []
+  },
+  manuscripts: {
+    type: Array,
+    default: () => []
+  },
+  audios: {
+    type: Array,
+    default: () => []
+  },
+  videos: {
+    type: Array,
+    default: () => []
+  },
+  authors: {
+    type: Array,
+    default: () => []
+  },
+  publishers: {
+    type: Array,
+    default: () => []
+  },
+  deletions: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -349,12 +469,124 @@ const activeBooksRows = computed(() => {
   return sampleBooksRows;
 });
 
+const activeManuscriptsRows = computed(() => {
+  if (props.manuscripts && props.manuscripts.length > 0) {
+    return props.manuscripts;
+  }
+  return sampleManuscriptsRows;
+});
+
+const activeAudiosRows = computed(() => {
+  if (props.audios && props.audios.length > 0) {
+    return props.audios;
+  }
+  return sampleAudiosRows;
+});
+
+const activeVideosRows = computed(() => {
+  if (props.videos && props.videos.length > 0) {
+    return props.videos;
+  }
+  return sampleVideosRows;
+});
+
+const activeAuthorsRows = computed(() => {
+  if (props.authors && props.authors.length > 0) {
+    return props.authors;
+  }
+  return sampleAuthorsRows;
+});
+
+const activePublishersRows = computed(() => {
+  if (props.publishers && props.publishers.length > 0) {
+    return props.publishers;
+  }
+  return samplePublishersRows;
+});
+
+const activeUsersRows = computed(() => {
+  if (props.recentUsers && props.recentUsers.length > 0) {
+    return props.recentUsers;
+  }
+  return sampleUsersRows;
+});
+
+const activeDeletionsRows = computed(() => {
+  if (props.deletions && props.deletions.length > 0) {
+    return props.deletions;
+  }
+  return sampleDeletionsRows;
+});
+
 const booksKpiStats = computed(() => ({
   total: props.stats?.books || 248510,
   published: 184200,
   scholarly: 42150,
   draft: 18630,
 }));
+
+const manuscriptsKpiStats = computed(() => ({
+  total: props.stats?.manuscripts || 48920,
+  published: 32450,
+  scholarly: 11200,
+  draft: 5270,
+}));
+
+const audiosKpiStats = computed(() => ({
+  total: props.stats?.audios || 14680,
+  published: 11820,
+  scholarly: 2140,
+  draft: 720,
+}));
+
+const videosKpiStats = computed(() => ({
+  total: props.stats?.videos || 8420,
+  published: 6150,
+  scholarly: 1820,
+  draft: 450,
+}));
+
+const authorsKpiStats = computed(() => {
+  const total = props.stats?.authors || activeAuthorsRows.value.length;
+  return {
+    total,
+    published: Math.round(total * 0.78),
+    scholarly: Math.round(total * 0.16),
+    draft: Math.max(0, total - Math.round(total * 0.94)),
+  };
+});
+
+const publishersKpiStats = computed(() => {
+  const total = props.stats?.publishers || activePublishersRows.value.length;
+  return {
+    total,
+    published: Math.round(total * 0.82),
+    scholarly: Math.round(total * 0.14),
+    draft: Math.max(0, total - Math.round(total * 0.96)),
+  };
+});
+
+const usersKpiStats = computed(() => {
+  const total = props.stats?.users || activeUsersRows.value.length;
+  return {
+    total,
+    published: activeUsersRows.value.filter(u => u.role === 'super_admin').length || 2,
+    scholarly: activeUsersRows.value.filter(u => u.role === 'editor').length || 8,
+    draft: activeUsersRows.value.filter(u => u.role === 'viewer').length || Math.max(0, total - 10),
+  };
+});
+
+const deletionsKpiStats = computed(() => {
+  const total = props.stats?.deletions || activeDeletionsRows.value.length;
+  return {
+    total,
+    published: activeDeletionsRows.value.filter(d => d.type_label?.includes('كتاب')).length || 1,
+    scholarly: activeDeletionsRows.value.filter(d => d.type_label?.includes('مخطوط')).length || 1,
+    draft: activeDeletionsRows.value.filter(d => !d.type_label?.includes('كتاب') && !d.type_label?.includes('مخطوط')).length || 1,
+  };
+});
+
+const sampleDeletions = sampleDeletionsRows;
 
 const viewCatalog = {
       // ========================================================
@@ -2242,7 +2474,28 @@ const viewCatalog = {
       authors: {
         title: 'المؤلفون',
         group: 'الأشخاص',
-        render: () => `
+        render: () => {
+          const authorList = props.authors && props.authors.length ? props.authors : sampleAuthorsRows;
+          const authorCards = authorList.map(author => `
+            <div class="entity-card">
+              <div>
+                <span class="entity-tag tag-scholarly">${author.tag || 'عَلَم محقق 🏛️'}</span>
+                <h3 class="entity-title">${author.name}</h3>
+                <div class="entity-meta-tags">
+                  <span class="meta-chip">${author.lifespan || '—'}</span>
+                  <span class="meta-chip category">${author.works_count || '0 مصنفاً'}</span>
+                  <span class="meta-chip">${author.original_region || 'الجزيرة العربية'}</span>
+                </div>
+                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">${author.bio || 'عَلَم من أئمة الإسلام ومصنف بارز في العلوم الشرعية والتاريخية.'}</p>
+              </div>
+              <div class="card-footer">
+                <a href="${author.profile_url || `/authors/${author.id}`}" class="btn-indigo-small"><span>تصفح المؤلفات 📚</span></a>
+                <a href="${author.edit_url || `/authors/${author.id}/edit`}" class="btn-action-small"><span>تعديل السيرة ✏️</span></a>
+              </div>
+            </div>
+          `).join('');
+
+          return `
           <div class="view-header-banner">
             <div class="view-title-group">
               <h2><span>👥 المؤلفون</span></h2>
@@ -2257,58 +2510,10 @@ const viewCatalog = {
           </div>
 
           <div class="catalog-grid">
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-scholarly">أمير المؤمنين في الحديث 🏛️</span>
-                <h3 class="entity-title">ابن حجر العسقلاني</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">773 - 852 هـ</span>
-                  <span class="meta-chip category">48 مصنفاً بالأرشيف</span>
-                  <span class="meta-chip">القاهرة</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">أحمد بن علي بن حجر العسقلاني، الإمام الحافظ المحدث، صاحب فتح الباري والإصابة وبلوغ المرام.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/authors/1" class="btn-indigo-small"><span>تصفح المؤلفات 📚</span></a>
-                <a href="/authors/1/edit" class="btn-action-small"><span>تعديل السيرة ✏️</span></a>
-              </div>
-            </div>
-
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-scholarly">صاحب الصحيح 🏛️</span>
-                <h3 class="entity-title">الإمام البخاري</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">194 - 256 هـ</span>
-                  <span class="meta-chip category">12 مصنفاً ومخطوطاً</span>
-                  <span class="meta-chip">بخارى</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">محمد بن إسماعيل بن إبراهيم البخاري، إمام الحديث والعلل، صاحب الجامع الصحيح والتاريخ الكبير.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/authors/2" class="btn-indigo-small"><span>تصفح المؤلفات 📚</span></a>
-                <a href="/authors/2/edit" class="btn-action-small"><span>تعديل السيرة ✏️</span></a>
-              </div>
-            </div>
-
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-scholarly">إمام أهل الحديث 🏛️</span>
-                <h3 class="entity-title">شمس الدين الذهبي</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">673 - 748 هـ</span>
-                  <span class="meta-chip category">35 مصنفاً بالأرشيف</span>
-                  <span class="meta-chip">دمشق</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">محمد بن أحمد بن عثمان الذهبي، إمام التاريخ والتراجم، صاحب سير أعلام النبلاء وتاريخ الإسلام وميزان الاعتدال.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/authors/3" class="btn-indigo-small"><span>تصفح المؤلفات 📚</span></a>
-                <a href="/authors/3/edit" class="btn-action-small"><span>تعديل السيرة ✏️</span></a>
-              </div>
-            </div>
+            ${authorCards}
           </div>
-        `
+        `;
+        }
       },
 
       // ========================================================
@@ -2317,7 +2522,27 @@ const viewCatalog = {
       publishers: {
         title: 'الناشرون',
         group: 'الأشخاص',
-        render: () => `
+        render: () => {
+          const pubList = props.publishers && props.publishers.length ? props.publishers : samplePublishersRows;
+          const pubCards = pubList.map(pub => `
+            <div class="entity-card">
+              <div>
+                <span class="entity-tag tag-public">${pub.status || 'ناشر معتمد 🏢'}</span>
+                <h3 class="entity-title">${pub.name}</h3>
+                <div class="entity-meta-tags">
+                  <span class="meta-chip">${pub.country || 'بيروت - لبنان'}</span>
+                  <span class="meta-chip category">${pub.publications_count || '150 مطبوعة مؤرشفة'}</span>
+                </div>
+                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">${pub.description || 'مؤسسة ودور نشر تراثية متخصصة في طباعة وتحقيق التراث الإسلامي.'}</p>
+              </div>
+              <div class="card-footer">
+                <a href="${pub.profile_url || `/publishers/${pub.id}`}" class="btn-indigo-small"><span>عرض المنشورات 📖</span></a>
+                <span style="font-size: 0.68rem; color: var(--text-dim);">منذ ${pub.established_year || '1985'}</span>
+              </div>
+            </div>
+          `).join('');
+
+          return `
           <div class="view-header-banner">
             <div class="view-title-group">
               <h2><span>🏢 الناشرون</span></h2>
@@ -2331,39 +2556,10 @@ const viewCatalog = {
           </div>
 
           <div class="catalog-grid">
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-public">ناشر معتمد 🏢</span>
-                <h3 class="entity-title">دار الرسالة العالمية</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">بيروت - لبنان</span>
-                  <span class="meta-chip category">412 مطبوعة مؤرشفة</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">مؤسسة متخصصة في طباعة وتحقيق التراث الإسلامي وكتب السنة والفقه والعقيدة بأعلى معايير الطباعة الفاخرة.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/publishers/1" class="btn-indigo-small"><span>عرض المنشورات 📖</span></a>
-                <span style="font-size: 0.68rem; color: var(--text-dim);">منذ 1970</span>
-              </div>
-            </div>
-
-            <div class="entity-card">
-              <div>
-                <span class="entity-tag tag-public">ناشر معتمد 🏢</span>
-                <h3 class="entity-title">دار المنهاج للنشر والتوزيع</h3>
-                <div class="entity-meta-tags">
-                  <span class="meta-chip">جدة - السعودية</span>
-                  <span class="meta-chip category">280 مطبوعة مؤرشفة</span>
-                </div>
-                <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 1rem;">متخصصة في إخراج كتب المذاهب الفقهية المحققة على أمهات النسخ الخطية النفيسة مع العناية الفائقة بالإخراج.</p>
-              </div>
-              <div class="card-footer">
-                <a href="/publishers/2" class="btn-indigo-small"><span>عرض المنشورات 📖</span></a>
-                <span style="font-size: 0.68rem; color: var(--text-dim);">منذ 1999</span>
-              </div>
-            </div>
+            ${pubCards}
           </div>
-        `
+        `;
+        }
       },
 
       // ========================================================
@@ -3031,7 +3227,21 @@ const viewCatalog = {
       deletions: {
         title: 'المهملات',
         group: 'النظام',
-        render: () => `
+        render: () => {
+          const list = props.deletions && props.deletions.length ? props.deletions : sampleDeletions;
+          const rows = list.map(item => `
+            <tr>
+              <td><strong>${item.title}</strong></td>
+              <td><span class="role-chip ${item.type_chip || 'chip-studio'}">${item.type_label || 'كيان محذوف'}</span></td>
+              <td>${item.deleted_at_human || 'مؤخراً'}</td>
+              <td><span class="icon-refresh">${item.days_remaining || 'باقي 29 يوماً'}</span></td>
+              <td>
+                <button class="btn-action-small" style="color: #34d399; border-color: rgba(16, 185, 129, 0.3);" onclick="alert('تمت استعادة الكيان (${item.title}) بنجاح!')">استعادة الكيان ♻️</button>
+              </td>
+            </tr>
+          `).join('');
+
+          return `
           <div class="view-header-banner" style="border-color: rgba(245, 158, 11, 0.3);">
             <div class="view-title-group">
               <h2><span>♻️ المهملات</span></h2>
@@ -3055,29 +3265,13 @@ const viewCatalog = {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td><strong>مسودة معجم الأنساب القديم (طبعة تجريبية)</strong></td>
-                    <td><span class="role-chip chip-studio">كتاب / Book</span></td>
-                    <td>أمس 14:20</td>
-                    <td><span class="icon-refresh">باقي 29 يوماً</span></td>
-                    <td>
-                      <button class="btn-action-small" style="color: #34d399; border-color: rgba(16, 185, 129, 0.3);" onclick="alert('تمت استعادة الكيان وإعادته للمكتبة بنجاح!')">استعادة الكيان ♻️</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><strong>تسجيل صوتي تجريبي لمجلس السنن</strong></td>
-                    <td><span class="role-chip chip-academic">صوتي / Audio</span></td>
-                    <td>منذ 4 أيام</td>
-                    <td><span class="icon-refresh">باقي 26 يوماً</span></td>
-                    <td>
-                      <button class="btn-action-small" style="color: #34d399; border-color: rgba(16, 185, 129, 0.3);" onclick="alert('تمت استعادة الكيان بنجاح!')">استعادة الكيان ♻️</button>
-                    </td>
-                  </tr>
+                  ${rows}
                 </tbody>
               </table>
             </div>
           </div>
-        `
+        `;
+        }
       },
 
       // ========================================================
@@ -3299,8 +3493,9 @@ const viewCatalog = {
         contentArea.style.transform = 'translateY(6px)';
         contentArea.style.transition = 'all 0.2s ease-out';
 
+        const vueComponentViews = ['books', 'manuscripts', 'audios', 'videos', 'authors', 'publishers', 'users', 'deletions', 'activities'];
         setTimeout(() => {
-          if (viewKey === 'books') {
+          if (vueComponentViews.includes(viewKey)) {
             currentViewHtml.value = '';
           } else {
             currentViewHtml.value = typeof view.render === 'function' ? view.render() : '';
@@ -3660,7 +3855,8 @@ onMounted(() => {
   initTheme();
   const initialView = (typeof window !== 'undefined' && (window.location.hash || "").replace("#", "")) || "stats";
   currentViewKey.value = initialView;
-  if (initialView !== 'books') {
+  const vueComponentViews = ['books', 'manuscripts', 'audios', 'videos', 'authors', 'publishers', 'users', 'deletions', 'activities'];
+  if (!vueComponentViews.includes(initialView)) {
     currentViewHtml.value = typeof viewCatalog[initialView]?.render === 'function' ? viewCatalog[initialView].render() : '';
   }
   loadView(initialView);

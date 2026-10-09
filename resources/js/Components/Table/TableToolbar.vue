@@ -7,6 +7,10 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    assetType: {
+        type: String,
+        default: '',
+    },
     searchInputId: {
         type: String,
         default: '',
@@ -57,11 +61,13 @@ const emit = defineEmits([
 
 const computedSearchId = computed(() => {
     if (props.searchInputId) return props.searchInputId;
+    if (props.assetType) return `${props.assetType}SearchInput`;
     if (props.assetTitle === 'الكتب') return 'booksSearchInput';
     return 'toolbarSearchInput';
 });
 
 const computedFilterId = computed(() => {
+    if (props.assetType) return `${props.assetType}CategoryFilter`;
     if (props.assetTitle === 'الكتب') return 'booksCategoryFilter';
     return 'toolbarFilterSelect';
 });

@@ -144,4 +144,64 @@ class SuperAdminDashboardTest extends TestCase
                 ->where('books.0.studio_url', '/studio/book/muqaddimah-ibn-khaldun')
             );
     }
+
+    #[Test]
+    public function it_shares_all_live_entities_and_deletions_to_admin_dashboard(): void
+    {
+        $manuscript = Manuscript::factory()->create([
+            'title' => 'مخطوط صحيح البخاري',
+            'slug' => 'sahih-bukhari-ms',
+            'code' => 'MS-BKH-01',
+        ]);
+
+        $audio = Audio::factory()->create([
+            'title' => 'شرح المقدمة الآجرومية',
+            'slug' => 'sharh-ajrumiyyah',
+            'code' => 'AUD-AJR-01',
+        ]);
+
+        $video = Video::factory()->create([
+            'title' => 'مجلس علوم الحديث',
+            'slug' => 'majlis-hadith',
+            'code' => 'VID-HDT-01',
+        ]);
+
+        $author = Author::factory()->create([
+            'name' => 'الحافظ ابن حجر',
+            'slug' => 'ibn-hajar',
+        ]);
+
+        $publisher = \App\Models\Publisher::factory()->create([
+            'name' => 'دار الرسالة العالمية',
+            'slug' => 'dar-al-risalah',
+        ]);
+
+        // كيان محذوف ناعماً
+        $deletedBook = Book::factory()->create(['title' => 'كتاب محذوف للتجربة']);
+        $deletedBook->delete();
+
+        $response = $this->actingAs($this->superAdmin)
+            ->get('/superadmin/dashboard');
+
+        $response->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('AdminDashboard')
+                ->has('manuscripts', 1)
+                ->where('manuscripts.0.title', 'مخطوط صحيح البخاري')
+                ->where('manuscripts.0.code', 'MS-BKH-01')
+                ->has('audios', 1)
+                ->where('audios.0.title', 'شرح المقدمة الآجرومية')
+                ->where('audios.0.code', 'AUD-AJR-01')
+                ->has('videos', 1)
+                ->where('videos.0.title', 'مجلس علوم الحديث')
+                ->where('videos.0.code', 'VID-HDT-01')
+                ->has('authors', 1)
+                ->where('authors.0.name', 'الحافظ ابن حجر')
+                ->has('publishers', 1)
+                ->where('publishers.0.name', 'دار الرسالة العالمية')
+                ->has('deletions', 1)
+                ->where('deletions.0.title', 'كتاب محذوف للتجربة')
+            );
+    }
 }
+

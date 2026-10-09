@@ -19,6 +19,10 @@ const props = defineProps({
         type: String,
         default: 'الكتب',
     },
+    assetType: {
+        type: String,
+        default: 'books',
+    },
     createUrl: {
         type: String,
         default: '',
@@ -31,6 +35,67 @@ const totalCount = computed(() => Number(props.stats?.total ?? 0));
 const publishedCount = computed(() => Number(props.stats?.published ?? 0));
 const scholarlyCount = computed(() => Number(props.stats?.scholarly ?? 0));
 const draftCount = computed(() => Number(props.stats?.draft ?? 0));
+
+const kpiLabels = computed(() => {
+    switch (props.assetType) {
+        case 'manuscripts':
+            return {
+                card1: { title: 'الكل', icon: '📜', sub: 'المخطوطات' },
+                card2: { title: 'محققة', icon: '🔬', sub: 'معتمدة' },
+                card3: { title: 'خزائنية', icon: '🏛️', sub: 'نادرة' },
+                card4: { title: 'قيد الفهرسة', icon: '✍️', sub: 'الاستوديو' },
+            };
+        case 'audios':
+            return {
+                card1: { title: 'الكل', icon: '🎧', sub: 'التسجيلات' },
+                card2: { title: 'منشور', icon: '🌐', sub: 'متاح' },
+                card3: { title: 'عالي الدقة', icon: '🎙️', sub: 'استوديو' },
+                card4: { title: 'مسودات', icon: '✍️', sub: 'معالجة' },
+            };
+        case 'videos':
+            return {
+                card1: { title: 'الكل', icon: '🎬', sub: 'المرئيات' },
+                card2: { title: 'منشور', icon: '🌐', sub: 'متاح' },
+                card3: { title: 'ندوات ومجالس', icon: '🎓', sub: 'أكاديمي' },
+                card4: { title: 'مسودات', icon: '✍️', sub: 'مونتاج' },
+            };
+        case 'authors':
+            return {
+                card1: { title: 'الكل', icon: '👥', sub: 'الأعلام' },
+                card2: { title: 'أئمة محققون', icon: '🏛️', sub: 'تراث' },
+                card3: { title: 'معاصرون', icon: '🎓', sub: 'أكاديمي' },
+                card4: { title: 'مصنفات نشطة', icon: '📚', sub: 'فهرسة' },
+            };
+        case 'publishers':
+            return {
+                card1: { title: 'الكل', icon: '🏢', sub: 'المطابع' },
+                card2: { title: 'دور معتمدة', icon: '✨', sub: 'موثقة' },
+                card3: { title: 'شركاء أكاديميون', icon: '🏛️', sub: 'جامعات' },
+                card4: { title: 'مطبوعات نشطة', icon: '📖', sub: 'فهرسة' },
+            };
+        case 'users':
+            return {
+                card1: { title: 'الكل', icon: '👤', sub: 'المستخدمون' },
+                card2: { title: 'مديرو النظام', icon: '👑', sub: 'صلاحيات' },
+                card3: { title: 'محررو الاستوديو', icon: '✍️', sub: 'تحرير' },
+                card4: { title: 'باحثون وعموم', icon: '🌐', sub: 'أعضاء' },
+            };
+        case 'deletions':
+            return {
+                card1: { title: 'الكل', icon: '♻️', sub: 'سلة المهملات' },
+                card2: { title: 'كتب محذوفة', icon: '📚', sub: 'مؤقت' },
+                card3: { title: 'مخطوطات محذوفة', icon: '📜', sub: 'مؤقت' },
+                card4: { title: 'وسائط محذوفة', icon: '🎬', sub: 'مؤقت' },
+            };
+        default:
+            return {
+                card1: { title: 'الكل', icon: '📚', sub: 'الأرشيف' },
+                card2: { title: 'منشور', icon: '🌐', sub: 'متاح' },
+                card3: { title: 'محكّم', icon: '🎓', sub: 'معتمد' },
+                card4: { title: 'مسودات', icon: '✍️', sub: 'الاستوديو' },
+            };
+    }
+});
 
 const getPercentage = (count) => {
     if (!totalCount.value) return 0;
@@ -56,8 +121,8 @@ const handleStatusClick = (status) => {
         @click="handleStatusClick('all')"
       >
         <div class="kpi-h-title">
-          <span>الكل</span>
-          <span style="font-size: 0.75rem;">📚</span>
+          <span>{{ kpiLabels.card1.title }}</span>
+          <span style="font-size: 0.75rem;">{{ kpiLabels.card1.icon }}</span>
         </div>
         <div class="kpi-h-value">
           {{ totalCount.toLocaleString() }}
@@ -66,7 +131,7 @@ const handleStatusClick = (status) => {
           <div style="width: 100%; background: #6366f1;" />
         </div>
         <div class="kpi-h-subtext">
-          <span>الأرشيف</span>
+          <span>{{ kpiLabels.card1.sub }}</span>
           <span>100%</span>
         </div>
       </div>
@@ -76,12 +141,12 @@ const handleStatusClick = (status) => {
         data-status="published"
         class="kpi-h-card"
         :class="{ active: activeStatus === 'published' }"
-        title="عرض الكتب المنشورة"
+        :title="`عرض ${kpiLabels.card2.title}`"
         @click="handleStatusClick('published')"
       >
         <div class="kpi-h-title">
-          <span>منشور</span>
-          <span style="font-size: 0.75rem;">🌐</span>
+          <span>{{ kpiLabels.card2.title }}</span>
+          <span style="font-size: 0.75rem;">{{ kpiLabels.card2.icon }}</span>
         </div>
         <div class="kpi-h-value val-published">
           {{ publishedCount.toLocaleString() }}
@@ -90,7 +155,7 @@ const handleStatusClick = (status) => {
           <div :style="{ width: `${getPercentage(publishedCount)}%`, background: '#10b981' }" />
         </div>
         <div class="kpi-h-subtext">
-          <span>متاح</span>
+          <span>{{ kpiLabels.card2.sub }}</span>
           <span>{{ getPercentage(publishedCount) }}%</span>
         </div>
       </div>
@@ -100,12 +165,12 @@ const handleStatusClick = (status) => {
         data-status="scholarly"
         class="kpi-h-card"
         :class="{ active: activeStatus === 'scholarly' }"
-        title="عرض الكتب المحكّمة"
+        :title="`عرض ${kpiLabels.card3.title}`"
         @click="handleStatusClick('scholarly')"
       >
         <div class="kpi-h-title">
-          <span>محكّم</span>
-          <span style="font-size: 0.75rem;">🎓</span>
+          <span>{{ kpiLabels.card3.title }}</span>
+          <span style="font-size: 0.75rem;">{{ kpiLabels.card3.icon }}</span>
         </div>
         <div class="kpi-h-value val-scholarly">
           {{ scholarlyCount.toLocaleString() }}
@@ -114,7 +179,7 @@ const handleStatusClick = (status) => {
           <div :style="{ width: `${getPercentage(scholarlyCount)}%`, background: '#3b82f6' }" />
         </div>
         <div class="kpi-h-subtext">
-          <span>معتمد</span>
+          <span>{{ kpiLabels.card3.sub }}</span>
           <span>{{ getPercentage(scholarlyCount) }}%</span>
         </div>
       </div>
@@ -124,12 +189,12 @@ const handleStatusClick = (status) => {
         data-status="draft"
         class="kpi-h-card"
         :class="{ active: activeStatus === 'draft' }"
-        title="عرض المسودات"
+        :title="`عرض ${kpiLabels.card4.title}`"
         @click="handleStatusClick('draft')"
       >
         <div class="kpi-h-title">
-          <span>مسودات</span>
-          <span style="font-size: 0.75rem;">✍️</span>
+          <span>{{ kpiLabels.card4.title }}</span>
+          <span style="font-size: 0.75rem;">{{ kpiLabels.card4.icon }}</span>
         </div>
         <div class="kpi-h-value val-draft">
           {{ draftCount.toLocaleString() }}
@@ -138,7 +203,7 @@ const handleStatusClick = (status) => {
           <div :style="{ width: `${getPercentage(draftCount)}%`, background: '#f59e0b' }" />
         </div>
         <div class="kpi-h-subtext">
-          <span>الاستوديو</span>
+          <span>{{ kpiLabels.card4.sub }}</span>
           <span>{{ getPercentage(draftCount) }}%</span>
         </div>
       </div>

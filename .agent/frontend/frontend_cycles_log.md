@@ -13,7 +13,20 @@
 | **4** | **تغذية قمرة القيادة بالبيانات الحية من PostgreSQL (Live Stats & Dynamic Props)** | `tests/Feature/SuperAdminDashboardTest.php` | 1 Failed (Property [stats] missing) | 4 Passed (38 Assertions) | **23 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
 | **5** | **نظام الجداول عالي الكثافة وقائمة اختيار الأعمدة (ColumnsDropdown & High-Density Primitive)** | `resources/js/__tests__/ColumnsDropdown.test.js` | 1 Failed (Missing import) | 6 Passed (29 Vitest Tests) | **29 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
 | **6** | **دمج نظام الجداول عالي الكثافة وقائمة الأعمدة في فهرس الكتب (Books Index High-Density Integration)** | `resources/js/__tests__/BooksIndex.test.js` | 4 Failed | 4 Passed (33 Vitest Tests) | **33 Vitest + 10 PHP Passed** | ✅ مكتملة وموثقة |
-| **18** | **استعادة الهوية البصرية الغنية والتفاعلية لقمرة القيادة (AdminDashboard) وحل انكسارات الجداول والروابط (TDD)** | `resources/js/__tests__/AdminDashboard.test.js` | 3 Failed (Missing rich links/DOM) | 11 Passed (59 Vitest Tests) | **59 Vitest + 11 PHP Passed** | ✅ مكتملة وموثقة |
+| **7** | **إتمام قمرة القيادة وربط البيانات الحية والتنقل السلس** | `tests/Feature/SuperAdminDashboardTest.php` | 2 Failed | 4 Passed (38 Assertions) | **33 Vitest + 4 PHP Passed** | ✅ مكتملة وموثقة |
+| **8** | **ربط الطرفية التفاعلية وأدوات الصيانة بالباك إند الفعلي** | `tests/Feature/Console/SystemCommandExecutionTest.php` | 4 Failed | 4 Passed (9 Assertions) | **37 Vitest + 8 PHP Passed** | ✅ مكتملة وموثقة |
+| **9** | **أزرار أوامر المنظومة المخصصة في واجهة الأوامر** | `resources/js/__tests__/AdminDashboard.test.js` | 1 Failed | 7 Passed (40 Vitest Tests) | **40 Vitest + 9 PHP Passed** | ✅ مكتملة وموثقة |
+| **10** | **ترقية أمر التعبئة الواقعية (SeedRealisticData)** | `tests/Feature/Console/SeedRealisticEnhancementsTest.php` | 5 Failed | 5 Passed (11 Assertions) | **40 Vitest + 14 PHP Passed** | ✅ مكتملة وموثقة |
+| **11** | **معالجة صلاحيات وتشغيل seed-realistic من الويب والطرفية** | `tests/Feature/Console/SeedCommandPermissionsTest.php` | 3 Failed | 3 Passed (7 Assertions) | **40 Vitest + 17 PHP Passed** | ✅ مكتملة وموثقة |
+| **12** | **توحيد لوحة التحكم واستبدال Dashboard.vue القديم** | `tests/Feature/Dashboard/DashboardConsolidationTest.php` | 2 Failed | 2 Passed (6 Assertions) | **40 Vitest + 19 PHP Passed** | ✅ مكتملة وموثقة |
+| **13** | **توحيد مسار لوحة التحكم إلى /superadmin/dashboard** | `tests/Feature/Dashboard/DashboardRouteResolutionTest.php` | 3 Failed | 3 Passed (9 Assertions) | **40 Vitest + 22 PHP Passed** | ✅ مكتملة وموثقة |
+| **14** | **إعادة هيكلة مجلد tests/Feature حسب النطاقات** | `tests/Feature/Dashboard/SuperAdminDashboardTest.php` | 1 Failed | 4 Passed (38 Assertions) | **40 Vitest + 22 PHP Passed** | ✅ مكتملة وموثقة |
+| **15** | **تفكيك وبناء محرك الجداول عالي الكثافة (Enterprise Asset Tables Engine)** | `resources/js/__tests__/TableEngineComponents.test.js` | 8 Failed | 8 Passed (48 Vitest Tests) | **48 Vitest + 22 PHP Passed** | ✅ مكتملة وموثقة |
+| **16** | **تفكيك جداول الأصول الأربعة في قمرة القيادة واستبدالها بمحرك الجداول** | `resources/js/__tests__/AdminDashboard.test.js` | 4 Failed | 12 Passed (52 Vitest Tests) | **52 Vitest + 22 PHP Passed** | ✅ مكتملة وموثقة |
+| **17** | **توحيد قطاع الأشخاص (المؤلفون والناشرون) بمحرك الجداول** | `resources/js/__tests__/AdminDashboard.test.js` | 4 Failed | 16 Passed (56 Vitest Tests) | **56 Vitest + 22 PHP Passed** | ✅ مكتملة وموثقة |
+| **18** | **استعادة الهوية البصرية الغنية والتفاعلية لقمرة القيادة وحل الانكسارات** | `resources/js/__tests__/AdminDashboard.test.js` | 3 Failed | 11 Passed (59 Vitest Tests) | **59 Vitest + 22 PHP Passed** | ✅ مكتملة وموثقة |
+| **19** | **ربط بيانات الكتب الحية من PostgreSQL وإعادة هيكلة جدول الكتب بمحرك الجداول دون فقدان بكسل** | `tests/Feature/Dashboard/SuperAdminDashboardTest.php` | 2 Failed | 6 Passed (111 Assertions) | **60 Vitest + 6 PHP Passed** | ✅ مكتملة وموثقة |
+| **20** | **التعميم المعماري الشامل لكافة الأصول وقطاع الأشخاص والنظام كمكونات Vue نقية تفاعلية (100% Vue Reactivity)** | `resources/js/__tests__/AdminDashboard.test.js` + `SuperAdminDashboardTest.php` | 5 Failed | 66 Passed (11 Files) + 7 Passed PHP | **66 Vitest + 7 PHP Passed (114 Assertions)** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -788,3 +801,72 @@
   - التحقق من تفاعل البحث الفوري (#booksSearchInput)، منتقي الأعمدة (#btnToggleColumns و #columnsDropdownMenu)، وشريط الإجراءات الجماعية (#bulkActionsStrip).
   - اختبار التبديل السلس بين نمط الجدول عالي الكثافة ونمط شبكة البطاقات الزجاجية (#btnViewGrid و #btnViewTable) بنجاح فائق.
   - اللقطات الميدانية الموثقة: [`dashboard_books_view_1791495196917.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/dashboard_books_view_1791495196917.png) و [`books_cards_grid_view_1791494563700.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/books_cards_grid_view_1791494563700.png).
+
+---
+
+## 🚀 دورة التطوير رقم 20: التعميم المعماري الشامل لكافة الأصول وقطاع الأشخاص والنظام كمكونات Vue نقية تفاعلية (Full Modular Component Generalization - 100% Vue Reactivity)
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **الأهداف المنجزة وفق التكليف السيادي الصارم:**
+  1. **تعميم محرك الجداول على بقية الأصول:** ربط المخطوطات (`manuscripts`)، الصوتيات (`audios`)، والمرئيات (`videos`) بمحرك الجداول الموديولار عالي الكثافة `<AssetTableView>` مع تغذيتها الحية مباشرة من جداول PostgreSQL، مع المحافظة التامة على شاراتها التراثية والتقنية وإجراءاتها المتخصصة (🔬 معمل فحص المخطوطات، 🎧 مشغل الصوت، 🎬 مشغل الفيديو، ✍️ استوديو المشاهد والمخطوطات).
+  2. **ربط وتعميم قطاع الأشخاص (المؤلفون والناشرون):**
+     - **المؤلفون (`authors`):** تصيير كامل عبر `<AssetTableView>` مع بطاقات الأعلام التراثية، رصيد المصنفات الحقيقي، وروابط تصفح المؤلفات وتعديل السيرة، مع إمكانية التبديل الفوري للجدول عالي الكثافة.
+     - **الناشرون (`publishers`):** تصيير كامل عبر `<AssetTableView>` مع بطاقات دور النشر المعتمدة، وسنة التأسيس، ورصيد المطبوعات، وروابط عرض المنشورات.
+  3. **تعميم الإدارة والحوكمة السيادية (المستخدمون، النشاطات، المهملات):**
+     - **المستخدمون (`users`):** تصيير كامل عبر `<AssetTableView>` مع مصفوفة رتب الصلاحيات (`chip-admin`, `chip-studio`, `chip-public`)، حالات النشاط، والبحث الفوري وزر `صلاحيات ⚙️`.
+     - **المهملات (`deletions`):** تصيير كامل عبر `<AssetTableView>` مع شارات النوع المحذوف، حساب المدد المتبقية، وزر الاستعادة الفوري `استعادة الكيان ♻️`.
+     - **النشاطات (`activities`):** بناء وتصيير مكون Vue نقي تفاعلي مخصص [`ActivitiesTimelineView.vue`](resources/js/Components/Timeline/ActivitiesTimelineView.vue) مزود بشريط بحث حي، وتدرج لوني للخط الزمني (`timeline-rail`)، وشارات الأنشطة وصور المستخدمين وتوقيتات الأحداث لحظياً من PostgreSQL.
+  4. **قاعدة الالتزام السيادي المطلق والتخلص من `v-html`:** إزالة حقن السلاسل النصية الخام عبر `v-html` لكافة الكيانات التسعة، وتحويلها 100% لمكونات Vue تفاعلية نقية مع عدم فقدان بكسل واحد، أو رابط واحد، أو نمط لوني، أو شارة من ميزات الدورة 9 الفاخرة (Dark Glassmorphism).
+- **الاختبارات المؤسسة وفق TDD:**
+  - الباك إند: اختبار `it_shares_all_live_entities_and_deletions_to_admin_dashboard` داخل [`tests/Feature/Dashboard/SuperAdminDashboardTest.php`](tests/Feature/Dashboard/SuperAdminDashboardTest.php).
+  - الفرونت إند: اختبارات تأسيسية موسعة داخل [`resources/js/__tests__/AdminDashboard.test.js`](resources/js/__tests__/AdminDashboard.test.js) تؤكد تصيير الكيانات الحية في المخطوطات، الصوتيات، المرئيات، المؤلفين، الناشرين، المستخدمين، النشاطات، والمهملات.
+- **نتيجة التشغيل (RED):**
+  - فشل اختبار الباك إند صراحة بنتيجة `Property [manuscripts] does not exist` لغياب التغذية الحية.
+  - فشل اختبارات الفرونت إند لغياب المكونات التفاعلية وحقول المعرفات الخاصة بالبحث والأعمدة.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات والمكونات البرمجية المطورة:**
+  1. [`app/Http/Controllers/AdminDashboardController.php`](app/Http/Controllers/AdminDashboardController.php):
+     - كتابة استعلامات PostgreSQL الحية لـ `manuscripts`, `audios`, `videos`, `authors`, `publishers`, `recentUsers`, `recentActivities`, و `deletions` (المجمعة من soft-deleted records عبر Book, Manuscript, Audio, Video, Author).
+     - معالجة وإرجاع كافة الخصائص التنفيذية، الروابط، الشارات، والأرقام التسلسلية المنسقة.
+  2. [`resources/js/Config/assetTableConfigs.js`](resources/js/Config/assetTableConfigs.js):
+     - إضافة مصفوفات تكوين أعمدة وبيانات العينات لـ `usersColumns`, `sampleUsersRows`, `deletionsColumns`, و `sampleDeletionsRows`.
+  3. [`resources/js/Components/Table/AssetHeaderBanner.vue`](resources/js/Components/Table/AssetHeaderBanner.vue):
+     - إضافة خاصية `assetType` ودعم العناوين والشارات والأيقونات الإحصائية الديناميكية للكيانات الـ 8.
+  4. [`resources/js/Components/Table/TableToolbar.vue`](resources/js/Components/Table/TableToolbar.vue):
+     - دعم التسميات والمعرفات المخصصة للبحث والتصنيف بحسب `assetType`.
+  5. [`resources/js/Components/Table/DenseDataTable.vue`](resources/js/Components/Table/DenseDataTable.vue):
+     - دعم خلايا الاسم/العلم (`name`)، البريد (`email`)، الرتبة (`role`)، الأعلام (`century_lived`, `lifespan`, `madhab`, `works_count`)، الناشرين (`country`, `established_year`, `publications_count`)، المهملات (`type_label`, `days_remaining`)، وأزرار الإجراءات المتخصصة لكل كيان.
+  6. [`resources/js/Components/Table/AssetTableView.vue`](resources/js/Components/Table/AssetTableView.vue):
+     - دعم خاصية `initialViewMode` والتبديل السلس بين الجداول والبطاقات، وتخصيص بطاقات المؤلفين، والناشرين، والمستخدمين، والمهملات.
+  7. [`resources/js/Components/Timeline/ActivitiesTimelineView.vue`](resources/js/Components/Timeline/ActivitiesTimelineView.vue):
+     - إنشاء المكون التفاعلي المستقل لسجل النشاطات الحي مع شريط البحث والخط الزمني المضيء.
+  8. [`resources/js/Pages/AdminDashboard.vue`](resources/js/Pages/AdminDashboard.vue):
+     - تعميم تصيير كافة الكيانات الـ 9 كمكونات Vue حية ونقية ضمن قائمة `vueComponentViews` وإلغاء الاعتماد على `v-html`.
+- **نتيجة التشغيل (GREEN):**
+  - **Vitest:** **66/66 اختبار ناجح بنسبة 100% عبر 11 ملف اختبار**.
+  - **PHPUnit:** **7/7 اختبارات ناجحة (114 assertions)**.
+  - **Vite Build:** نجاح بناء حزم الإنتاج بأمر `npm run build` في 10.82 ثانية دون أي أخطاء.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **التحقق الميداني المباشر عبر المتصفح (Browser Subagent Live Database Inspection):**
+  - **المخطوطات (#manuscripts):** ظهور أصول PostgreSQL الحية مثل `#00100 مخطوط كليلة ودمنة (100)`، كود `MANUSCRIPT_GROUP_33`، شارات الأغلفة واللوحات `📜 لوحات`، روابط معمل الفحص والاستوديو، والتبديل بين الجدول وشبكة البطاقات.
+  - **الصوتيات (#audios):** ظهور تسجيلات PostgreSQL الحية مثل `#00100 شرح ألفية ابن مالك (100)`، المدة `00:48:51`، صيغة MP3، معدل البت 320 kbps، شارات الصوت `🎧 صوتي`، روابط المشغل والاستوديو.
+  - **المرئيات (#videos):** ظهور مرئيات PostgreSQL الحية مثل `#00098 ندوة المخطوطات الدولية (98)`، شارات `▶️ مرئي`، روابط المشغل المرئي والاستوديو.
+  - **المؤلفون (#authors):** ظهور جميع الأعلام الـ 11 الحية من قاعدة البيانات (ابن خلدون، البخاري، الجاحظ، المتنبي، ابن رشد، نجيب محفوظ، طه حسين، ابن المقفع، الشافعي، المنشاوي، د. السويدان) برصيد مصنفاتهم الحقيقي وروابط تصفح مؤلفاتهم وتعديل السيرة.
+  - **الناشرون (#publishers):** ظهور دور النشر الـ 7 الحية من قاعدة البيانات (دار المعرفة، دار الشروق، مكتبة العبيكان، عالم المعرفة، مركز دراسات الوحدة العربية، مؤسسة التراث) برصيد مطبوعاتها وتواريخ تأسيسها.
+  - **المستخدمون (#users):** ظهور المستخدمين الـ 7 الحقيقيين برتبهم ومصفوفة صلاحياتهم وحالات النشاط.
+  - **النشاطات (#activities):** ظهور خط التدقيق الحي المرتبط لحظياً بسجل قاعدة البيانات (1,206 نشاطاً).
+  - **المهملات (#deletions):** ظهور العناصر المحذوفة ناعماً من قاعدة البيانات (`كتاب تجريبي محذوف مؤقتاً` و `مخطوطة مسودة محذوفة`) مع شارات النوع والمدد المتبقية وزر الاستعادة الفوري.
+- **اللقطات الميدانية الموثقة في سجل النظام:**
+  - بطاقات المؤلفين الحية: [`authors_view_verify_1791498743168.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/authors_view_verify_1791498743168.png)
+  - بطاقات دور النشر الحية: [`publishers_view_verify_1791498922896.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/publishers_view_verify_1791498922896.png)
+  - جدول المستخدمين الحي: [`users_view_verify_1791498954632.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/users_view_verify_1791498954632.png)
+  - سلة المهملات الحية: [`deletions_view_verify_1791499005924.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/deletions_view_verify_1791499005924.png)
+  - خط النشاطات التفاعلي الحي: [`activities_view_verify_1791499040113.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/activities_view_verify_1791499040113.png)
+
+

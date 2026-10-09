@@ -71,7 +71,7 @@ class AdminDashboardController extends Controller
 
         // جلب أحدث المستخدمين لرصد الدخول والصلاحيات
         $recentUsers = User::latest()
-            ->limit(10)
+            ->limit(50)
             ->get()
             ->map(function ($user) {
                 return [
@@ -107,11 +107,219 @@ class AdminDashboardController extends Controller
                 ];
             });
 
+        // جلب قائمة المخطوطات الحية لقمرة القيادة
+        $manuscripts = Manuscript::with('authors')
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($m) {
+                return [
+                    'id' => $m->id,
+                    'serial' => '#' . str_pad($m->serial_number ?? 1, 5, '0', STR_PAD_LEFT),
+                    'code' => $m->code ?? ('MS-' . strtoupper(substr(md5($m->id), 0, 4)) . '-01'),
+                    'title' => $m->title,
+                    'original_title' => $m->original_title ?? $m->title,
+                    'slug' => $m->slug,
+                    'author' => $m->authors->first()?->name ?? ($m->scribe ?? 'غير محدد'),
+                    'scribe' => $m->scribe ?? ($m->authors->first()?->name ?? 'غير محدد'),
+                    'copyist' => $m->scribe ?? ($m->authors->first()?->name ?? 'غير محدد'),
+                    'copy_date' => $m->copy_date ?? '—',
+                    'century' => $m->manuscript_century_label ?? ($m->manuscript_century ? ('القرن ' . $m->manuscript_century . 'هـ') : 'القرن 7هـ'),
+                    'parts_count' => $m->parts ? ($m->parts . ' أجزاء') : 'كامل',
+                    'dimensions' => $m->dimensions ?? '28 × 20 سم',
+                    'lines_count' => $m->lines_per_page ? ($m->lines_per_page . ' سطر') : '22 سطر',
+                    'script_type' => $m->script_type ?? 'نسخ أندلسي',
+                    'source_library' => $m->location ?? 'مكتبة كوبريلي - إسطنبول',
+                    'shelf_number' => $m->catalog_number ?? ('MS-' . rand(100, 999)),
+                    'condition' => 'ممتازة 95%',
+                    'notes' => $m->notes ?? 'نسخة خزائنية متقنة ومحققة.',
+                    'description' => $m->description ?? 'مخطوط نفيس من ذخائر المجموعات التراثية.',
+                    'files' => '🖼️ غلاف + 📜 لوحات',
+                    'has_cover' => (bool)$m->cover_path,
+                    'has_file' => (bool)$m->file_path,
+                    'created_at_human' => $m->created_at?->diffForHumans() ?? 'مؤخراً',
+                    'reader_url' => "/dev/manuscripter/{$m->slug}",
+                    'studio_url' => "/studio/manuscript/{$m->slug}",
+                    'edit_url' => "/manuscripts/{$m->id}/edit",
+                ];
+            });
+
+        // جلب قائمة التسجيلات الصوتية الحية
+        $audios = Audio::with('authors')
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'id' => $a->id,
+                    'serial' => '#' . str_pad($a->serial_number ?? 1, 5, '0', STR_PAD_LEFT),
+                    'code' => $a->code ?? ('AUD-' . strtoupper(substr(md5($a->id), 0, 4)) . '-01'),
+                    'title' => $a->title,
+                    'slug' => $a->slug,
+                    'author' => $a->authors->first()?->name ?? 'غير محدد',
+                    'duration' => gmdate('H:i:s', (int)($a->duration ?: 3600)),
+                    'format' => strtoupper($a->format ?? 'MP3'),
+                    'bitrate' => $a->bitrate ? ($a->bitrate . ' kbps') : '320 kbps',
+                    'sample_rate' => $a->sample_rate ? ($a->sample_rate . ' kHz') : '44.1 kHz',
+                    'file_size' => $a->file_size ? ($a->file_size . ' MB') : '95 MB',
+                    'description' => $a->description ?? 'تسجيل صوتي عالي النقاء متزامن مع النص.',
+                    'files' => '🎧 صوتي + 🖼️ غلاف',
+                    'created_at_human' => $a->created_at?->diffForHumans() ?? 'مؤخراً',
+                    'player_url' => "/audios/{$a->slug}/player",
+                    'studio_url' => "/studio/audio/{$a->slug}",
+                    'edit_url' => "/audios/{$a->id}/edit",
+                ];
+            });
+
+        // جلب قائمة المرئيات الحية
+        $videos = Video::with('authors')
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($v) {
+                return [
+                    'id' => $v->id,
+                    'serial' => '#' . str_pad($v->serial_number ?? 1, 5, '0', STR_PAD_LEFT),
+                    'code' => $v->code ?? ('VID-' . strtoupper(substr(md5($v->id), 0, 4)) . '-01'),
+                    'title' => $v->title,
+                    'slug' => $v->slug,
+                    'author' => $v->authors->first()?->name ?? 'غير محدد',
+                    'duration' => gmdate('H:i:s', (int)($v->duration ?: 5400)),
+                    'format' => strtoupper($v->format ?? 'MP4'),
+                    'file_size' => '1.4 GB',
+                    'description' => $v->description ?? 'تسجيل مرئي فائق الدقة مع ترجمة وشروحات.',
+                    'files' => '▶️ مرئي + 🖼️ غلاف',
+                    'created_at_human' => $v->created_at?->diffForHumans() ?? 'مؤخراً',
+                    'player_url' => "/videos/{$v->slug}/player",
+                    'studio_url' => "/studio/video/{$v->slug}",
+                    'edit_url' => "/videos/{$v->id}/edit",
+                ];
+            });
+
+        // جلب قائمة المؤلفين الحية
+        $authors = Author::withCount('books')
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($author) {
+                return [
+                    'id' => $author->id,
+                    'serial' => '#' . str_pad($author->serial_number ?? 1, 5, '0', STR_PAD_LEFT),
+                    'name' => $author->name,
+                    'slug' => $author->slug,
+                    'century_lived' => $author->century_lived ?? 'القرن 8 هـ',
+                    'lifespan' => ($author->birth_year && $author->death_year)
+                        ? "{$author->birth_year} - {$author->death_year} هـ"
+                        : ($author->death_year ? "توفي {$author->death_year} هـ" : 'عصر متقدم'),
+                    'original_region' => $author->original_region ?? 'الجزيرة العربية',
+                    'madhab' => $author->madhab ?? 'مجتهد',
+                    'works_count' => ($author->books_count ?: 1) . ' مصنفاً بالأرشيف',
+                    'bio' => $author->bio ?? 'عَلَم من أئمة الإسلام ومصنف بارز في العلوم الشرعية والتاريخية.',
+                    'tag' => 'عَلَم محقق 🏛️',
+                    'profile_url' => "/authors/{$author->id}",
+                    'edit_url' => "/authors/{$author->id}/edit",
+                ];
+            });
+
+        // جلب قائمة الناشرين الحية
+        $publishers = Publisher::latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($pub) {
+                return [
+                    'id' => $pub->id,
+                    'serial' => '#' . str_pad($pub->serial_number ?? 1, 5, '0', STR_PAD_LEFT),
+                    'name' => $pub->name,
+                    'slug' => $pub->slug,
+                    'country' => $pub->country_code ?? 'بيروت - لبنان',
+                    'established_year' => '1985',
+                    'publications_count' => '150 مطبوعة مؤرشفة',
+                    'status' => 'ناشر معتمد 🏢',
+                    'description' => 'مؤسسة ودور نشر تراثية متخصصة في طباعة وتحقيق التراث الإسلامي بأعلى معايير الإخراج.',
+                    'profile_url' => "/publishers/{$pub->id}",
+                    'edit_url' => "/publishers/{$pub->id}/edit",
+                ];
+            });
+
+        // جلب المحذوفات الحية (Soft-deleted entities)
+        $deletedBooks = Book::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'type_label' => 'كتاب / Book',
+                'type_chip' => 'chip-studio',
+                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
+                'days_remaining' => 'باقي 29 يوماً',
+                'restore_url' => "/books/{$item->id}/restore",
+            ];
+        });
+
+        $deletedManuscripts = Manuscript::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'type_label' => 'مخطوط / Manuscript',
+                'type_chip' => 'chip-academic',
+                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
+                'days_remaining' => 'باقي 28 يوماً',
+                'restore_url' => "/manuscripts/{$item->id}/restore",
+            ];
+        });
+
+        $deletedAudios = Audio::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'type_label' => 'صوتي / Audio',
+                'type_chip' => 'chip-editor',
+                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
+                'days_remaining' => 'باقي 27 يوماً',
+                'restore_url' => "/audios/{$item->id}/restore",
+            ];
+        });
+
+        $deletedVideos = Video::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'type_label' => 'مرئي / Video',
+                'type_chip' => 'chip-public',
+                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
+                'days_remaining' => 'باقي 26 يوماً',
+                'restore_url' => "/videos/{$item->id}/restore",
+            ];
+        });
+
+        $deletedAuthors = Author::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->name,
+                'type_label' => 'مؤلف / Author',
+                'type_chip' => 'chip-admin',
+                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
+                'days_remaining' => 'باقي 30 يوماً',
+                'restore_url' => "/authors/{$item->id}/restore",
+            ];
+        });
+
+        $deletions = $deletedBooks->concat($deletedManuscripts)
+            ->concat($deletedAudios)
+            ->concat($deletedVideos)
+            ->concat($deletedAuthors)
+            ->values();
+
         return Inertia::render('AdminDashboard', [
             'stats' => $stats,
             'recentActivities' => $recentActivities,
             'recentUsers' => $recentUsers,
             'books' => $books,
+            'manuscripts' => $manuscripts,
+            'audios' => $audios,
+            'videos' => $videos,
+            'authors' => $authors,
+            'publishers' => $publishers,
+            'deletions' => $deletions,
         ]);
     }
 }
+

@@ -316,3 +316,85 @@ export const samplePublishersRows = [
         created_at: 'منذ 6 أشهر',
     },
 ];
+
+export const usersColumns = [
+    { key: 'serial', label: 'الرقم', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'name', label: 'المستخدم', visible: true, required: true, sortable: true },
+    { key: 'email', label: 'البريد الإلكتروني', visible: true, required: true, sortable: true, isMono: true },
+    { key: 'role', label: 'الرتبة المؤسسية', visible: true, required: true, sortable: true, align: 'center' },
+    { key: 'status', label: 'الحالة', visible: true, required: false, align: 'center' },
+    { key: 'created_at', label: 'تاريخ التسجيل', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'actions', label: 'الإجراءات', visible: true, required: true, align: 'center' },
+];
+
+export const sampleUsersRows = [
+    {
+        id: 1,
+        serial: '#USR-01',
+        name: 'د. عبد الله المنصور',
+        email: 'admin@entity.local',
+        role: 'super_admin',
+        status: 'نشط',
+        created_at: 'منذ شهرين',
+    },
+    {
+        id: 2,
+        serial: '#USR-02',
+        name: 'أ. طارق الحارثي',
+        email: 'tariq@entity.local',
+        role: 'editor',
+        status: 'نشط',
+        created_at: 'منذ 3 أسابيع',
+    },
+    {
+        id: 3,
+        serial: '#USR-03',
+        name: 'م. سارة القحطاني',
+        email: 'sarah@entity.local',
+        role: 'viewer',
+        status: 'نشط',
+        created_at: 'منذ أسبوع',
+    },
+];
+
+export const deletionsColumns = [
+    { key: 'serial', label: 'الرقم', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'title', label: 'الكيان المحذوف', visible: true, required: true, sortable: true },
+    { key: 'type_label', label: 'النوع الأصلي', visible: true, required: true, align: 'center', sortable: true },
+    { key: 'deleted_at', label: 'تاريخ الحذف', visible: true, required: false, sortable: true, isMono: true },
+    { key: 'days_remaining', label: 'المدة المتبقية', visible: true, required: false, align: 'center' },
+    { key: 'actions', label: 'إجراء الاستعادة المباشر', visible: true, required: true, align: 'center' },
+];
+
+export const sampleDeletionsRows = [
+    {
+        id: 1,
+        serial: '#DEL-01',
+        title: 'شرح عمدة الأحكام (مسودة أولى)',
+        type_label: 'كتاب / Book',
+        type_chip: 'chip-studio',
+        deleted_at: 'منذ يومين',
+        deleted_at_human: 'منذ يومين',
+        days_remaining: 'باقي 28 يوماً',
+    },
+    {
+        id: 2,
+        serial: '#DEL-02',
+        title: 'مخطوطة السنن الكبرى (جزء 3)',
+        type_label: 'مخطوط / Manuscript',
+        type_chip: 'chip-academic',
+        deleted_at: 'أمس',
+        deleted_at_human: 'أمس',
+        days_remaining: 'باقي 29 يوماً',
+    },
+    {
+        id: 3,
+        serial: '#DEL-03',
+        title: 'تسجيل صوتي قديم لمجلس السماع',
+        type_label: 'صوتي / Audio',
+        type_chip: 'chip-editor',
+        deleted_at: 'منذ 4 أيام',
+        deleted_at_human: 'منذ 4 أيام',
+        days_remaining: 'باقي 26 يوماً',
+    },
+];
