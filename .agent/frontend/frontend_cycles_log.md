@@ -1230,4 +1230,37 @@
 - **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,745 assertions)** بنسبة نجاح 100%.
 - **بناء الإنتاج (Vite Production Build):** نجاح تام لبناء الحزمة وخروج حزمة قمرة القيادة باسم `Index-CxkxDY1r.js` بحجم خفيف 18.75 kB (6.14 kB gzip).
 
+---
+
+## 🔹 الدورة 29: استخراج قطاع النظام (System Sector) في DashboardSystemView.vue وتنظيف دوال الأوامر المكررة
+
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**
+  استكمال تفكيك "البقية" في ملف قمرة القيادة [`Index.vue`](resources/js/Pages/AdminDashboard/Index.vue) لتحويله إلى موجه وقشرة رشيقة (Thin Orchestrator/Router Shell):
+  1. **استخراج قطاع النظام والحوكمة (System Sector):**
+     - إنشاء مكون [`DashboardSystemView.vue`](resources/js/Pages/AdminDashboard/Views/DashboardSystemView.vue) لاستيعاب كيانات النظام الثلاثة: المستخدمين (`users`)، والمهملات (`deletions`)، وسجل النشاطات الحية (`activities`).
+     - نقل استيرادات أعمدة الجداول والصفوف التجريبية (`usersColumns`, `sampleUsersRows`, `deletionsColumns`, `sampleDeletionsRows`) وحسابات الـ KPIs الخاصة بها من `Index.vue` إلى المكون الجديد.
+  2. **تنظيف وتطهير الشيفرات البرمجية الميتة والمكررة:**
+     - حذف الدوال التنفيذية المكررة `runCmd`، `runPresetCmd`، و `triggerOpsCacheClear` من `Index.vue`، بعد أن أصبحت مُدارة ومُعرّفة ذاتياً بالكامل داخل مكوني [`DashboardCommandsView.vue`](resources/js/Pages/AdminDashboard/Views/DashboardCommandsView.vue) و [`DashboardOpsView.vue`](resources/js/Pages/AdminDashboard/Views/DashboardOpsView.vue).
+     - إزالة استيراد مكتبة `axios` غير المستخدمة من `Index.vue`.
+     - تقليص حجم `Index.vue` من 773 سطراً إلى 653 سطراً.
+
+---
+
+### 1. مرحلة الاختبار التوجيهي الصارم 🔴 / 🟢 (TDD):
+- **ملف الاختبار المحدث:**  
+  [`resources/js/__tests__/ModularDashboardViews.test.js`](resources/js/__tests__/ModularDashboardViews.test.js) (القسم 10: `DashboardSystemView.vue (Cycle 29 System Sector Extraction TDD)`).
+- **الحالات المختبرة:**
+  1. اختبار تصيير جدول المستخدمين في وضع الجدول مع الأعمدة والصفوف الممررة.
+  2. اختبار تصيير جدول المهملات مع بيانات الحذف الرخو والإجراءات المتاحة.
+  3. اختبار تصيير الخط الزمني للنشاطات الحية عبر مكون `ActivitiesTimelineView`.
+
+---
+
+### 2. مرحلة التحقق الشامل وعدم الانكسار 🛡️ (Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **105/105 اختباراً ناجحاً (100% نجاح عبر 12 ملف اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,757 assertions)** بنسبة نجاح 100%.
+- **بناء الإنتاج (Vite Production Build):** نجاح تام لبناء الحزمة في **13.68 ثانية** وخروج حزمة `DashboardSystemView-JNDRW2qH.js` بحجم 6.13 kB (2.64 kB gzip).
+
+
 

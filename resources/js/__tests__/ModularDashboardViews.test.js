@@ -9,6 +9,7 @@ import DashboardLibraryView from '@/Pages/AdminDashboard/Views/DashboardLibraryV
 import DashboardPeopleView from '@/Pages/AdminDashboard/Views/DashboardPeopleView.vue';
 import AdminDashboardSidebar from '@/Pages/AdminDashboard/AdminDashboardSidebar.vue';
 import AdminDashboardNavbar from '@/Pages/AdminDashboard/AdminDashboardNavbar.vue';
+import DashboardSystemView from '@/Pages/AdminDashboard/Views/DashboardSystemView.vue';
 import axios from 'axios';
 
 vi.mock('axios', () => ({
@@ -614,6 +615,87 @@ describe('Modular Dashboard Views (Cycle 23 TDD)', () => {
       expect(wrapper.find('#userDropdownMenu').exists()).toBe(true);
       expect(wrapper.find('.user-dropdown-name').text()).toBe('د. طارق الحارثي');
       expect(wrapper.find('.user-dropdown-role').text()).toBe('tareq@entity.local');
+    });
+  });
+
+  describe('10. DashboardSystemView.vue (Cycle 29 System Sector Extraction TDD)', () => {
+    it('renders users view in table mode with columns, rows and user metadata', () => {
+      const liveUsers = [
+        {
+          id: 1,
+          name: 'د. عبد الله المنصور',
+          email: 'admin@entity.local',
+          role: 'super_admin',
+          created_at: '2026-03-01',
+        },
+      ];
+
+      const wrapper = mount(DashboardSystemView, {
+        props: {
+          systemType: 'users',
+          recentUsers: liveUsers,
+          stats: { users: 130 },
+        },
+      });
+
+      expect(wrapper.text()).toContain('المستخدمون');
+      expect(wrapper.text()).toContain('د. عبد الله المنصور');
+      expect(wrapper.text()).toContain('admin@entity.local');
+      expect(wrapper.find('#usersTableView, .asset-table-view').exists()).toBe(true);
+    });
+
+    it('renders deletions view in table mode with soft-deleted items and actions', () => {
+      const liveDeletions = [
+        {
+          id: 'del-1',
+          title: 'مخطوطة السنن الكبرى المحذوفة مؤقتاً',
+          type_label: 'مخطوط / Manuscript',
+          type_chip: 'chip-academic',
+          deleted_at_human: 'منذ يومين',
+          days_remaining: 'باقي 28 يوماً',
+        },
+      ];
+
+      const wrapper = mount(DashboardSystemView, {
+        props: {
+          systemType: 'deletions',
+          deletions: liveDeletions,
+          stats: { deletions: 12 },
+        },
+      });
+
+      expect(wrapper.text()).toContain('المهملات');
+      expect(wrapper.text()).toContain('مخطوطة السنن الكبرى المحذوفة مؤقتاً');
+      expect(wrapper.text()).toContain('باقي 28 يوماً');
+      expect(wrapper.find('#deletionsTableView, .asset-table-view').exists()).toBe(true);
+    });
+
+    it('renders activities timeline view with live activity timeline and rail', () => {
+      const liveActivities = [
+        {
+          id: 'act-1',
+          user_name: 'د. عبد الله المنصور',
+          user_avatar_char: 'ع',
+          activity_type: 'إنشاء وتوثيق',
+          description: 'إضافة مخطوطة نفيسة في الفقه المقارن',
+          entity_title: 'صحيح البخاري - نسخة كوبريلي',
+          created_at: 'منذ 15 دقيقة',
+        },
+      ];
+
+      const wrapper = mount(DashboardSystemView, {
+        props: {
+          systemType: 'activities',
+          recentActivities: liveActivities,
+          stats: { activities: 75 },
+        },
+      });
+
+      expect(wrapper.find('.activities-timeline-view').exists()).toBe(true);
+      expect(wrapper.text()).toContain('النشاطات');
+      expect(wrapper.text()).toContain('د. عبد الله المنصور');
+      expect(wrapper.text()).toContain('إضافة مخطوطة نفيسة في الفقه المقارن');
+      expect(wrapper.text()).toContain('صحيح البخاري - نسخة كوبريلي');
     });
   });
 });

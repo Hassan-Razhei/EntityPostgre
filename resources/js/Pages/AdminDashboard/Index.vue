@@ -40,33 +40,14 @@
         :stats="props.stats"
         :create-url="`/${currentViewKey}/create`"
       />
-      <!-- 7. Users Asset Table (النظام -> المستخدمون) -->
-      <AssetTableView
-        v-else-if="currentViewKey === 'users'"
-        asset-title="المستخدمون"
-        asset-type="users"
-        initial-view-mode="table"
-        :stats="usersKpiStats"
-        :columns="usersColumns"
-        :rows="activeUsersRows"
-        :total="props.stats?.users || activeUsersRows.length"
-      />
-      <!-- 8. Deletions Asset Table (النظام -> المهملات) -->
-      <AssetTableView
-        v-else-if="currentViewKey === 'deletions'"
-        asset-title="المهملات"
-        asset-type="deletions"
-        initial-view-mode="table"
-        :stats="deletionsKpiStats"
-        :columns="deletionsColumns"
-        :rows="activeDeletionsRows"
-        :total="props.stats?.deletions || activeDeletionsRows.length"
-      />
-      <!-- 9. Activities Timeline (النظام -> النشاطات) -->
-      <ActivitiesTimelineView
-        v-else-if="currentViewKey === 'activities'"
-        :activities="props.recentActivities"
-        :total="props.stats?.activities || (props.recentActivities ? props.recentActivities.length : 0)"
+      <!-- 3. System Sector: Users, Deletions, Activities (Cycle 29 System Sector Decoupling) -->
+      <DashboardSystemView
+        v-else-if="['users', 'deletions', 'activities'].includes(currentViewKey)"
+        :system-type="currentViewKey"
+        :stats="props.stats"
+        :recent-users="props.recentUsers"
+        :deletions="props.deletions"
+        :recent-activities="props.recentActivities"
       />
       <!-- 10. Central Stats Overview -->
       <DashboardStatsView
@@ -114,8 +95,6 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import AssetTableView from '@/Components/Table/AssetTableView.vue';
-import ActivitiesTimelineView from '@/Components/Timeline/ActivitiesTimelineView.vue';
 import DashboardStatsView from './Views/DashboardStatsView.vue';
 import DashboardCommandsView from './Views/DashboardCommandsView.vue';
 import DashboardOpsView from './Views/DashboardOpsView.vue';
@@ -123,13 +102,9 @@ import DashboardStudioView from './Views/DashboardStudioView.vue';
 import DashboardTaxonomyView from './Views/DashboardTaxonomyView.vue';
 import DashboardLibraryView from './Views/DashboardLibraryView.vue';
 import DashboardPeopleView from './Views/DashboardPeopleView.vue';
+import DashboardSystemView from './Views/DashboardSystemView.vue';
 import AdminDashboardSidebar from './AdminDashboardSidebar.vue';
 import AdminDashboardNavbar from './AdminDashboardNavbar.vue';
-import {
-  usersColumns, sampleUsersRows,
-  deletionsColumns, sampleDeletionsRows
-} from '@/Config/assetTableConfigs';
-import axios from 'axios';
 
 const props = defineProps({
   stats: {
@@ -247,39 +222,7 @@ const getPeopleItems = (key) => {
   }
 };
 
-const activeUsersRows = computed(() => {
-  if (props.recentUsers && props.recentUsers.length > 0) {
-    return props.recentUsers;
-  }
-  return sampleUsersRows;
-});
 
-const activeDeletionsRows = computed(() => {
-  if (props.deletions && props.deletions.length > 0) {
-    return props.deletions;
-  }
-  return sampleDeletionsRows;
-});
-
-const usersKpiStats = computed(() => {
-  const total = props.stats?.users || activeUsersRows.value.length;
-  return {
-    total,
-    published: activeUsersRows.value.filter(u => u.role === 'super_admin').length || 2,
-    scholarly: activeUsersRows.value.filter(u => u.role === 'editor').length || 8,
-    draft: activeUsersRows.value.filter(u => u.role === 'viewer').length || Math.max(0, total - 10),
-  };
-});
-
-const deletionsKpiStats = computed(() => {
-  const total = props.stats?.deletions || activeDeletionsRows.value.length;
-  return {
-    total,
-    published: activeDeletionsRows.value.filter(d => d.type_label?.includes('كتاب')).length || 1,
-    scholarly: activeDeletionsRows.value.filter(d => d.type_label?.includes('مخطوط')).length || 1,
-    draft: activeDeletionsRows.value.filter(d => !d.type_label?.includes('كتاب') && !d.type_label?.includes('مخطوط')).length || 1,
-  };
-});
 
 function getStudioItems(viewKey) {
   switch (viewKey) {
@@ -431,65 +374,7 @@ const currentViewTitle = computed(() => {
       }
     }
 
-    async function runCmd() {
-      const input = document.getElementById('cmdInput');
-      const output = document.getElementById('terminalOutput');
-      if (!input || !output) return;
-      const cmd = input.value.trim();
-      if (!cmd) return;
 
-      const userLine = document.createElement('div');
-      userLine.style.color = '#fff';
-      userLine.style.fontWeight = 'bold';
-      userLine.textContent = '$ ' + cmd;
-      output.appendChild(userLine);
-
-      const statusLine = document.createElement('div');
-      statusLine.style.color = '#fbbf24';
-      statusLine.style.fontSize = '0.75rem';
-      statusLine.textContent = '⏳ جاري تنفيذ الأمر عبر خادم التطبيق...';
-      output.appendChild(statusLine);
-      input.value = '';
-      output.scrollTop = output.scrollHeight;
-
-      try {
-        const response = await axios.post('/api/system/run-command', { command: cmd });
-        statusLine.remove();
-        const resLine = document.createElement('pre');
-        resLine.style.color = '#38bdf8';
-        resLine.style.fontFamily = 'monospace';
-        resLine.style.whiteSpace = 'pre-wrap';
-        resLine.style.margin = '4px 0 10px';
-        resLine.textContent = response.data?.output || 'Command executed successfully: [OK]';
-        output.appendChild(resLine);
-      } catch (err) {
-        statusLine.remove();
-        const errLine = document.createElement('div');
-        errLine.style.color = '#f87171';
-        errLine.style.fontWeight = 'bold';
-        errLine.style.margin = '4px 0 10px';
-        errLine.textContent = '❌ ' + (err.response?.data?.message || err.message || 'خطأ أثناء تنفيذ الأمر');
-        output.appendChild(errLine);
-      }
-      output.scrollTop = output.scrollHeight;
-    }
-
-    async function runPresetCmd(cmd) {
-      const input = document.getElementById('cmdInput');
-      if (input) {
-        input.value = cmd;
-      }
-      await runCmd();
-    }
-
-    async function triggerOpsCacheClear() {
-      try {
-        const res = await axios.post('/api/system/run-command', { command: 'optimize:clear' });
-        alert(res.data?.output || 'تم تفريغ كاش التطبيق وكاش التوجيه وسياسات الصلاحيات بنجاح.');
-      } catch (err) {
-        alert('حدث خطأ أثناء تفريغ الكاش: ' + (err.response?.data?.message || err.message));
-      }
-    }
 
     let isSidebarCollapsed = false;
     function toggleSidebarCollapse() {
@@ -601,9 +486,7 @@ onMounted(() => {
   window.toggleTheme = toggleTheme;
   window.initTheme = initTheme;
   window.setTheme = setTheme;
-  window.runCmd = runCmd;
-  window.triggerOpsCacheClear = triggerOpsCacheClear;
-  window.runPresetCmd = runPresetCmd;
+
 
   initTheme();
   const initialView = (typeof window !== 'undefined' && (window.location.hash || "").replace("#", "")) || "stats";
@@ -638,9 +521,7 @@ onUnmounted(() => {
   delete window.toggleTheme;
   delete window.initTheme;
   delete window.setTheme;
-  delete window.runCmd;
-  delete window.triggerOpsCacheClear;
-  delete window.runPresetCmd;
+
 });
 </script>
 
