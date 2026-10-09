@@ -1262,5 +1262,46 @@
 - **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,757 assertions)** بنسبة نجاح 100%.
 - **بناء الإنتاج (Vite Production Build):** نجاح تام لبناء الحزمة في **13.68 ثانية** وخروج حزمة `DashboardSystemView-JNDRW2qH.js` بحجم 6.13 kB (2.64 kB gzip).
 
+---
+
+## 🔹 الدورة 30: استخراج Composable قمرة القيادة useAdminCockpit.js وتخفيف Index.vue
+
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**
+  تحقيق الفصل التام للمنطق البرمجي لقمرة القيادة السيادية واستخراج Composable مرجعي موحد [`resources/js/Composables/useAdminCockpit.js`](resources/js/Composables/useAdminCockpit.js):
+  1. **إنشاء Composable قمرة القيادة الموحد (`useAdminCockpit`):**
+     - استيعاب الحالة التفاعلية الكاملة (`currentViewKey`, `currentViewHtml`, `isSidebarCollapsed`, `isDarkMode`).
+     - استيعاب كتالوج العروض والمجموعات والعناوين المشتقة (`viewCatalog`, `currentGroupTitle`, `currentViewTitle`).
+     - استيعاب دوال جلب عناصر الكيانات وتمريرها (`getLibraryItems`, `getPeopleItems`, `getStudioItems`, `getTaxonomyItems`).
+     - استيعاب دوال التوجيه والهاش والانتقال السلس (`loadView`).
+     - استيعاب دوال التحكم بالسايدبار وتوسيع وطي المجموعات والأكورديون (`toggleNavGroup`, `expandAllGroups`, `collapseAllGroups`, `updateToolbarState`, `toggleSidebarCollapse`).
+     - استيعاب إدارة الثيم الليلي والنهاري (`initTheme`, `toggleTheme`, `setTheme`) وقائمة المستخدم (`toggleUserDropdown`).
+     - إدارة دورة الحياة وربط وفصل أحداث `hashchange` و `click` وتنظيف كائن `window` تلقائياً.
+  2. **تحويل Index.vue إلى غلاف رقيق (Ultra-Thin Shell):**
+     - حذف أكثر من 310 أسطر برمجية من `Index.vue`، ليصبح الـ `<script setup>` مقتصراً على استيراد المكونات وتعريف الـ props واستدعاء سطر واحد من `useAdminCockpit(props)`.
+     - تقليص حجم `Index.vue` بالكامل من **654 سطراً** إلى **342 سطراً فقط** (بانخفاض إجمالي يتجاوز 90% مقارنة بالملف الأحادي الأصلي البالغ 3,448 سطراً).
+     - توفير إعادة تصدير محلية مريحة في [`resources/js/Pages/AdminDashboard/useAdminCockpit.js`](resources/js/Pages/AdminDashboard/useAdminCockpit.js).
+
+---
+
+### 1. مرحلة الاختبار التوجيهي الصارم 🔴 / 🟢 (TDD):
+- **ملف الاختبار المنشأ:**  
+  [`resources/js/__tests__/useAdminCockpit.test.js`](resources/js/__tests__/useAdminCockpit.test.js).
+- **الحالات المختبرة بنجاح (6 Passed):**
+  1. فحص تصدير `viewCatalog` بالمجموعات والعناوين العربية المعيارية.
+  2. فحص التهيئة الافتراضية بفيو `stats` واشتقاق العناوين التفاعلية.
+  3. فحص دالة `loadView` وتحديث الهاش ومسار التتبع (breadcrumbs).
+  4. فحص دوال تصفية واستخراج عناصر القطاعات (المكتبة، الأشخاص، الاستوديو، والتنظيم).
+  5. فحص تبديل وتخزين الثيم في `localStorage` والـ classes.
+  6. فحص تبديل قائمة المستخدم المنسدلة.
+
+---
+
+### 2. مرحلة التحقق الشامل وعدم الانكسار 🛡️ (Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **111/111 اختباراً ناجحاً (100% نجاح عبر 13 ملف اختبار)**.
+- **اختبارات الباك إند (PHPUnit):** **551/551 اختباراً ناجحاً (2,754 assertions)** بنسبة نجاح 100%.
+- **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل في **14.31 ثانية**، مع انخفاض حجم حزمة قمرة القيادة `Index-Br_Updf0.js` إلى **12.92 kB** (3.83 kB gzip).
+
+
 
 
