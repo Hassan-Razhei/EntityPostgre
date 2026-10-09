@@ -30,7 +30,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['update:selectedIds', 'sort', 'row-click']);
+const emit = defineEmits(['update:selectedIds', 'sort', 'row-click', 'attach-taxonomy']);
 
 const visibleColumns = computed(() => {
     return props.columns.filter(col => col.visible !== false);
@@ -359,6 +359,12 @@ const getColCellStyle = (col) => {
                 <div class="table-actions-cell" style="justify-content: center;">
                   <!-- Manuscripts Actions -->
                   <template v-if="assetType === 'manuscripts'">
+                    <button
+                      type="button"
+                      class="table-btn-icon btn-attach-taxonomy"
+                      title="ضم إلى مجموعة أو سلسلة"
+                      @click="emit('attach-taxonomy', row)"
+                    >📦</button>
                     <a
                       :href="row.reader_url || `/dev/manuscripter/${row.slug}`"
                       class="table-btn-icon"
@@ -384,6 +390,12 @@ const getColCellStyle = (col) => {
 
                   <!-- Audios Actions -->
                   <template v-else-if="assetType === 'audios'">
+                    <button
+                      type="button"
+                      class="table-btn-icon btn-attach-taxonomy"
+                      title="ضم إلى مجموعة أو سلسلة"
+                      @click="emit('attach-taxonomy', row)"
+                    >📦</button>
                     <a
                       :href="row.player_url || row.reader_url || `/audios/${row.slug}/player`"
                       class="table-btn-icon"
@@ -409,6 +421,12 @@ const getColCellStyle = (col) => {
 
                   <!-- Videos Actions -->
                   <template v-else-if="assetType === 'videos'">
+                    <button
+                      type="button"
+                      class="table-btn-icon btn-attach-taxonomy"
+                      title="ضم إلى مجموعة أو سلسلة"
+                      @click="emit('attach-taxonomy', row)"
+                    >📦</button>
                     <a
                       :href="row.player_url || row.reader_url || `/videos/${row.slug}/player`"
                       class="table-btn-icon"
@@ -497,6 +515,12 @@ const getColCellStyle = (col) => {
 
                   <!-- Books Actions (Default) -->
                   <template v-else>
+                    <button
+                      type="button"
+                      class="table-btn-icon btn-attach-taxonomy"
+                      title="ضم إلى مجموعة أو سلسلة"
+                      @click="emit('attach-taxonomy', row)"
+                    >📦</button>
                     <a
                       :href="row.reader_url || `/books/${row.slug}/reader`"
                       class="table-btn-icon"

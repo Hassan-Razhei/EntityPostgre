@@ -142,6 +142,88 @@ const filteredRows = computed(() => {
     }
     return result;
 });
+
+// Polymorphic Taxonomy Attachment (Cycle 22)
+const showAttachModal = ref(false);
+const activeAttachEntity = ref(null);
+const attachTargetType = ref('collection');
+const attachTargetId = ref('');
+const attachPosition = ref(1);
+const isSubmittingAttach = ref(false);
+const attachSuccessMessage = ref('');
+const attachErrorMessage = ref('');
+
+const handleOpenAttachModal = (row) => {
+    activeAttachEntity.value = row;
+    attachTargetId.value = '';
+    attachPosition.value = 1;
+    attachSuccessMessage.value = '';
+    attachErrorMessage.value = '';
+    showAttachModal.value = true;
+};
+
+const handleCloseAttachModal = () => {
+    showAttachModal.value = false;
+    activeAttachEntity.value = null;
+};
+
+const submitAttach = async () => {
+    if (!attachTargetId.value.trim()) {
+        attachErrorMessage.value = 'يرجى إدخال معرّف المجموعة أو السلسلة';
+        return;
+    }
+
+    isSubmittingAttach.value = true;
+    attachErrorMessage.value = '';
+    attachSuccessMessage.value = '';
+
+    const endpoint = attachTargetType.value === 'collection'
+        ? `/collections/${attachTargetId.value.trim()}/entities`
+        : `/series/${attachTargetId.value.trim()}/entities`;
+
+    const typeMap = {
+        books: 'book',
+        manuscripts: 'manuscript',
+        audios: 'audio',
+        videos: 'video',
+    };
+    const entityType = typeMap[props.assetType] || 'book';
+
+    try {
+        const payload = {
+            entity_type: entityType,
+            entity_id: activeAttachEntity.value.id,
+        };
+        if (attachTargetType.value === 'series') {
+            payload.position = Number(attachPosition.value) || 1;
+        }
+
+        const csrfToken = typeof document !== 'undefined' ? (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '') : '';
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+            attachSuccessMessage.value = data.message || 'تم ضم الكيان بنجاح!';
+            setTimeout(() => {
+                handleCloseAttachModal();
+            }, 1200);
+        } else {
+            attachErrorMessage.value = data.message || 'تعذر ضم الكيان، تأكد من صحة المعرف.';
+        }
+    } catch (e) {
+        attachErrorMessage.value = 'حدث خطأ أثناء الاتصال بالخادم.';
+    } finally {
+        isSubmittingAttach.value = false;
+    }
+};
 </script>
 
 <template>
@@ -192,6 +274,7 @@ const filteredRows = computed(() => {
           :columns="internalColumns"
           :rows="filteredRows"
           v-model:selected-ids="selectedIds"
+          @attach-taxonomy="handleOpenAttachModal"
         >
           <!-- Forward all custom slots -->
           <template
@@ -398,6 +481,98 @@ const filteredRows = computed(() => {
         @update:current-page="emit('update:currentPage', $event)"
         @update:per-page="emit('update:perPage', $event)"
       />
+    </div>
+
+    <!-- 6. Polymorphic Taxonomy Attachment Modal (Cycle 22) -->
+    <div
+      v-if="showAttachModal"
+      id="taxonomyAttachModal"
+      class="modal-backdrop-blur"
+      style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); padding: 1rem;"
+      @click.self="handleCloseAttachModal"
+    >
+      <div
+        class="modal-glass-content"
+        style="width: 100%; max-width: 520px; background: rgba(17, 24, 39, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 1.75rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);"
+      >
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+            <span>📦</span>
+            <span>ضم إلى مجموعة أو سلسلة</span>
+          </h3>
+          <button
+            type="button"
+            style="background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.25rem; line-height: 1;"
+            @click="handleCloseAttachModal"
+          >&times;</button>
+        </div>
+
+        <div style="margin-bottom: 1.25rem; padding: 0.85rem 1rem; border-radius: 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+          <div style="font-size: 0.72rem; color: var(--text-dim); font-weight: 700; margin-bottom: 0.25rem;">الأصل المراد ربطه:</div>
+          <div style="font-size: 0.95rem; font-weight: 800; color: #60a5fa;">{{ activeAttachEntity?.title || activeAttachEntity?.name }}</div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem;">نوع الربط والتنظيم:</label>
+          <div style="display: flex; gap: 0.75rem;">
+            <label style="flex: 1; display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid; cursor: pointer; transition: all 0.2s;" :style="attachTargetType === 'collection' ? 'background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #34d399;' : 'background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.1); color: var(--text-dim);'">
+              <input type="radio" value="collection" v-model="attachTargetType" style="accent-color: #10b981;" />
+              <span style="font-weight: 700; font-size: 0.85rem;">مجموعة مختارة 📦</span>
+            </label>
+            <label style="flex: 1; display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid; cursor: pointer; transition: all 0.2s;" :style="attachTargetType === 'series' ? 'background: rgba(168, 85, 247, 0.15); border-color: #a855f7; color: #c084fc;' : 'background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.1); color: var(--text-dim);'">
+              <input type="radio" value="series" v-model="attachTargetType" style="accent-color: #a855f7;" />
+              <span style="font-weight: 700; font-size: 0.85rem;">سلسلة علمية 📚</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem;">
+            {{ attachTargetType === 'collection' ? 'معرف المجموعة (Collection ID / UUID):' : 'معرف السلسلة (Series ID / UUID):' }}
+          </label>
+          <input
+            v-model="attachTargetId"
+            type="text"
+            placeholder="أدخل معرّف الوجهة..."
+            style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 8px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; font-size: 0.85rem;"
+          />
+        </div>
+
+        <div v-if="attachTargetType === 'series'" style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem;">ترتيب الموضع داخل السلسلة:</label>
+          <input
+            v-model="attachPosition"
+            type="number"
+            min="1"
+            style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 8px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; font-size: 0.85rem;"
+          />
+        </div>
+
+        <div v-if="attachSuccessMessage" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 700; font-size: 0.8rem; text-align: center;">
+          ✓ {{ attachSuccessMessage }}
+        </div>
+        <div v-if="attachErrorMessage" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; background: rgba(239, 68, 68, 0.2); color: #f87171; font-weight: 700; font-size: 0.8rem; text-align: center;">
+          ⚠️ {{ attachErrorMessage }}
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button
+            type="button"
+            class="btn-action-small"
+            style="padding: 0.6rem 1.25rem; font-size: 0.85rem;"
+            @click="handleCloseAttachModal"
+          >إلغاء</button>
+          <button
+            type="button"
+            class="btn-primary-small"
+            style="padding: 0.6rem 1.4rem; font-size: 0.85rem; background: #3b82f6; border-color: #2563eb;"
+            :disabled="isSubmittingAttach"
+            @click="submitAttach"
+          >
+            {{ isSubmittingAttach ? 'جارِ الضم...' : 'تأكيد الضم 🔗' }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

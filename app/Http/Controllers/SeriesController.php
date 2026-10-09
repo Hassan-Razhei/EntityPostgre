@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Series;
+use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
  * SeriesController - Refactored to use EntityController Hooks
@@ -24,4 +26,32 @@ class SeriesController extends EntityController
     protected function getCreateSuccessMessage(): string { return 'تم إنشاء السلسلة بنجاح'; }
     protected function getUpdateSuccessMessage(): string { return 'تم تحديث السلسلة بنجاح'; }
     protected function getDeleteSuccessMessage(): string { return 'تم حذف السلسلة بنجاح'; }
+
+    /**
+     * Attach an entity to the series.
+     */
+    public function attachEntity(Request $request, Series $series)
+    {
+        $validated = $request->validate([
+            'entity_type' => 'required|string|in:book,video,audio,manuscript',
+            'entity_id' => 'required|string',
+            'position' => 'nullable|integer',
+        ]);
+
+        $modelClass = Relation::getMorphedModel($validated['entity_type']) ?? $validated['entity_type'];
+        $entity = $modelClass::findOrFail($validated['entity_id']);
+
+        $series->addEntity($entity, $validated['position'] ?? null);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'series_id' => $series->id,
+                'entity_id' => $entity->id,
+                'message' => 'تمت إضافة العنصر إلى السلسلة بنجاح',
+            ]);
+        }
+
+        return back()->with('message', 'تمت إضافة العنصر إلى السلسلة بنجاح');
+    }
 }

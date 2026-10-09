@@ -112,9 +112,14 @@
               <TableCell>
                 <div class="flex items-center gap-2">
                   <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-xs font-black text-emerald-600 border border-emerald-100 dark:border-emerald-500/20">
-                    {{ s.books_count + s.audio_count + s.videos_count + s.manuscripts_count }}
+                    {{ (s.books_count || 0) + (s.audio_count || 0) + (s.videos_count || 0) + (s.manuscripts_count || 0) }}
                   </div>
-                  <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter">وحدة محتوى</span>
+                  <div class="flex items-center gap-1 text-[11px] text-gray-400 font-bold">
+                    <span v-if="s.books_count" title="كتب" class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400">📖 {{ s.books_count }}</span>
+                    <span v-if="s.manuscripts_count" title="مخطوطات" class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400">📜 {{ s.manuscripts_count }}</span>
+                    <span v-if="s.audio_count" title="صوتيات" class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">🎧 {{ s.audio_count }}</span>
+                    <span v-if="s.videos_count" title="مرئيات" class="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400">▶️ {{ s.videos_count }}</span>
+                  </div>
                 </div>
               </TableCell>
               <TableCell class="text-left">

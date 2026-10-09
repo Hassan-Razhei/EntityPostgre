@@ -180,8 +180,10 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::resource('shelves', ShelfController::class);
 
     Route::post('series/bulk-destroy', [SeriesController::class, 'bulkDestroy'])->name('series.bulk-destroy');
+    Route::post('series/{series}/entities', [SeriesController::class, 'attachEntity'])->name('series.entities.attach');
     Route::resource('series', SeriesController::class);
 
+    Route::post('collections/{collection}/entities', [CollectionController::class, 'attachEntity'])->name('collections.entities.attach');
     Route::resource('collections', CollectionController::class);
 
     /*

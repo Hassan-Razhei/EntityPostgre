@@ -13,6 +13,7 @@ use App\Models\Manuscript;
 use App\Models\Publisher;
 use App\Models\Series;
 use App\Models\Tag;
+use App\Models\Topic;
 use App\Models\User;
 use App\Models\Version;
 use App\Models\Video;
@@ -45,6 +46,7 @@ class AdminDashboardController extends Controller
             'users' => User::count(),
             'collections' => Collection::count(),
             'series' => Series::count(),
+            'topics' => Topic::count(),
             'comments' => Comment::count(),
             'activities' => Activity::count(),
             'versions' => Version::count(),
@@ -384,6 +386,62 @@ class AdminDashboardController extends Controller
                 ];
             });
 
+        // 14. المجموعات المختارة الحية (Collections)
+        $collections = Collection::withCount(['books', 'manuscripts', 'audio', 'videos'])
+            ->with('user')
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($col) {
+                $entitiesCount = ($col->books_count ?? 0)
+                    + ($col->manuscripts_count ?? 0)
+                    + ($col->audio_count ?? 0)
+                    + ($col->videos_count ?? 0);
+                return [
+                    'id' => $col->id,
+                    'name' => $col->name,
+                    'description' => $col->description ?: 'مجموعة مختارة لتنظيم الأصول التراثية والمعرفية.',
+                    'is_public' => (bool)$col->is_public,
+                    'user_name' => $col->user?->name ?? 'المشرف العام',
+                    'entities_count' => $entitiesCount,
+                    'show_url' => "/collections/{$col->id}",
+                    'edit_url' => "/collections/{$col->id}/edit",
+                    'created_at_human' => $col->created_at?->diffForHumans() ?? 'مؤخراً',
+                ];
+            });
+
+        // 15. السلاسل العلمية الحية (Series)
+        $series = Series::withCount('books')
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($ser) {
+                return [
+                    'id' => $ser->id,
+                    'title' => $ser->title,
+                    'description' => $ser->description ?: 'سلسلة علمية متسلسلة لجمع الأجزاء والمصنفات التخصصية.',
+                    'order_column' => $ser->order_column ?? 1,
+                    'books_count' => $ser->books_count ?? 0,
+                    'show_url' => "/series/{$ser->id}",
+                    'edit_url' => "/series/{$ser->id}/edit",
+                    'created_at_human' => $ser->created_at?->diffForHumans() ?? 'مؤخراً',
+                ];
+            });
+
+        // 16. الموضوعات التخصصية الحية (Topics)
+        $topics = Topic::withCount('books')
+            ->orderBy('name')
+            ->limit(50)
+            ->get()
+            ->map(function ($top) {
+                return [
+                    'id' => $top->id,
+                    'name' => $top->name,
+                    'slug' => $top->slug,
+                    'books_count' => $top->books_count ?? 0,
+                ];
+            });
+
         return Inertia::render('AdminDashboard', [
             'stats' => $stats,
             'recentActivities' => $recentActivities,
@@ -399,6 +457,9 @@ class AdminDashboardController extends Controller
             'tags' => $tags,
             'versions' => $versions,
             'studioBooks' => $studioBooks,
+            'collections' => $collections,
+            'series' => $series,
+            'topics' => $topics,
         ]);
     }
 }

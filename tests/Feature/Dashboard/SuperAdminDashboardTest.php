@@ -247,5 +247,42 @@ class SuperAdminDashboardTest extends TestCase
                 ->has('stats.funnel_drafts')
             );
     }
+
+    #[Test]
+    public function it_shares_live_collections_series_and_topics_data(): void
+    {
+        $collection = \App\Models\Collection::factory()->create([
+            'name' => 'خزانة التراث الأندلسي',
+            'description' => 'مختارات من نوادر المخطوطات والكتب الأندلسية',
+            'is_public' => true,
+        ]);
+
+        $series = \App\Models\Series::factory()->create([
+            'title' => 'سلسلة أعلام الحديث',
+            'description' => 'موسوعة تراجم أئمة الرواية والدراية',
+        ]);
+
+        $topic = \App\Models\Topic::factory()->create([
+            'name' => 'فقه المعاملات المالية المعاصرة',
+            'slug' => 'contemporary-financial-fiqh',
+        ]);
+
+        $response = $this->actingAs($this->superAdmin)
+            ->get('/superadmin/dashboard');
+
+        $response->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('AdminDashboard')
+                ->has('collections')
+                ->where('collections.0.name', 'خزانة التراث الأندلسي')
+                ->has('series')
+                ->where('series.0.title', 'سلسلة أعلام الحديث')
+                ->has('topics')
+                ->where('topics.0.name', 'فقه المعاملات المالية المعاصرة')
+                ->where('stats.collections', 1)
+                ->where('stats.series', 1)
+                ->where('stats.topics', 1)
+            );
+    }
 }
 

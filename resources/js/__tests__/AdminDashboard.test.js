@@ -651,6 +651,88 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
         expect(sidebar.find('#nav-studio-audios .badge-count').text()).toBe('98 شريحة');
         expect(sidebar.find('#nav-studio-videos .badge-count').text()).toBe('47 مشهد');
     });
+
+    it('renders live collections view from props.collections', async () => {
+        const liveCollections = [
+            {
+                id: 'col-1',
+                name: 'خزانة التراث الأندلسي',
+                description: 'مختارات من نوادر المخطوطات والكتب الأندلسية',
+                is_public: true,
+                entities_count: 34,
+                user_name: 'د. طارق الحارثي',
+                show_url: '/collections/col-1',
+            }
+        ];
+        const wrapper = createWrapper({ collections: liveCollections });
+        window.loadView('collections');
+        await new Promise(r => setTimeout(r, 60));
+
+        const content = wrapper.find('#dynamicContentArea').html();
+        expect(content).toContain('خزانة التراث الأندلسي');
+        expect(content).toContain('34');
+        expect(content).toContain('/collections/col-1');
+        expect(wrapper.find('#breadcrumbGroup').text()).toBe('التنظيم');
+        expect(wrapper.find('#breadcrumbCurrent').text()).toBe('المجموعات');
+    });
+
+    it('renders live series view from props.series', async () => {
+        const liveSeries = [
+            {
+                id: 'ser-1',
+                title: 'سلسلة أعلام الحديث النبوي',
+                description: 'موسوعة تراجم أئمة الرواية والدراية عبر العصور',
+                books_count: 18,
+                show_url: '/series/ser-1',
+            }
+        ];
+        const wrapper = createWrapper({ series: liveSeries });
+        window.loadView('series');
+        await new Promise(r => setTimeout(r, 60));
+
+        const content = wrapper.find('#dynamicContentArea').html();
+        expect(content).toContain('سلسلة أعلام الحديث النبوي');
+        expect(content).toContain('18 مصنفاً');
+        expect(content).toContain('/series/ser-1');
+        expect(wrapper.find('#breadcrumbGroup').text()).toBe('التنظيم');
+        expect(wrapper.find('#breadcrumbCurrent').text()).toBe('السلاسل');
+    });
+
+    it('renders live topics view from props.topics', async () => {
+        const liveTopics = [
+            {
+                id: 'top-1',
+                name: 'فقه المعاملات المالية المعاصرة',
+                slug: 'financial-fiqh',
+                books_count: 42,
+            }
+        ];
+        const wrapper = createWrapper({ topics: liveTopics });
+        window.loadView('topics');
+        await new Promise(r => setTimeout(r, 60));
+
+        const content = wrapper.find('#dynamicContentArea').html();
+        expect(content).toContain('فقه المعاملات المالية المعاصرة');
+        expect(content).toContain('42 مصنفاً');
+        expect(wrapper.find('#breadcrumbGroup').text()).toBe('التنظيم');
+        expect(wrapper.find('#breadcrumbCurrent').text()).toBe('الموضوعات');
+    });
+
+    it('renders live taxonomy stats counts in sidebar badges for collections, series, and topics', async () => {
+        const taxonomyStats = {
+            ...mockStats,
+            collections: 28,
+            series: 14,
+            topics: 89,
+        };
+        const wrapper = createWrapper({ stats: taxonomyStats });
+
+        const sidebar = wrapper.find('#appSidebar');
+        expect(sidebar.find('#nav-collections .badge-count').text()).toBe('28');
+        expect(sidebar.find('#nav-series .badge-count').text()).toBe('14');
+        expect(sidebar.find('#nav-topics .badge-count').text()).toBe('89');
+        expect(sidebar.find('#group-taxonomy .group-badge').text()).toBe('5');
+    });
 });
 
 

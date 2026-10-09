@@ -103,7 +103,7 @@
           <div class="header-main">
             <span>🏷️</span>
             <span class="group-title">التنظيم</span>
-            <span class="group-badge">2</span>
+            <span class="group-badge">5</span>
           </div>
           <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
         </div>
@@ -117,6 +117,21 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
             <span>الأوسمة</span>
             <span class="badge-count">{{ (props.stats?.tags ?? 0).toLocaleString() }}</span>
+          </div>
+          <div class="nav-item" id="nav-collections" onclick="loadView('collections')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span>المجموعات</span>
+            <span class="badge-count">{{ (props.stats?.collections ?? 0).toLocaleString() }}</span>
+          </div>
+          <div class="nav-item" id="nav-series" onclick="loadView('series')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            <span>السلاسل</span>
+            <span class="badge-count">{{ (props.stats?.series ?? 0).toLocaleString() }}</span>
+          </div>
+          <div class="nav-item" id="nav-topics" onclick="loadView('topics')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            <span>الموضوعات</span>
+            <span class="badge-count">{{ (props.stats?.topics ?? 0).toLocaleString() }}</span>
           </div>
         </div>
       </div>
@@ -423,6 +438,9 @@ const props = defineProps({
       studio_manuscripts: 0,
       studio_audios: 0,
       studio_videos: 0,
+      collections: 0,
+      series: 0,
+      topics: 0,
       funnel_drafts: 0,
       funnel_reviewed: 0,
       funnel_scholarly: 0,
@@ -478,6 +496,18 @@ const props = defineProps({
     default: () => []
   },
   studioBooks: {
+    type: Array,
+    default: () => []
+  },
+  collections: {
+    type: Array,
+    default: () => []
+  },
+  series: {
+    type: Array,
+    default: () => []
+  },
+  topics: {
     type: Array,
     default: () => []
   }
@@ -735,6 +765,208 @@ const viewCatalog = {
             <div class="section-card">
               <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
                 ${tagChips}
+              </div>
+            </div>
+          `;
+        }
+      },
+
+      // ========================================================
+      // 8b. COLLECTIONS VIEW (التنظيم -> المجموعات)
+      // ========================================================
+      collections: {
+        title: 'المجموعات',
+        group: 'التنظيم',
+        render: () => {
+          const rows = props.collections && props.collections.length > 0
+            ? props.collections.map((col) => `
+              <tr>
+                <td>
+                  <div style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">${col.name}</div>
+                  <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem;">${col.description || 'لا يوجد وصف للمجموعة'}</div>
+                </td>
+                <td>
+                  <span class="role-chip ${col.is_public ? 'chip-studio' : 'chip-academic'}">
+                    ${col.is_public ? 'عامة 🌐' : 'خاصة 🔒'}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge-count" style="font-size: 0.8rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">
+                    ${col.entities_count || 0}
+                  </span>
+                </td>
+                <td>
+                  <div style="font-size: 0.8rem; color: var(--text-main);">${col.user_name || 'المشرف العام'}</div>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <a href="${col.show_url || '/collections/' + col.id}" class="btn-emerald-small" style="text-decoration: none;">
+                      <span>استعراض 👁️</span>
+                    </a>
+                    <a href="${col.edit_url || '/collections/' + col.id + '/edit'}" class="btn-action-small" style="text-decoration: none;">
+                      <span>تعديل ⚙️</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            `).join('')
+            : `
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-dim); padding: 2.5rem;">لا توجد مجموعات معرفية منشأة حالياً</td>
+              </tr>
+            `;
+
+          return `
+            <div class="view-header-banner">
+              <div class="view-title-group">
+                <h2><span>📦 المجموعات المختارة</span></h2>
+                <p>إدارة المجموعات المعرفية والأصول البوليمورفية المتعددة (كتب، مخطوطات، صوتيات، ومرئيات)</p>
+              </div>
+              <div class="header-actions">
+                <a href="/collections/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                  <span>+ مجموعة جديدة</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="users-table-wrap">
+                <table class="users-table">
+                  <thead>
+                    <tr>
+                      <th>اسم المجموعة والوصف</th>
+                      <th>حالة الرؤية</th>
+                      <th>إجمالي الأصول المرتبطة</th>
+                      <th>المنشئ / المنسق</th>
+                      <th>الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rows}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
+      },
+
+      // ========================================================
+      // 8c. SERIES VIEW (التنظيم -> السلاسل)
+      // ========================================================
+      series: {
+        title: 'السلاسل',
+        group: 'التنظيم',
+        render: () => {
+          const rows = props.series && props.series.length > 0
+            ? props.series.map((ser, idx) => `
+              <tr>
+                <td>
+                  <div style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">${ser.title}</div>
+                  <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem;">${ser.description || 'سلسلة علمية متسلسلة'}</div>
+                </td>
+                <td>
+                  <span class="badge-count" style="font-size: 0.8rem; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
+                    ${ser.books_count || 0} مصنفاً
+                  </span>
+                </td>
+                <td>
+                  <span class="role-chip chip-studio">ترتيب #${ser.order_column || (idx + 1)}</span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <a href="${ser.show_url || '/series/' + ser.id}" class="btn-emerald-small" style="text-decoration: none;">
+                      <span>استعراض السلسلة 📚</span>
+                    </a>
+                    <a href="${ser.edit_url || '/series/' + ser.id + '/edit'}" class="btn-action-small" style="text-decoration: none;">
+                      <span>تعديل ⚙️</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            `).join('')
+            : `
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-dim); padding: 2.5rem;">لا توجد سلاسل علمية مدرجة حالياً</td>
+              </tr>
+            `;
+
+          return `
+            <div class="view-header-banner">
+              <div class="view-title-group">
+                <h2><span>📚 السلاسل العلمية</span></h2>
+                <p>إدارة السلاسل والموسوعات العلمية ومتابعة ترقيم الأجزاء والمصنفات المتسلسلة</p>
+              </div>
+              <div class="header-actions">
+                <a href="/series/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                  <span>+ سلسلة جديدة</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="users-table-wrap">
+                <table class="users-table">
+                  <thead>
+                    <tr>
+                      <th>عنوان السلسلة والبيان</th>
+                      <th>عدد المصنفات والأجزاء</th>
+                      <th>الترتيب العام</th>
+                      <th>الإجراءات المباشرة</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rows}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
+      },
+
+      // ========================================================
+      // 8d. TOPICS VIEW (التنظيم -> الموضوعات)
+      // ========================================================
+      topics: {
+        title: 'الموضوعات',
+        group: 'التنظيم',
+        render: () => {
+          const cards = props.topics && props.topics.length > 0
+            ? props.topics.map((top, idx) => `
+              <div class="tree-node" style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.1rem; border-right: 4px solid ${idx % 3 === 0 ? '#38bdf8' : (idx % 3 === 1 ? '#a855f7' : '#34d399')};">
+                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                  <span style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">💡 ${top.name}</span>
+                  <span style="font-size: 0.7rem; color: var(--text-dim); font-family: monospace;">#${top.slug}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span class="badge-count" style="font-size: 0.78rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    ${top.books_count || 0} مصنفاً
+                  </span>
+                  <a href="/topics/${top.id}" class="btn-action-small" style="text-decoration: none; font-size: 0.72rem;">استعراض 🔍</a>
+                </div>
+              </div>
+            `).join('')
+            : `
+              <div style="text-align: center; color: var(--text-dim); padding: 2.5rem;">لا توجد موضوعات تخصصية مفهرسة حالياً</div>
+            `;
+
+          return `
+            <div class="view-header-banner">
+              <div class="view-title-group">
+                <h2><span>💡 الموضوعات التخصصية</span></h2>
+                <p>فهرسة رؤوس الموضوعات والمسائل العلمية الدقيقة وربطها بالمصنفات التراثية</p>
+              </div>
+              <div class="header-actions">
+                <a href="/topics/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                  <span>+ موضوع جديد</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.85rem;">
+                ${cards}
               </div>
             </div>
           `;

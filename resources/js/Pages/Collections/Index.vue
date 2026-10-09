@@ -121,9 +121,14 @@
               <TableCell>
                 <div class="flex items-center gap-2">
                   <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-xs font-black text-emerald-600 border border-emerald-100 dark:border-emerald-500/20">
-                    {{ collection.books_count + collection.audio_count + collection.videos_count + collection.manuscripts_count }}
+                    {{ (collection.books_count || 0) + (collection.audio_count || 0) + (collection.videos_count || 0) + (collection.manuscripts_count || 0) }}
                   </div>
-                  <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter">عنصر</span>
+                  <div class="flex items-center gap-1 text-[11px] text-gray-400 font-bold">
+                    <span v-if="collection.books_count" title="كتب" class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400">📖 {{ collection.books_count }}</span>
+                    <span v-if="collection.manuscripts_count" title="مخطوطات" class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400">📜 {{ collection.manuscripts_count }}</span>
+                    <span v-if="collection.audio_count" title="صوتيات" class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">🎧 {{ collection.audio_count }}</span>
+                    <span v-if="collection.videos_count" title="مرئيات" class="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400">▶️ {{ collection.videos_count }}</span>
+                  </div>
                 </div>
               </TableCell>
               <TableCell class="text-left">
@@ -205,6 +210,12 @@ const props = defineProps({
     filters: Object,
 });
 
-const search = ref(props.filters.search);
+const search = ref(props.filters?.search || '');
 
+watch(search, debounce((value) => {
+    router.get(route('collections.index'), { search: value }, {
+        preserveState: true,
+        replace: true,
+    });
+}, 300));
 </script>

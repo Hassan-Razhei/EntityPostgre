@@ -111,4 +111,31 @@ class CollectionController extends Controller
         return redirect()->route('collections.index')
             ->with('message', 'تم حذف المجموعة بنجاح');
     }
+
+    /**
+     * Attach an entity to the collection.
+     */
+    public function attachEntity(Request $request, Collection $collection)
+    {
+        $validated = $request->validate([
+            'entity_type' => 'required|string|in:book,video,audio,manuscript',
+            'entity_id' => 'required|string',
+        ]);
+
+        $modelClass = \Illuminate\Database\Eloquent\Relations\Relation::getMorphedModel($validated['entity_type']) ?? $validated['entity_type'];
+        $entity = $modelClass::findOrFail($validated['entity_id']);
+
+        $collection->addEntity($entity);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'collection_id' => $collection->id,
+                'entity_id' => $entity->id,
+                'message' => 'تمت إضافة العنصر إلى المجموعة بنجاح',
+            ]);
+        }
+
+        return back()->with('message', 'تمت إضافة العنصر إلى المجموعة بنجاح');
+    }
 }

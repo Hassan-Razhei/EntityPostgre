@@ -4,6 +4,8 @@ import AssetHeaderBanner from '../Components/Table/AssetHeaderBanner.vue';
 import TableToolbar from '../Components/Table/TableToolbar.vue';
 import BulkActionsStrip from '../Components/Table/BulkActionsStrip.vue';
 import TablePagination from '../Components/Table/TablePagination.vue';
+import DenseDataTable from '../Components/Table/DenseDataTable.vue';
+import AssetTableView from '../Components/Table/AssetTableView.vue';
 
 describe('Enterprise Asset Tables Engine (Cycle 15 TDD)', () => {
     describe('1. AssetHeaderBanner.vue', () => {
@@ -219,6 +221,54 @@ describe('Enterprise Asset Tables Engine (Cycle 15 TDD)', () => {
 
             expect(wrapper.emitted('update:perPage')).toBeTruthy();
             expect(wrapper.emitted('update:perPage')[0]).toEqual([50]);
+        });
+    });
+
+    describe('5. Polymorphic Taxonomy Attachment (Cycle 22 TDD)', () => {
+        const mockColumns = [
+            { key: 'title', label: 'العنوان' },
+            { key: 'actions', label: 'الإجراءات' },
+        ];
+        const mockRows = [
+            { id: 'b-1', title: 'جامع العلوم والحكم', slug: 'jami-al-ulum', code: 'BK-101' },
+        ];
+
+        it('DenseDataTable renders attach taxonomy button and emits attach-taxonomy event on click', async () => {
+            const wrapper = mount(DenseDataTable, {
+                props: {
+                    assetType: 'books',
+                    columns: mockColumns,
+                    rows: mockRows,
+                },
+            });
+
+            const attachBtn = wrapper.find('.btn-attach-taxonomy');
+            expect(attachBtn.exists()).toBe(true);
+            await attachBtn.trigger('click');
+
+            expect(wrapper.emitted('attach-taxonomy')).toBeTruthy();
+            expect(wrapper.emitted('attach-taxonomy')[0][0]).toEqual(mockRows[0]);
+        });
+
+        it('AssetTableView opens attachment modal when attach-taxonomy event is emitted', async () => {
+            const wrapper = mount(AssetTableView, {
+                props: {
+                    assetTitle: 'الكتب',
+                    assetType: 'books',
+                    columns: mockColumns,
+                    rows: mockRows,
+                },
+            });
+
+            expect(wrapper.find('#taxonomyAttachModal').exists()).toBe(false);
+
+            const denseTable = wrapper.findComponent(DenseDataTable);
+            await denseTable.vm.$emit('attach-taxonomy', mockRows[0]);
+
+            const modal = wrapper.find('#taxonomyAttachModal');
+            expect(modal.exists()).toBe(true);
+            expect(modal.text()).toContain('جامع العلوم والحكم');
+            expect(modal.text()).toContain('ضم إلى مجموعة أو سلسلة');
         });
     });
 });

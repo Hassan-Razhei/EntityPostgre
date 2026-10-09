@@ -28,6 +28,7 @@
 | **19** | **ربط بيانات الكتب الحية من PostgreSQL وإعادة هيكلة جدول الكتب بمحرك الجداول دون فقدان بكسل** | `tests/Feature/Dashboard/SuperAdminDashboardTest.php` | 2 Failed | 6 Passed (111 Assertions) | **60 Vitest + 6 PHP Passed** | ✅ مكتملة وموثقة |
 | **20** | **التعميم المعماري الشامل لكافة الأصول وقطاع الأشخاص والنظام كمكونات Vue نقية تفاعلية (100% Vue Reactivity)** | `resources/js/__tests__/AdminDashboard.test.js` + `SuperAdminDashboardTest.php` | 5 Failed | 66 Passed (11 Files) + 7 Passed PHP | **66 Vitest + 7 PHP Passed (114 Assertions)** | ✅ مكتملة وموثقة |
 | **21** | **التمثيل الحي الشامل لكافة قطاعات المنظومة من PostgreSQL وتطهير الكود الميت (Full Live System & Dead Code Elimination)** | `resources/js/__tests__/AdminDashboard.test.js` + `SuperAdminDashboardTest.php` | 5 Failed (Live Data & Funnel) | 24 Passed (Vitest) + 8 Passed PHP (138 Assertions) | **24 Vitest + 548 PHP Passed (حجم الحزمة انخفض 53% وتمثيل حي 100%)** | ✅ مكتملة وموثقة |
+| **22** | **اكتمال منظومة التنظيم المعرفي الشامل (المجموعات والسلاسل والموضوعات) وترقية الفهارس والربط البوليمورفي** | `TaxonomyAttachmentTest.php` + `AdminDashboard.test.js` + `TableEngineComponents.test.js` | 2 Failed PHP + 6 Failed Vitest | 2 Passed PHP + 28 Passed Vitest + 13 Passed Table | **78 Vitest + 551 PHP Passed (100% نجاح)** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -920,6 +921,67 @@
 - **تحسين حزمة الإنتاج (Vite Build Optimization):**
   - انخفاض حجم حزمة `AdminDashboard.js` من **279.87 kB** إلى **131.22 kB** (توفير أكثر من **53%** من الحجم الصافي).
   - بناء نظيف خالٍ تماماً من الأخطاء في 21 ثانية.
+
+---
+
+## 🚀 دورة التطوير رقم 22: اكتمال منظومة التنظيم المعرفي الشامل (المجموعات والسلاسل والموضوعات) وترقية الفهارس والربط البوليمورفي السريع (Full Cognitive Taxonomy Integration & Polymorphic Linking)
+
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**
+  امتثالاً لتوجيهات وقواعد [`.agent/frontend/ui_rules.md`](.agent/frontend/ui_rules.md) (منهجية TDD الصارمة، منع الانكسار، صفر فقدان للبكسل):
+  1. **اكتمال قطاع التنظيم المعرفي في قمرة القيادة (AdminDashboard):**
+     - ترقية شارة المجموعة الثالثة (🏷️ التنظيم) في السايدبار من `2` إلى `5` فروع معرفية نشطة:
+       - التصنيفات (`categories`)
+       - الأوسمة (`tags`)
+       - المجموعات المختارة (`collections`) مع عداد حي `#nav-collections`
+       - السلاسل العلمية (`series`) مع عداد حي `#nav-series`
+       - الموضوعات التخصصية (`topics`) مع عداد حي `#nav-topics`
+     - تمثيل المجموعات والسلاسل والموضوعات بتصميم زجاجي عالي الكثافة مع بطاقات تفاعلية وشارات رصيد الأصول والروابط التشغيلية المباشرة.
+  2. **نقاط نهاية الربط البوليمورفي الموحد (Polymorphic Attachment Endpoints):**
+     - توفير مسارات ربط الأصول بطلب POST مدعوم بالمصادقة:
+       - `POST /collections/{collection}/entities` لضم الأصول إلى المجموعات مع ترتيب الحفظ الزمني.
+       - `POST /series/{series}/entities` لضم الأصول إلى السلاسل مع ترتيب الموضع التسلسلي (`position`).
+  3. **ترقية فهارس المجموعات والسلاسل المستقلة (Index Pages Modernization):**
+     - ترقية `Collections/Index.vue` و `Series/Index.vue` بتوزيع الأصول التفصيلي (كتب، مخطوطات، صوتيات، مرئيات) ودعم البحث المتأني المباشر (`debounce`).
+  4. **زر وإجراء الضم السريع في محرك الجداول (`AssetTableView.vue` & `DenseDataTable.vue`):**
+     - تزويد كافة صفوف الأصول الأربعة (كتب، مخطوطات، صوتيات، مرئيات) بزر إجراء سريع `📦` لفتح نافذة الضم التفاعلية الفورية مع تغذية راجعة للمستخدم.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار:**
+  - الباك إند:
+    - [`tests/Feature/Dashboard/SuperAdminDashboardTest.php`](tests/Feature/Dashboard/SuperAdminDashboardTest.php): اختبار تزويد الداشبورد ببيانات المجموعات والسلاسل والموضوعات الحية من PostgreSQL.
+    - [`tests/Feature/Entities/Taxonomies/TaxonomyAttachmentTest.php`](tests/Feature/Entities/Taxonomies/TaxonomyAttachmentTest.php): اختبار ربط الكتب بالمجموعات والمخطوطات بالسلاسل عبر نقاط النهاية.
+  - الفرونت إند:
+    - [`resources/js/__tests__/AdminDashboard.test.js`](resources/js/__tests__/AdminDashboard.test.js): 4 اختبارات تفحص واجهات المجموعات والسلاسل والموضوعات وعدادات السايدبار وبادج المجموعة `5`.
+    - [`resources/js/__tests__/TableEngineComponents.test.js`](resources/js/__tests__/TableEngineComponents.test.js): اختبارات زر الضم ونافذة الضم البوليمورفي المنبثقة.
+- **نتيجة التشغيل (RED):**
+  - فشل اختبارات الباك إند بنتيجة 404 لنقاط النهاية ونقصان الخصائص.
+  - فشل اختبارات الفرونت إند بنتيجة 4 Failed في AdminDashboard و 2 Failed في TableEngineComponents.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **التعديلات البرمجية المنفذة:**
+  - [`routes/web.php`](routes/web.php): تسجيل مسارات `collections.entities.attach` و `series.entities.attach`.
+  - [`app/Http/Controllers/CollectionController.php`](app/Http/Controllers/CollectionController.php): تنفيذ دالة `attachEntity`.
+  - [`app/Http/Controllers/SeriesController.php`](app/Http/Controllers/SeriesController.php): تنفيذ دالة `attachEntity`.
+  - [`app/Http/Controllers/AdminDashboardController.php`](app/Http/Controllers/AdminDashboardController.php): تزويد الـ Controller باستعلامات `collections`, `series`, `topics` وإحصائياتها.
+  - [`resources/js/Pages/AdminDashboard.vue`](resources/js/Pages/AdminDashboard.vue): إضافة العناصر الخمسة للسايدبار وبادج `5`، وتزويد الـ Props، وبناء عروض `collections`, `series`, `topics` الزجاجية الفاخرة.
+  - [`resources/js/Components/Table/DenseDataTable.vue`](resources/js/Components/Table/DenseDataTable.vue): إضافة زر الضم `btn-attach-taxonomy` وبث حدث `attach-taxonomy`.
+  - [`resources/js/Components/Table/AssetTableView.vue`](resources/js/Components/Table/AssetTableView.vue): إضافة نافذة الضم المنبثقة `#taxonomyAttachModal` وإرسال طلب الربط ومعالجة الاستجابة الحية.
+  - [`resources/js/Pages/Collections/Index.vue`](resources/js/Pages/Collections/Index.vue) و [`resources/js/Pages/Series/Index.vue`](resources/js/Pages/Series/Index.vue): ترقية شارات رصيد الأصول وبحث Debounce.
+- **نتيجة التشغيل (GREEN):**
+  - نجاح كافة اختبارات الباك إند: `TaxonomyAttachmentTest` (2/2) و `SuperAdminDashboardTest` (9/9).
+  - نجاح كافة اختبارات الفرونت إند: `AdminDashboard.test.js` (28/28) و `TableEngineComponents.test.js` (13/13).
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **78/78 اختبار ناجح بنسبة 100% عبر كامل الملفات الـ 11**.
+- **اختبارات الباك إند (PHPUnit):** **551/551 اختبار ناجح (2,757 assertions)** بنسبة 100%.
+- **بناء الإنتاج (Vite Build):** بناء الحزمة بالكامل في **13.97 ثانية** بنجاح مطلق ودون أدنى خطأ.
 
 
 
