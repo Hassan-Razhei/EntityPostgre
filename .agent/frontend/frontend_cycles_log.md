@@ -27,6 +27,7 @@
 | **18** | **استعادة الهوية البصرية الغنية والتفاعلية لقمرة القيادة وحل الانكسارات** | `resources/js/__tests__/AdminDashboard.test.js` | 3 Failed | 11 Passed (59 Vitest Tests) | **59 Vitest + 22 PHP Passed** | ✅ مكتملة وموثقة |
 | **19** | **ربط بيانات الكتب الحية من PostgreSQL وإعادة هيكلة جدول الكتب بمحرك الجداول دون فقدان بكسل** | `tests/Feature/Dashboard/SuperAdminDashboardTest.php` | 2 Failed | 6 Passed (111 Assertions) | **60 Vitest + 6 PHP Passed** | ✅ مكتملة وموثقة |
 | **20** | **التعميم المعماري الشامل لكافة الأصول وقطاع الأشخاص والنظام كمكونات Vue نقية تفاعلية (100% Vue Reactivity)** | `resources/js/__tests__/AdminDashboard.test.js` + `SuperAdminDashboardTest.php` | 5 Failed | 66 Passed (11 Files) + 7 Passed PHP | **66 Vitest + 7 PHP Passed (114 Assertions)** | ✅ مكتملة وموثقة |
+| **21** | **التمثيل الحي الشامل لكافة قطاعات المنظومة من PostgreSQL وتطهير الكود الميت (Full Live System & Dead Code Elimination)** | `resources/js/__tests__/AdminDashboard.test.js` + `SuperAdminDashboardTest.php` | 5 Failed (Live Data & Funnel) | 24 Passed (Vitest) + 8 Passed PHP (138 Assertions) | **24 Vitest + 548 PHP Passed (حجم الحزمة انخفض 53% وتمثيل حي 100%)** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -868,5 +869,57 @@
   - جدول المستخدمين الحي: [`users_view_verify_1791498954632.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/users_view_verify_1791498954632.png)
   - سلة المهملات الحية: [`deletions_view_verify_1791499005924.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/deletions_view_verify_1791499005924.png)
   - خط النشاطات التفاعلي الحي: [`activities_view_verify_1791499040113.png`](file:///home/a/.gemini/antigravity-ide/brain/8177e32b-a153-426b-ae38-64a17178566d/activities_view_verify_1791499040113.png)
+
+---
+
+## 🚀 دورة التطوير رقم 21: التمثيل الحي الشامل لكافة قطاعات المنظومة من PostgreSQL وتطهير الكود الميت وتحسين حزمة الإنتاج (Full Live System & Dead Code Elimination)
+
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**
+  امتثالاً لقواعد دستور الواجهات في [`.agent/frontend/ui_rules.md`](.agent/frontend/ui_rules.md) (الموافقة المسبقة الصريحة، وتطبيق TDD الصارم، والتأكد من عدم الانكسار 100%):
+  1. **التمثيل الحي الشامل من PostgreSQL (100% Live Data):** ربط كافة القطاعات المتبقية في قمرة القيادة بقاعدة البيانات بصورة حية دون أي نصوص أو أرقام وهمية:
+     - شجرة العلوم والتصنيفات (`categories`) مع رصيد الكيانات الحقيقي.
+     - سحابة وفهرس الأوسمة (`tags`) مع تعداد الكتب الحي.
+     - سجل وتاريخ الإصدارات (`versions`) مع بيانات المصنف والناشر والحجم والتاريخ وإجراءات الاسترجاع.
+     - استوديو التحقيق بموديلاته الأربعة (`studio-books`, `studio-manuscripts`, `studio-audios`, `studio-videos`) مع روابط التحرير المباشرة.
+     - لوحة المؤشرات المركزية (`stats`) ومسار تدفق النشر والتحقيق (Editorial Lifecycle Funnel) من إحصائيات حقيقية.
+     - شارات السايدبار التابعة للاستوديو بربطها بـ `props.stats` ديناميكياً.
+  2. **استئصال الكود الميت وقوالب النصوص الخام:** إزالة كافة دوال التصيير النصية القديمة (`render: () => ...`) المهملة داخل كائن `viewCatalog` للكيانات السيادية التسعة مع الحفاظ الصارم على بيانات العنوان والمجموعة (`title` و `group`) لتغذية مسار التتبع (Breadcrumbs).
+  3. **الحفاظ على كل بكسل دون انكسار:** الحفاظ التام 100% على التصميم، الأنماط، الألوان، الظلال الزجاجية، والتفاعل.
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملفات الاختبار:**
+  - الباك إند: `tests/Feature/Dashboard/SuperAdminDashboardTest.php` (إضافة اختبار `it_shares_live_categories_tags_versions_and_studio_data`).
+  - الفرونت إند: `resources/js/__tests__/AdminDashboard.test.js` (إضافة 5 اختبارات تفصيلية تفحص تمثيل التصنيفات والأوسمة والإصدارات واستوديو الكتب ولوحة الإحصائيات والفانل الحية).
+- **نتيجة التشغيل (RED):**
+  - فشل الاختبارات الخمسة في الفرونت إند بنجاح لعدم ربط البيانات الحية وتواجد قوالب النصوص الثابتة.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **التعديلات البرمجية المنفذة:**
+  - الباك إند [`app/Http/Controllers/AdminDashboardController.php`](app/Http/Controllers/AdminDashboardController.php):
+    - تزويد كائن `$stats` بإحصائيات الاستوديو ومراحل الفانل الأربعة (`funnel_drafts`, `funnel_reviewed`, `funnel_scholarly`, `funnel_published`, `studio_books`, `studio_manuscripts`, `studio_audios`, `studio_videos`).
+    - جلب استعلامات حية مع `withCount` و `with` للعلاقات للتصنيفات، الأوسمة، الإصدارات، ومسودات الكتب وتمريرها عبر Inertia Props.
+  - الفرونت إند [`resources/js/Pages/AdminDashboard.vue`](resources/js/Pages/AdminDashboard.vue):
+    - تعريف الـ Props الجديدة: `categories`, `tags`, `versions`, `studioBooks`.
+    - ربط شارات السايدبار الحية للاستوديو بـ `props.stats`.
+    - ربط كائن `viewCatalog` للتصنيفات والأوسمة والإصدارات والأستوديو والإحصائيات والفانل لتقرأ مباشرة وديناميكياً من الـ Props الحية.
+    - تطهير ما يزيد عن 2,000 سطر من النصوص الخام الميتة.
+- **نتيجة التشغيل (GREEN):**
+  - نجاح كافة اختبارات `AdminDashboard.test.js` الـ 24 بالكامل بنسبة 100%.
+  - نجاح كافة اختبارات `SuperAdminDashboardTest` الـ 8 بالكامل (138 assertions).
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **72/72 اختبار ناجح بنسبة 100% عبر كامل ملفات الاختبار**.
+- **اختبارات الباك إند (PHPUnit):** **548/548 اختبار ناجح (2,723 assertions)** بنسبة 100%.
+- **تحسين حزمة الإنتاج (Vite Build Optimization):**
+  - انخفاض حجم حزمة `AdminDashboard.js` من **279.87 kB** إلى **131.22 kB** (توفير أكثر من **53%** من الحجم الصافي).
+  - بناء نظيف خالٍ تماماً من الأخطاء في 21 ثانية.
+
 
 

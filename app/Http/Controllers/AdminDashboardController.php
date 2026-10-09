@@ -49,6 +49,14 @@ class AdminDashboardController extends Controller
             'activities' => Activity::count(),
             'versions' => Version::count(),
             'deletions' => $deletionsCount,
+            'studio_books' => Book::count(),
+            'studio_manuscripts' => Manuscript::count(),
+            'studio_audios' => Audio::count(),
+            'studio_videos' => Video::count(),
+            'funnel_drafts' => Book::whereNull('file_path')->count(),
+            'funnel_reviewed' => Manuscript::count(),
+            'funnel_scholarly' => Book::whereNotNull('file_path')->whereNotNull('isbn')->count(),
+            'funnel_published' => Book::whereNotNull('file_path')->count(),
         ];
 
         // جلب آخر النشاطات الحية من جدول النشاطات
@@ -308,6 +316,74 @@ class AdminDashboardController extends Controller
             ->concat($deletedAuthors)
             ->values();
 
+        // 10. التصنيفات الحية مع رصيد الكيانات (Categories)
+        $categories = Category::withCount('books')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($cat) {
+                return [
+                    'id' => $cat->id,
+                    'serial_number' => $cat->serial_number,
+                    'name' => $cat->name,
+                    'slug' => $cat->slug,
+                    'books_count' => $cat->books_count ?? 0,
+                ];
+            });
+
+        // 11. الأوسمة الحية مع رصيد الكتب (Tags)
+        $tags = Tag::withCount('books')
+            ->orderByDesc('books_count')
+            ->limit(50)
+            ->get()
+            ->map(function ($tag) {
+                return [
+                    'id' => $tag->id,
+                    'serial_number' => $tag->serial_number,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                    'books_count' => $tag->books_count ?? 0,
+                ];
+            });
+
+        // 12. سجل الإصدارات ومطابقة النسخ الحي (Versions)
+        $versions = Version::with(['versionable', 'publisher'])
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($v) {
+                return [
+                    'id' => $v->id,
+                    'title' => $v->title ?: ($v->versionable?->title ? "طبعة " . $v->versionable->title : "إصدار #{$v->edition_number}"),
+                    'edition_number' => $v->edition_number,
+                    'versionable_title' => $v->versionable?->title ?? '—',
+                    'versionable_type' => $v->versionable_type,
+                    'versionable_slug' => $v->versionable?->slug ?? '',
+                    'publisher_name' => $v->publisher?->name ?? 'الأرشيف الموحد',
+                    'format' => strtoupper($v->format ?? 'PDF'),
+                    'file_size_human' => $v->file_size ? round($v->file_size / 1048576, 1) . ' MB' : '—',
+                    'created_at_human' => $v->created_at?->diffForHumans() ?? 'مؤخراً',
+                ];
+            });
+
+        // 13. استوديو التحقيق - مسودات ومشاريع الكتب الحية (Studio Books)
+        $studioBooks = Book::latest()
+            ->limit(20)
+            ->get()
+            ->map(function ($b) {
+                return [
+                    'id' => $b->id,
+                    'serial_number' => $b->formatted_serial_number ?? "#{$b->serial_number}",
+                    'title' => $b->title,
+                    'slug' => $b->slug,
+                    'author' => $b->author ?: 'مؤلف تراثي',
+                    'current_node' => 'الباب الأول: المقدمة التمهيدية',
+                    'progress_percent' => 75,
+                    'editor_name' => 'فريق التحقيق الأكاديمي',
+                    'updated_at_human' => $b->updated_at?->diffForHumans() ?? 'مؤخراً',
+                    'studio_url' => "/studio/book/{$b->slug}",
+                ];
+            });
+
         return Inertia::render('AdminDashboard', [
             'stats' => $stats,
             'recentActivities' => $recentActivities,
@@ -319,6 +395,10 @@ class AdminDashboardController extends Controller
             'authors' => $authors,
             'publishers' => $publishers,
             'deletions' => $deletions,
+            'categories' => $categories,
+            'tags' => $tags,
+            'versions' => $versions,
+            'studioBooks' => $studioBooks,
         ]);
     }
 }

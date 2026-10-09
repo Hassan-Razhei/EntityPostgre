@@ -14,7 +14,8 @@ class VersionFactory extends Factory
     public function definition(): array
     {
         return [
-            'book_id' => Book::factory(),
+            'versionable_type' => 'book',
+            'versionable_id' => Book::factory(),
             'publisher_id' => Publisher::factory(),
             'file_path' => 'books/' . $this->faker->slug() . '.pdf',
             'isbn' => $this->faker->isbn13(),

@@ -203,5 +203,49 @@ class SuperAdminDashboardTest extends TestCase
                 ->where('deletions.0.title', 'كتاب محذوف للتجربة')
             );
     }
+
+    #[Test]
+    public function it_shares_live_categories_tags_versions_and_studio_data(): void
+    {
+        $category = \App\Models\Category::factory()->create([
+            'name' => 'علوم الحديث النبوي',
+            'slug' => 'ulum-al-hadith',
+        ]);
+
+        $tag = \App\Models\Tag::factory()->create([
+            'name' => 'نادر ونفيس',
+            'slug' => 'nader-wa-nafees',
+        ]);
+
+        $book = Book::factory()->create([
+            'title' => 'فتح الباري بشرح صحيح البخاري',
+            'slug' => 'fath-al-bari',
+        ]);
+
+        $version = \App\Models\Version::factory()->create([
+            'versionable_type' => 'book',
+            'versionable_id' => $book->id,
+            'title' => 'طبعة بولاق الأولى',
+            'edition_number' => 1,
+        ]);
+
+        $response = $this->actingAs($this->superAdmin)
+            ->get('/superadmin/dashboard');
+
+        $response->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('AdminDashboard')
+                ->has('categories')
+                ->where('categories.0.name', 'علوم الحديث النبوي')
+                ->has('tags')
+                ->where('tags.0.name', 'نادر ونفيس')
+                ->has('versions')
+                ->where('versions.0.title', 'طبعة بولاق الأولى')
+                ->has('studioBooks')
+                ->where('studioBooks.0.title', 'فتح الباري بشرح صحيح البخاري')
+                ->has('stats.studio_books')
+                ->has('stats.funnel_drafts')
+            );
+    }
 }
 

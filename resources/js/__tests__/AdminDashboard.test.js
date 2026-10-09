@@ -514,6 +514,143 @@ describe('AdminDashboard Cockpit Component (TDD)', () => {
         expect(contentArea.html()).toContain('صحيح البخاري - نسخة كوبريلي');
         expect(contentArea.html()).toContain('/activities');
     });
+
+    it('maintains canonical metadata, breadcrumbs and component mounting for all 9 modular entities without raw string renderers', async () => {
+        const wrapper = createWrapper();
+        const entities = [
+            { key: 'books', group: 'المكتبة', title: 'الكتب', expectedSelector: '#booksTableView' },
+            { key: 'manuscripts', group: 'المكتبة', title: 'المخطوطات', expectedSelector: '#manuscriptsTableView' },
+            { key: 'audios', group: 'المكتبة', title: 'الصوتيات', expectedSelector: '#audiosTableView' },
+            { key: 'videos', group: 'المكتبة', title: 'المرئيات', expectedSelector: '#videosTableView' },
+            { key: 'authors', group: 'الأشخاص', title: 'المؤلفون', expectedSelector: '#authorsGridView' },
+            { key: 'publishers', group: 'الأشخاص', title: 'الناشرون', expectedSelector: '#publishersGridView' },
+            { key: 'users', group: 'النظام', title: 'المستخدمون', expectedSelector: '#usersTableView' },
+            { key: 'activities', group: 'النظام', title: 'النشاطات', expectedSelector: '.activities-timeline-view' },
+            { key: 'deletions', group: 'النظام', title: 'المهملات', expectedSelector: '#deletionsTableView' },
+        ];
+
+        for (const entity of entities) {
+            window.loadView(entity.key);
+            await new Promise(r => setTimeout(r, 60));
+
+            expect(wrapper.find('#breadcrumbGroup').text()).toBe(entity.group);
+            expect(wrapper.find('#breadcrumbCurrent').text()).toBe(entity.title);
+            expect(wrapper.find(entity.expectedSelector).exists()).toBe(true);
+        }
+    });
+
+    it('renders live categories tree from props.categories', async () => {
+        const liveCategories = [
+            { id: 1, name: 'الفقه المقارن وأصوله', slug: 'comparative-fiqh', books_count: 145 },
+            { id: 2, name: 'علوم الحديث ورجاله', slug: 'hadith-sciences', books_count: 320 },
+        ];
+        const wrapper = createWrapper({ categories: liveCategories });
+        window.loadView('categories');
+        await new Promise(r => setTimeout(r, 60));
+
+        const content = wrapper.find('#dynamicContentArea').html();
+        expect(content).toContain('الفقه المقارن وأصوله');
+        expect(content).toContain('145 مصنفاً');
+        expect(content).toContain('علوم الحديث ورجاله');
+        expect(content).toContain('320 مصنفاً');
+    });
+
+    it('renders live tags cloud from props.tags', async () => {
+        const liveTags = [
+            { id: 1, name: 'الأصول_الفقهية', slug: 'usul-fiqh', books_count: 88 },
+            { id: 2, name: 'مخطوطات_الأندلس', slug: 'andalus-manuscripts', books_count: 54 },
+        ];
+        const wrapper = createWrapper({ tags: liveTags });
+        window.loadView('tags');
+        await new Promise(r => setTimeout(r, 60));
+
+        const content = wrapper.find('#dynamicContentArea').html();
+        expect(content).toContain('#الأصول_الفقهية (88)');
+        expect(content).toContain('#مخطوطات_الأندلس (54)');
+    });
+
+    it('renders live versions table from props.versions', async () => {
+        const liveVersions = [
+            {
+                id: 101,
+                title: 'طبعة المكنز المباركة',
+                edition_number: 3,
+                versionable_title: 'صحيح الإمام مسلم',
+                versionable_type: 'book',
+                versionable_slug: 'sahih-muslim',
+                publisher_name: 'جمعية المكنز الإسلامي',
+                format: 'PDF',
+                file_size_human: '18.4 MB',
+                created_at_human: 'منذ ساعتين',
+            }
+        ];
+        const wrapper = createWrapper({ versions: liveVersions });
+        window.loadView('versions');
+        await new Promise(r => setTimeout(r, 60));
+
+        const content = wrapper.find('#dynamicContentArea').html();
+        expect(content).toContain('طبعة المكنز المباركة');
+        expect(content).toContain('صحيح الإمام مسلم');
+        expect(content).toContain('جمعية المكنز الإسلامي');
+        expect(content).toContain('18.4 MB');
+    });
+
+    it('renders live studio books from props.studioBooks with direct editor links', async () => {
+        const liveStudioBooks = [
+            {
+                id: 12,
+                title: 'تيسير العلام شرح عمدة الأحكام',
+                slug: 'taysir-al-allam',
+                current_node: 'كتاب الطهارة - باب المياه',
+                progress_percent: 85,
+                editor_name: 'د. سامي العطاس',
+                updated_at_human: 'منذ نصف ساعة',
+                studio_url: '/studio/book/taysir-al-allam',
+            }
+        ];
+        const wrapper = createWrapper({ studioBooks: liveStudioBooks });
+        window.loadView('studio-books');
+        await new Promise(r => setTimeout(r, 60));
+
+        const content = wrapper.find('#dynamicContentArea').html();
+        expect(content).toContain('تيسير العلام شرح عمدة الأحكام');
+        expect(content).toContain('كتاب الطهارة - باب المياه');
+        expect(content).toContain('85%');
+        expect(content).toContain('د. سامي العطاس');
+        expect(content).toContain('/studio/book/taysir-al-allam');
+    });
+
+    it('renders live PostgreSQL funnel and KPI stats in overview stats view without hardcoded strings', async () => {
+        const detailedStats = {
+            ...mockStats,
+            books: 1980,
+            funnel_drafts: 412,
+            funnel_reviewed: 530,
+            funnel_scholarly: 290,
+            funnel_published: 1980,
+            studio_books: 412,
+            studio_manuscripts: 125,
+            studio_audios: 98,
+            studio_videos: 47,
+        };
+        const wrapper = createWrapper({ stats: detailedStats });
+        window.loadView('stats');
+        await new Promise(r => setTimeout(r, 60));
+
+        const content = wrapper.find('#dynamicContentArea').html();
+        expect(content).toContain('1,980');
+        expect(content).toContain('412');
+        expect(content).toContain('530');
+        expect(content).toContain('290');
+        expect(content).not.toContain("props.stats?.books");
+        expect(content).not.toContain("'+ (props.stats");
+
+        const sidebar = wrapper.find('#appSidebar');
+        expect(sidebar.find('#nav-studio-books .badge-count').text()).toBe('412 مسودة');
+        expect(sidebar.find('#nav-studio-manuscripts .badge-count').text()).toBe('125 لوحة');
+        expect(sidebar.find('#nav-studio-audios .badge-count').text()).toBe('98 شريحة');
+        expect(sidebar.find('#nav-studio-videos .badge-count').text()).toBe('47 مشهد');
+    });
 });
 
 
