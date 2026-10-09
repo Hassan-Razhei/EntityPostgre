@@ -290,3 +290,207 @@ const handleStatusClick = (status) => {
     </div>
   </div>
 </template>
+
+<style>
+/* ========================================================
+   HORIZONTAL SPLIT BANNER (CARDS ON RIGHT, BUTTONS ON LEFT)
+   ======================================================== */
+.horizontal-header-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+body.light-mode .horizontal-header-banner {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Right Div: KPI Cards */
+.banner-kpi-col {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.banner-page-badge {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-main, #f4f4f5);
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  white-space: nowrap;
+  margin: 0;
+}
+
+.kpi-h-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 0.85rem;
+  padding: 0.65rem 0.95rem;
+  min-width: 125px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+body.light-mode .kpi-h-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-h-card:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+}
+body.light-mode .kpi-h-card:hover {
+  background: #ffffff;
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-h-card.active {
+  border-color: var(--indigo, #6366f1);
+  background: rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 14px rgba(99, 102, 241, 0.22);
+}
+body.light-mode .kpi-h-card.active {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: var(--indigo, #6366f1);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
+}
+
+.kpi-h-title {
+  font-size: 0.68rem;
+  color: var(--text-muted, #a1a1aa);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.kpi-h-card.active .kpi-h-title {
+  color: var(--indigo, #6366f1);
+}
+
+.kpi-h-value {
+  font-size: 1.35rem;
+  font-weight: 900;
+  font-family: 'Outfit', sans-serif;
+  margin: 0.25rem 0;
+  line-height: 1.1;
+  color: var(--text-main, #f4f4f5);
+}
+
+.kpi-h-bar {
+  display: flex;
+  height: 3px;
+  width: 100%;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+  background: rgba(255, 255, 255, 0.06);
+}
+body.light-mode .kpi-h-bar {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.kpi-h-subtext {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-dim, #71717a);
+}
+
+/* Left Div: 2x2 Buttons Grid */
+.banner-actions-col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-grid-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.btn-grid-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+}
+.btn-grid-primary:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+}
+
+.btn-grid-secondary {
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-main, #f4f4f5);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  backdrop-filter: blur(10px);
+}
+body.light-mode .btn-grid-secondary {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.btn-grid-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+body.light-mode .btn-grid-secondary:hover {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.22);
+}
+
+/* Adaptive colors for dark & light mode */
+.val-published { color: #34d399; }
+body.light-mode .val-published { color: #059669; }
+
+.val-scholarly { color: #60a5fa; }
+body.light-mode .val-scholarly { color: #2563eb; }
+
+.val-draft { color: #fbbf24; }
+body.light-mode .val-draft { color: #d97706; }
+
+/* Button Icon Colors in Light Mode */
+.icon-export { color: #60a5fa; }
+body.light-mode .icon-export { color: #2563eb; }
+
+.icon-import { color: #34d399; }
+body.light-mode .icon-import { color: #059669; }
+
+.icon-refresh { color: #fbbf24; }
+body.light-mode .icon-refresh { color: #d97706; }
+</style>

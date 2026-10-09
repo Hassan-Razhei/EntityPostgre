@@ -29,6 +29,7 @@
 | **20** | **التعميم المعماري الشامل لكافة الأصول وقطاع الأشخاص والنظام كمكونات Vue نقية تفاعلية (100% Vue Reactivity)** | `resources/js/__tests__/AdminDashboard.test.js` + `SuperAdminDashboardTest.php` | 5 Failed | 66 Passed (11 Files) + 7 Passed PHP | **66 Vitest + 7 PHP Passed (114 Assertions)** | ✅ مكتملة وموثقة |
 | **21** | **التمثيل الحي الشامل لكافة قطاعات المنظومة من PostgreSQL وتطهير الكود الميت (Full Live System & Dead Code Elimination)** | `resources/js/__tests__/AdminDashboard.test.js` + `SuperAdminDashboardTest.php` | 5 Failed (Live Data & Funnel) | 24 Passed (Vitest) + 8 Passed PHP (138 Assertions) | **24 Vitest + 548 PHP Passed (حجم الحزمة انخفض 53% وتمثيل حي 100%)** | ✅ مكتملة وموثقة |
 | **22** | **اكتمال منظومة التنظيم المعرفي الشامل (المجموعات والسلاسل والموضوعات) وترقية الفهارس والربط البوليمورفي** | `TaxonomyAttachmentTest.php` + `AdminDashboard.test.js` + `TableEngineComponents.test.js` | 2 Failed PHP + 6 Failed Vitest | 2 Passed PHP + 28 Passed Vitest + 13 Passed Table | **78 Vitest + 551 PHP Passed (100% نجاح)** | ✅ مكتملة وموثقة |
+| **23** | **تفكيك قمرة القيادة وفصل الواجهات الفرعية والأنماط المعمارية (Decoupled SFC Views & Modular Sub-Views)** | `resources/js/__tests__/ModularDashboardViews.test.js` | 6 Failed | 6 Passed (84 Vitest Tests) | **84 Vitest + 551 PHP Passed (انخفاض الحزمة لـ 104kB)** | ✅ مكتملة وموثقة |
 
 ---
 
@@ -982,6 +983,61 @@
 - **اختبارات الفرونت إند (Vitest):** **78/78 اختبار ناجح بنسبة 100% عبر كامل الملفات الـ 11**.
 - **اختبارات الباك إند (PHPUnit):** **551/551 اختبار ناجح (2,757 assertions)** بنسبة 100%.
 - **بناء الإنتاج (Vite Build):** بناء الحزمة بالكامل في **13.97 ثانية** بنجاح مطلق ودون أدنى خطأ.
+
+---
+
+## 🔹 الدورة 23: تفكيك قمرة القيادة وفصل الواجهات الفرعية والأنماط المعمارية (Decoupled SFC Views & Modular Sub-Views)
+
+- **تاريخ الإنجاز:** 2026-10-09
+- **الهدف المعماري:**
+  امتثالاً لتوجيهات وقواعد [`.agent/frontend/ui_rules.md`](.agent/frontend/ui_rules.md) (منهجية TDD الصارمة، منع الانكسار، صفر فقدان للبكسل، والهيكلية الهجينة المعتمدة الأولى + الثالثة):
+  1. **المكونات ذاتية الاحتواء (Self-Contained Components):**
+     - تمكين مكونات محرك الجداول (`AssetHeaderBanner.vue` و `DenseDataTable.vue`) من امتلاك كامل تنسيقاتها الزجاجية الفاخرة (`<style>`) وحالات التباين للوضع الفاتح والداكن بدلاً من الاتكال على ملف الأب.
+  2. **الواجهات الفرعية المستقلة (Modular Sub-Views SFCs):**
+     - التخلص الجذري من أكثر من 1,100 سطر من سلاسل قوالب HTML الخام السابقة في `viewCatalog` واستبدال `v-html="currentViewHtml"` بمكونات Vue 3 نقية وتفاعلية 100%:
+       - `DashboardStatsView.vue`: بطاقات الـ KPIs المركزية، كبسولات صحة النظام والنبض، منصة الإطلاق السريع، وقمع النشر التحريري PostgreSQL.
+       - `DashboardCommandsView.vue`: طرفية الكونسول التفاعلية (`#terminalOutput`) وحقل الإدخال والأزرار السريعة مع توافق تام لـ API تشغيل الأوامر.
+       - `DashboardOpsView.vue`: إدارة وضع الصيانة، نسخ PostgreSQL الاحتياطي، مسح الذاكرة المؤقتة، وإعادة بناء الفهرس.
+       - `DashboardStudioView.vue`: قطاع الاستوديو والمختبر التحريري لمصنفات الكتب والمخطوطات والصوتيات والمرئيات والنسخ.
+       - `DashboardTaxonomyView.vue`: فهارس المجموعات، السلاسل، شجرة التصنيفات، سحابة الأوسمة، وشجرة الموضوعات.
+  3. **ترشيق قمرة القيادة المايسترو (`AdminDashboard.vue`):**
+     - انخفاض حجم الملف من **4,732 سطراً** إلى **3,732 سطراً** (حذف ما يزيد عن 1,000 سطر من النصوص الخام والقوالب الزائدة).
+     - تقليص حجم حزمة الجافاسكريبت النهائية عند البناء إلى **104 kB** مع توزيع الواجهات إلى قطع مجزأة فائقة السرعة (`code-splitting`).
+
+---
+
+### 1. المرحلة الحمراء 🔴 (RED Phase):
+- **ملف الاختبار المنشأ:**
+  - [`resources/js/__tests__/ModularDashboardViews.test.js`](resources/js/__tests__/ModularDashboardViews.test.js): اختبارات وحدة دقيقة تفحص تركيب الواجهات الفرعية الخمس، وتوافقها التام مع محددات الـ DOM وأزرار الأوامر وربط الحقول التفاعلية.
+- **نتيجة التشغيل (RED):**
+  - فشل 6 اختبارات بنجاح (6 Failed) لعدم وجود ملفات الواجهات الفرعية SFC.
+
+---
+
+### 2. المرحلة الخضراء 🟢 (GREEN Phase):
+- **الملفات البرمجية المنشأة والمعدلة:**
+  1. [`resources/js/Components/Table/AssetHeaderBanner.vue`](resources/js/Components/Table/AssetHeaderBanner.vue): تزويد المكون بكتلة `<style>` كاملة ذاتية الاحتواء.
+  2. [`resources/js/Components/Table/DenseDataTable.vue`](resources/js/Components/Table/DenseDataTable.vue): تزويد المكون بكتلة `<style>` كاملة ذاتية الاحتواء للجداول والبطاقات والأزرار.
+  3. إنشاء المجلد [`resources/js/Pages/AdminDashboard/Views/`](resources/js/Pages/AdminDashboard/Views/) متضمناً:
+     - `DashboardStatsView.vue`
+     - `DashboardCommandsView.vue`
+     - `DashboardOpsView.vue`
+     - `DashboardStudioView.vue`
+     - `DashboardTaxonomyView.vue`
+  4. [`resources/js/Pages/AdminDashboard.vue`](resources/js/Pages/AdminDashboard.vue):
+     - استيراد وتركيب المكونات الفرعية الخمسة داخل القالب.
+     - استبدال قوالب الـ HTML الخام في `viewCatalog` بمصفوفة سجل الواجهات النظيفة.
+     - ترشيق التنسيقات المكررة مع الحفاظ التام والسيادي على متغيرات `:root` وهيكل القشرة الخارجية.
+- **نتيجة التشغيل (GREEN):**
+  - نجاح 6/6 في `ModularDashboardViews.test.js`.
+  - نجاح 28/28 في `AdminDashboard.test.js`.
+
+---
+
+### 3. مرحلة التحسين وفحص عدم الانكسار 🛡️ (Refactor & Zero Regression):
+- **اختبارات الفرونت إند (Vitest):** **84/84 اختبار ناجح (100% نجاح عبر كامل ملفات الاختبار الـ 12)**.
+- **اختبارات الباك إند (PHPUnit):** **551/551 اختبار ناجح (2,763 assertions)** بنسبة نجاح 100%.
+- **بناء الإنتاج (Vite Production Build):** بناء الحزمة بالكامل في **14.37 ثانية** وانخفاض ملف `AdminDashboard` إلى **104.01 kB** (26.10 kB gzip).
 
 
 

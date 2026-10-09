@@ -386,7 +386,35 @@
         :activities="props.recentActivities"
         :total="props.stats?.activities || (props.recentActivities ? props.recentActivities.length : 0)"
       />
-      <!-- 10. Dynamic Viewport for other views -->
+      <!-- 10. Central Stats Overview -->
+      <DashboardStatsView
+        v-else-if="currentViewKey === 'stats'"
+        :stats="props.stats"
+        @navigate="loadView"
+      />
+      <!-- 11. System Commands Console -->
+      <DashboardCommandsView
+        v-else-if="currentViewKey === 'commands'"
+      />
+      <!-- 12. System Operations & Maintenance -->
+      <DashboardOpsView
+        v-else-if="currentViewKey === 'ops'"
+        @navigate="loadView"
+      />
+      <!-- 13. Studio Sub-views -->
+      <DashboardStudioView
+        v-else-if="['studio-books', 'studio-manuscripts', 'studio-audios', 'studio-videos', 'versions'].includes(currentViewKey)"
+        :studio-type="currentViewKey"
+        :items="getStudioItems(currentViewKey)"
+        :versions="props.versions || []"
+      />
+      <!-- 14. Cognitive Taxonomy & Knowledge Organization -->
+      <DashboardTaxonomyView
+        v-else-if="['collections', 'series', 'topics', 'tags', 'categories'].includes(currentViewKey)"
+        :taxonomy-type="currentViewKey"
+        :items="getTaxonomyItems(currentViewKey)"
+      />
+      <!-- 15. Dynamic Fallback Viewport for legacy/custom HTML -->
       <div v-else-if="currentViewHtml" v-html="currentViewHtml" />
     </div>
 
@@ -406,6 +434,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AssetTableView from '@/Components/Table/AssetTableView.vue';
 import ActivitiesTimelineView from '@/Components/Timeline/ActivitiesTimelineView.vue';
+import DashboardStatsView from './AdminDashboard/Views/DashboardStatsView.vue';
+import DashboardCommandsView from './AdminDashboard/Views/DashboardCommandsView.vue';
+import DashboardOpsView from './AdminDashboard/Views/DashboardOpsView.vue';
+import DashboardStudioView from './AdminDashboard/Views/DashboardStudioView.vue';
+import DashboardTaxonomyView from './AdminDashboard/Views/DashboardTaxonomyView.vue';
 import {
   booksColumns, sampleBooksRows,
   manuscriptsColumns, sampleManuscriptsRows,
@@ -642,1020 +675,52 @@ const deletionsKpiStats = computed(() => {
 
 const sampleDeletions = sampleDeletionsRows;
 
+function getStudioItems(viewKey) {
+  switch (viewKey) {
+    case 'studio-books': return props.studioBooks || activeBooksRows.value || [];
+    case 'studio-manuscripts': return props.manuscripts || activeManuscriptsRows.value || [];
+    case 'studio-audios': return props.audios || activeAudiosRows.value || [];
+    case 'studio-videos': return props.videos || activeVideosRows.value || [];
+    case 'versions': return props.versions || [];
+    default: return [];
+  }
+}
+
+function getTaxonomyItems(viewKey) {
+  switch (viewKey) {
+    case 'collections': return props.collections || [];
+    case 'series': return props.series || [];
+    case 'topics': return props.topics || [];
+    case 'tags': return props.tags || [];
+    case 'categories': return props.categories || [];
+    default: return [];
+  }
+}
+
 const viewCatalog = {
-      // ========================================================
-      // 1. BOOKS VIEW (المكتبة -> الكتب)
-      // ========================================================
-      books: {
-        title: 'الكتب',
-        group: 'المكتبة',
-      },
-
-      // ========================================================
-      // 2. MANUSCRIPTS VIEW (المكتبة -> المخطوطات)
-      // ========================================================
-      manuscripts: {
-        title: 'المخطوطات',
-        group: 'المكتبة',
-      },
-
-      // ========================================================
-      // 3. AUDIOS VIEW (المكتبة -> الصوتيات)
-      // ========================================================
-      audios: {
-        title: 'الصوتيات',
-        group: 'المكتبة',
-      },
-
-      // ========================================================
-      // 4. VIDEOS VIEW (المكتبة -> المرئيات)
-      // ========================================================
-      videos: {
-        title: 'المرئيات',
-        group: 'المكتبة',
-      },
-
-      // ========================================================
-      // 5. AUTHORS VIEW (الأشخاص -> المؤلفون)
-      // ========================================================
-      authors: {
-        title: 'المؤلفون',
-        group: 'الأشخاص',
-      },
-
-      // ========================================================
-      // 6. PUBLISHERS VIEW (الأشخاص -> دور النشر)
-      // ========================================================
-      publishers: {
-        title: 'الناشرون',
-        group: 'الأشخاص',
-      },
-
-      // ========================================================
-      // 7. CATEGORIES VIEW (التنظيم -> التصنيفات)
-      // ========================================================
-      categories: {
-        title: 'التصنيفات',
-        group: 'التنظيم',
-        render: () => {
-          const catNodes = props.categories && props.categories.length > 0
-            ? props.categories.map((cat, idx) => `
-              <div class="tree-node ${idx > 0 ? 'child' : ''}" style="${idx > 0 ? 'margin-right: ' + Math.min(idx * 0.75 + 1, 3) + 'rem; border-right-color: ' + (idx % 2 === 0 ? '#a855f7' : '#3b82f6') + ';' : ''}">
-                <span>${idx === 0 ? '📂' : (idx % 2 === 0 ? '📜' : '⚖️')} ${cat.name}</span>
-                <span class="badge-count">${(cat.books_count ?? 0).toLocaleString()} مصنفاً</span>
-              </div>
-            `).join('')
-            : `
-              <div class="tree-node">
-                <span>📂 شجرة التصنيفات العامة</span>
-                <span class="badge-count">0 مصنفاً</span>
-              </div>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>🌳 التصنيفات</span></h2>
-                <p>شجرة العلوم والتصنيفات الهرمية متعددة المستويات لتنظيم المعرفة</p>
-              </div>
-              <div class="header-actions">
-                <a href="/categories/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  <span>+ تصنيف جديد</span>
-                </a>
-                <button class="btn-action-small" onclick="alert('إعادة فرز الفروع التصنيفية...')">إعادة الفرز 🔄</button>
-              </div>
-            </div>
-
-            <div class="section-card">
-              ${catNodes}
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 8. TAGS VIEW (التنظيم -> الأوسمة)
-      // ========================================================
-      tags: {
-        title: 'الأوسمة',
-        group: 'التنظيم',
-        render: () => {
-          const tagChips = props.tags && props.tags.length > 0
-            ? props.tags.map((tag, idx) => {
-              const chipClass = idx % 3 === 0 ? 'tag-public' : (idx % 3 === 1 ? 'tag-scholarly' : 'tag-draft');
-              const count = tag.books_count ?? 0;
-              const size = Math.max(0.72, Math.min(0.95, 0.72 + (count / 100) * 0.2)).toFixed(2);
-              return `<span class="entity-tag ${chipClass}" style="font-size: ${size}rem; padding: 0.35rem 0.75rem;">#${tag.name} (${count})</span>`;
-            }).join('')
-            : '<span style="color: var(--text-dim); font-size: 0.85rem;">لا توجد أوسمة مفهرسة حالياً</span>';
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>🏷️ الأوسمة</span></h2>
-                <p>فهرس الأوسمة والدلالات الموضوعية وسحابة الكلمات المفتاحية</p>
-              </div>
-              <div class="header-actions">
-                <a href="/tags/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  <span>+ وسم جديد</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
-                ${tagChips}
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 8b. COLLECTIONS VIEW (التنظيم -> المجموعات)
-      // ========================================================
-      collections: {
-        title: 'المجموعات',
-        group: 'التنظيم',
-        render: () => {
-          const rows = props.collections && props.collections.length > 0
-            ? props.collections.map((col) => `
-              <tr>
-                <td>
-                  <div style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">${col.name}</div>
-                  <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem;">${col.description || 'لا يوجد وصف للمجموعة'}</div>
-                </td>
-                <td>
-                  <span class="role-chip ${col.is_public ? 'chip-studio' : 'chip-academic'}">
-                    ${col.is_public ? 'عامة 🌐' : 'خاصة 🔒'}
-                  </span>
-                </td>
-                <td>
-                  <span class="badge-count" style="font-size: 0.8rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">
-                    ${col.entities_count || 0}
-                  </span>
-                </td>
-                <td>
-                  <div style="font-size: 0.8rem; color: var(--text-main);">${col.user_name || 'المشرف العام'}</div>
-                </td>
-                <td>
-                  <div style="display: flex; gap: 0.4rem; align-items: center;">
-                    <a href="${col.show_url || '/collections/' + col.id}" class="btn-emerald-small" style="text-decoration: none;">
-                      <span>استعراض 👁️</span>
-                    </a>
-                    <a href="${col.edit_url || '/collections/' + col.id + '/edit'}" class="btn-action-small" style="text-decoration: none;">
-                      <span>تعديل ⚙️</span>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            `).join('')
-            : `
-              <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-dim); padding: 2.5rem;">لا توجد مجموعات معرفية منشأة حالياً</td>
-              </tr>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>📦 المجموعات المختارة</span></h2>
-                <p>إدارة المجموعات المعرفية والأصول البوليمورفية المتعددة (كتب، مخطوطات، صوتيات، ومرئيات)</p>
-              </div>
-              <div class="header-actions">
-                <a href="/collections/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  <span>+ مجموعة جديدة</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div class="users-table-wrap">
-                <table class="users-table">
-                  <thead>
-                    <tr>
-                      <th>اسم المجموعة والوصف</th>
-                      <th>حالة الرؤية</th>
-                      <th>إجمالي الأصول المرتبطة</th>
-                      <th>المنشئ / المنسق</th>
-                      <th>الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${rows}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 8c. SERIES VIEW (التنظيم -> السلاسل)
-      // ========================================================
-      series: {
-        title: 'السلاسل',
-        group: 'التنظيم',
-        render: () => {
-          const rows = props.series && props.series.length > 0
-            ? props.series.map((ser, idx) => `
-              <tr>
-                <td>
-                  <div style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">${ser.title}</div>
-                  <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem;">${ser.description || 'سلسلة علمية متسلسلة'}</div>
-                </td>
-                <td>
-                  <span class="badge-count" style="font-size: 0.8rem; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
-                    ${ser.books_count || 0} مصنفاً
-                  </span>
-                </td>
-                <td>
-                  <span class="role-chip chip-studio">ترتيب #${ser.order_column || (idx + 1)}</span>
-                </td>
-                <td>
-                  <div style="display: flex; gap: 0.4rem; align-items: center;">
-                    <a href="${ser.show_url || '/series/' + ser.id}" class="btn-emerald-small" style="text-decoration: none;">
-                      <span>استعراض السلسلة 📚</span>
-                    </a>
-                    <a href="${ser.edit_url || '/series/' + ser.id + '/edit'}" class="btn-action-small" style="text-decoration: none;">
-                      <span>تعديل ⚙️</span>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            `).join('')
-            : `
-              <tr>
-                <td colspan="4" style="text-align: center; color: var(--text-dim); padding: 2.5rem;">لا توجد سلاسل علمية مدرجة حالياً</td>
-              </tr>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>📚 السلاسل العلمية</span></h2>
-                <p>إدارة السلاسل والموسوعات العلمية ومتابعة ترقيم الأجزاء والمصنفات المتسلسلة</p>
-              </div>
-              <div class="header-actions">
-                <a href="/series/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  <span>+ سلسلة جديدة</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div class="users-table-wrap">
-                <table class="users-table">
-                  <thead>
-                    <tr>
-                      <th>عنوان السلسلة والبيان</th>
-                      <th>عدد المصنفات والأجزاء</th>
-                      <th>الترتيب العام</th>
-                      <th>الإجراءات المباشرة</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${rows}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 8d. TOPICS VIEW (التنظيم -> الموضوعات)
-      // ========================================================
-      topics: {
-        title: 'الموضوعات',
-        group: 'التنظيم',
-        render: () => {
-          const cards = props.topics && props.topics.length > 0
-            ? props.topics.map((top, idx) => `
-              <div class="tree-node" style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.1rem; border-right: 4px solid ${idx % 3 === 0 ? '#38bdf8' : (idx % 3 === 1 ? '#a855f7' : '#34d399')};">
-                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                  <span style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">💡 ${top.name}</span>
-                  <span style="font-size: 0.7rem; color: var(--text-dim); font-family: monospace;">#${top.slug}</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                  <span class="badge-count" style="font-size: 0.78rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
-                    ${top.books_count || 0} مصنفاً
-                  </span>
-                  <a href="/topics/${top.id}" class="btn-action-small" style="text-decoration: none; font-size: 0.72rem;">استعراض 🔍</a>
-                </div>
-              </div>
-            `).join('')
-            : `
-              <div style="text-align: center; color: var(--text-dim); padding: 2.5rem;">لا توجد موضوعات تخصصية مفهرسة حالياً</div>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>💡 الموضوعات التخصصية</span></h2>
-                <p>فهرسة رؤوس الموضوعات والمسائل العلمية الدقيقة وربطها بالمصنفات التراثية</p>
-              </div>
-              <div class="header-actions">
-                <a href="/topics/create" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  <span>+ موضوع جديد</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.85rem;">
-                ${cards}
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 9. STUDIO BOOKS (الاستوديو -> الكتب)
-      // ========================================================
-      'studio-books': {
-        title: 'الكتب',
-        group: 'الاستوديو',
-        render: () => {
-          const rows = props.studioBooks && props.studioBooks.length > 0
-            ? props.studioBooks.map(b => `
-              <tr>
-                <td><strong>${b.title}</strong></td>
-                <td>${b.current_node || 'الباب الأول: المقدمة التمهيدية'}</td>
-                <td>
-                  <div class="kpi-split-bar" style="height: 6px; width: 120px;"><div style="width: ${b.progress_percent || 75}%; background: #10b981;"></div></div>
-                  <span style="font-size: 0.65rem; color: #10b981; font-weight: 800;">${b.progress_percent || 75}%</span>
-                </td>
-                <td>${b.editor_name || 'فريق التحقيق الأكاديمي'}</td>
-                <td>${b.updated_at_human || 'مؤخراً'}</td>
-                <td>
-                  <a href="${b.studio_url || '/studio/book/' + b.slug}" class="btn-emerald-small"><span>فتح المحرر ✍️</span></a>
-                </td>
-              </tr>
-            `).join('')
-            : `
-              <tr>
-                <td colspan="6" style="text-align: center; color: var(--text-dim); padding: 2rem;">لا توجد مسودات كتب قيد التحرير حالياً</td>
-              </tr>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>📚 استوديو الكتب</span></h2>
-                <p>منصة التحقيق والتحرير النصي الحي ومقابلة النسخ لمصنفات الكتب</p>
-              </div>
-              <div class="header-actions">
-                <a href="/studio/resume" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  <span>⚡ استئناف آخر جلسة</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div class="users-table-wrap">
-                <table class="users-table">
-                  <thead>
-                    <tr>
-                      <th>المصنف قيد التحقيق</th>
-                      <th>العقدة / الباب الحالي</th>
-                      <th>نسبة الإنجاز</th>
-                      <th>المحقق المسؤول</th>
-                      <th>آخر تعديل</th>
-                      <th>الإجراء المباشر</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${rows}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 10. STUDIO MANUSCRIPTS (الاستوديو -> المخطوطات)
-      // ========================================================
-      'studio-manuscripts': {
-        title: 'المخطوطات',
-        group: 'الاستوديو',
-        render: () => {
-          const rows = props.manuscripts && props.manuscripts.length > 0
-            ? props.manuscripts.slice(0, 10).map((m, idx) => `
-              <tr>
-                <td><strong>${m.title}</strong></td>
-                <td>${m.folio_count || 'لوحة رقم ' + (idx * 12 + 14) + ' (الوجه أ)'}</td>
-                <td><span class="role-chip ${idx % 2 === 0 ? 'chip-studio' : 'chip-academic'}">${idx % 2 === 0 ? 'مطابق بنسبة 100%' : 'قيد فك الطلاسم'}</span></td>
-                <td>${m.author || 'د. طارق الحارثي'}</td>
-                <td>
-                  <a href="${m.studio_url || '/studio/manuscript/' + m.slug}" class="btn-emerald-small"><span>متابعة التحقيق ✍️</span></a>
-                </td>
-              </tr>
-            `).join('')
-            : `
-              <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-dim); padding: 2rem;">لا توجد مخطوطات قيد المقابلة حالياً</td>
-              </tr>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>📜 استوديو المخطوطات</span></h2>
-                <p>منصة مقارنة اللوحات الخطية وفك الطلاسم وتفريغ النصوص المسندة</p>
-              </div>
-              <div class="header-actions">
-                <a href="/studio/resume" class="btn-primary-small" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  <span>⚡ استئناف العمل</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div class="users-table-wrap">
-                <table class="users-table">
-                  <thead>
-                    <tr>
-                      <th>المخطوطة</th>
-                      <th>اللوحة الحالية</th>
-                      <th>المقابلة النصية</th>
-                      <th>المحقق</th>
-                      <th>الإجراء المباشر</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${rows}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 11. STUDIO AUDIOS (الاستوديو -> الصوتيات)
-      // ========================================================
-      'studio-audios': {
-        title: 'الصوتيات',
-        group: 'الاستوديو',
-        render: () => {
-          const rows = props.audios && props.audios.length > 0
-            ? props.audios.slice(0, 10).map((a, idx) => `
-              <tr>
-                <td><strong>${a.title}</strong></td>
-                <td>${a.duration || '01:15:30'}</td>
-                <td>${(idx * 8 + 14)} شريحة</td>
-                <td><span style="color: #34d399; font-weight: 800;">${(98.5 + (idx % 2)).toFixed(1)}%</span></td>
-                <td><a href="${a.studio_url || '/studio/audio/' + a.slug}" class="btn-emerald-small"><span>فتح محرر الشرائح ✍️</span></a></td>
-              </tr>
-            `).join('')
-            : `
-              <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-dim); padding: 2rem;">لا توجد جلسات صوتية قيد التقطيع حالياً</td>
-              </tr>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>🎙️ استوديو الصوتيات</span></h2>
-                <p>منصة تجزئة المسارات الصوتية وتوليد الشرائح وتفريغ النصوص بدقة</p>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div class="users-table-wrap">
-                <table class="users-table">
-                  <thead>
-                    <tr>
-                      <th>المجلس الصوتي</th>
-                      <th>مدة التسجيل</th>
-                      <th>الشرائح المنجزة</th>
-                      <th>دقة المطابقة</th>
-                      <th>الإجراء</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${rows}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 12. STUDIO VIDEOS (الاستوديو -> المرئيات)
-      // ========================================================
-      'studio-videos': {
-        title: 'المرئيات',
-        group: 'الاستوديو',
-        render: () => {
-          const rows = props.videos && props.videos.length > 0
-            ? props.videos.slice(0, 10).map((v, idx) => `
-              <tr>
-                <td><strong>${v.title}</strong></td>
-                <td>${v.duration || '02:15:00'}</td>
-                <td>${(idx + 4)} فصول رئيسية</td>
-                <td><a href="${v.studio_url || '/studio/video/' + v.slug}" class="btn-purple-small"><span>تقطيع الفصول 🎬</span></a></td>
-              </tr>
-            `).join('')
-            : `
-              <tr>
-                <td colspan="4" style="text-align: center; color: var(--text-dim); padding: 2rem;">لا توجد تسجيلات مرئية قيد التقطيع حالياً</td>
-              </tr>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>🎬 استوديو المرئيات</span></h2>
-                <p>منصة تقسيم المحاضرات والندوات المصورة وربط الفصول التفاعلية</p>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div class="users-table-wrap">
-                <table class="users-table">
-                  <thead>
-                    <tr>
-                      <th>التسجيل المرئي</th>
-                      <th>المدة</th>
-                      <th>الفصول الحالية</th>
-                      <th>الإجراء</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${rows}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 13. VERSIONS VIEW (الاستوديو -> الإصدارات)
-      // ========================================================
-      versions: {
-        title: 'الإصدارات',
-        group: 'الاستوديو',
-        render: () => {
-          const versionsList = props.versions && props.versions.length > 0 ? props.versions : [];
-          const topVersion = versionsList[0];
-          const prevVersion = versionsList[1] || versionsList[0];
-
-          const diffHeaderTitle = topVersion
-            ? `مقارنة النسخة ${topVersion.title} مع ${versionsList.length > 1 ? 'النسخة السابقة ' + prevVersion.title : 'الأصل المعتمد'}`
-            : 'مقارنة النسخ والمطابقة النصية';
-          const diffHeaderChip = topVersion ? topVersion.versionable_title : 'الأرشيف الموحد';
-
-          const rows = versionsList.length > 0
-            ? versionsList.map((v, idx) => `
-              <tr>
-                <td><strong>${v.title}</strong></td>
-                <td>${v.versionable_title}</td>
-                <td>${v.publisher_name}</td>
-                <td><span class="icon-import">${v.file_size_human}</span> / <span style="color: #38bdf8;">${v.format}</span></td>
-                <td>${v.created_at_human}</td>
-                <td>
-                  ${idx === 0
-                    ? '<span class="role-chip chip-studio">النسخة النشطة</span>'
-                    : `<button class="btn-action-small" onclick="alert('تم استرجاع النسخة #${v.id} بنجاح عبر مسار studio.restore!')">استرجاع النسخة ↩️</button>`
-                  }
-                </td>
-              </tr>
-            `).join('')
-            : `
-              <tr>
-                <td colspan="6" style="text-align: center; color: var(--text-dim); padding: 2rem;">لا توجد إصدارات مؤرشفة حالياً</td>
-              </tr>
-            `;
-
-          return `
-            <div class="view-header-banner">
-              <div class="view-title-group">
-                <h2><span>📜 الإصدارات</span></h2>
-                <p>محرك تاريخ التعديلات ومقارنة الفروق اللحظية للنسخ مع إمكانية الاسترجاع</p>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <div class="section-header">
-                <h3 class="section-title">${diffHeaderTitle}</h3>
-                <span class="role-chip chip-studio">${diffHeaderChip}</span>
-              </div>
-              <div class="diff-box" style="margin-bottom: 1.5rem;">
-                <div style="color: #f87171;">
-                  <span style="opacity: 0.5;">- السطر 48:</span> [حذف نص قديم: واختلف العلماء في تأويل هذا القول على وجهين]
-                </div>
-                <div class="icon-import">
-                  <span style="opacity: 0.5;">+ السطر 48:</span> [تصويب محقق: واختلف أهل الأثر في تأويل هذا القول على ثلاثة أوجه مسندة]
-                </div>
-              </div>
-
-              <div class="users-table-wrap">
-                <table class="users-table">
-                  <thead>
-                    <tr>
-                      <th>الإصدار</th>
-                      <th>الكيان التابع</th>
-                      <th>الناشر / المحرر</th>
-                      <th>الحجم والصيغة</th>
-                      <th>التاريخ</th>
-                      <th>إجراء الاسترجاع</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${rows}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 14. STATS VIEW (النظام -> الإحصائيات - Overview)
-      // ========================================================
-      stats: {
-        title: 'الإحصائيات',
-        group: 'النظام',
-        render: () => {
-          const booksCount = (props.stats?.books ?? 0).toLocaleString();
-          const manuscriptsCount = (props.stats?.manuscripts ?? 0).toLocaleString();
-          const audiosCount = (props.stats?.audios ?? 0).toLocaleString();
-          const videosCount = (props.stats?.videos ?? 0).toLocaleString();
-
-          const funnelDrafts = (props.stats?.funnel_drafts ?? props.stats?.studio_books ?? 0).toLocaleString();
-          const funnelReviewed = (props.stats?.funnel_reviewed ?? props.stats?.manuscripts ?? 0).toLocaleString();
-          const funnelScholarly = (props.stats?.funnel_scholarly ?? 0).toLocaleString();
-          const funnelPublished = (props.stats?.funnel_published ?? props.stats?.books ?? 0).toLocaleString();
-
-          return `
-            <div class="view-header-banner" style="border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.05);">
-              <div class="view-title-group">
-                <h2><span>📊 لوحة المؤشرات والإحصائيات المركزية</span></h2>
-                <p>رصد فوري لكافة قطاعات الأرشيف الرقمي، مسار النشر، ونشاط المحققين</p>
-              </div>
-              <div class="header-actions">
-                <div class="health-pill">
-                  <span class="pulse-dot-green"></span>
-                  <span>النظام يعمل بكفاءة</span>
-                </div>
-                <div class="status-pill-db">
-                  <span class="pulse-dot-emerald"></span>
-                  <span>قاعدة البيانات متصلة ومستقرة</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- KPI Cards Grid -->
-            <div class="kpi-grid">
-              <!-- Books KPI -->
-              <div class="kpi-card" style="cursor: pointer;" onclick="loadView('books')">
-                <div class="kpi-title">إجمالي الكتب والرسائل [Books]</div>
-                <div class="kpi-value icon-export">${booksCount}</div>
-                <div class="kpi-split-bar">
-                  <div style="width: 75%; background: #3b82f6;"></div>
-                  <div style="width: 25%; background: #f59e0b;"></div>
-                </div>
-                <div class="kpi-split-subtext"><span>75% منشور</span><span>25% مسودة</span></div>
-              </div>
-
-              <!-- Manuscripts KPI -->
-              <div class="kpi-card" style="cursor: pointer;" onclick="loadView('manuscripts')">
-                <div class="kpi-title">خزانة المخطوطات النادرة [Manuscripts]</div>
-                <div class="kpi-value icon-refresh">${manuscriptsCount}</div>
-                <div class="kpi-split-bar">
-                  <div style="width: 65%; background: #f59e0b;"></div>
-                  <div style="width: 35%; background: #ef4444;"></div>
-                </div>
-                <div class="kpi-split-subtext"><span>65% لوحات مرممة</span><span>35% قيد الفحص</span></div>
-              </div>
-
-              <!-- Audios KPI -->
-              <div class="kpi-card" style="cursor: pointer;" onclick="loadView('audios')">
-                <div class="kpi-title">التسجيلات الصوتية المفرغة [Audios]</div>
-                <div class="kpi-value icon-import">${audiosCount}</div>
-                <div class="kpi-split-bar">
-                  <div style="width: 80%; background: #10b981;"></div>
-                  <div style="width: 20%; background: #3b82f6;"></div>
-                </div>
-                <div class="kpi-split-subtext"><span>80% شرائح مفرغة</span><span>20% تسجيل نقي</span></div>
-              </div>
-
-              <!-- Videos KPI -->
-              <div class="kpi-card" style="cursor: pointer;" onclick="loadView('videos')">
-                <div class="kpi-title">المرئيات والندوات المصورة [Videos]</div>
-                <div class="kpi-value" style="color: #c084fc;">${videosCount}</div>
-                <div class="kpi-split-bar">
-                  <div style="width: 90%; background: #a855f7;"></div>
-                  <div style="width: 10%; background: #10b981;"></div>
-                </div>
-                <div class="kpi-split-subtext"><span>90% 4K UHD</span><span>10% HD</span></div>
-              </div>
-            </div>
-
-            <!-- Quick Launchpad Section -->
-            <div class="section-card">
-              <div class="section-header">
-                <h3 class="section-title">⚡ منصة الإطلاق والإجراءات السريعة</h3>
-                <span style="font-size: 0.72rem; color: var(--text-dim);">روابط مباشرة لأهم مسارات النظام</span>
-              </div>
-              <div class="quick-launch-grid">
-                <a href="/books/create" class="quick-launch-item">
-                  <div class="quick-icon-box" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">📖</div>
-                  <div>
-                    <strong style="display: block; font-size: 0.85rem; color: var(--text-main);">كتاب جديد</strong>
-                    <span style="font-size: 0.7rem; color: var(--text-dim);">إدراج مصنف أو عمل مكتبي جديد</span>
-                  </div>
-                </a>
-
-                <a href="/categories/create" class="quick-launch-item">
-                  <div class="quick-icon-box" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">🏷️</div>
-                  <div>
-                    <strong style="display: block; font-size: 0.85rem; color: var(--text-main);">تصنيف جديد</strong>
-                    <span style="font-size: 0.7rem; color: var(--text-dim);">إدارة الفئات والشجرة المعرفية</span>
-                  </div>
-                </a>
-
-                <div class="quick-launch-item" onclick="loadView('deletions')">
-                  <div class="quick-icon-box" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">♻️</div>
-                  <div>
-                    <strong style="display: block; font-size: 0.85rem; color: var(--text-main);">خزنة المهملات</strong>
-                    <span style="font-size: 0.7rem; color: var(--text-dim);">استرجاع الأصول المحذوفة مؤقتاً</span>
-                  </div>
-                </div>
-
-                <div class="quick-launch-item" onclick="loadView('commands')">
-                  <div class="quick-icon-box" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">💻</div>
-                  <div>
-                    <strong style="display: block; font-size: 0.85rem; color: var(--text-main);">أوامر النظام</strong>
-                    <span style="font-size: 0.7rem; color: var(--text-dim);">تشغيل أوامر الكونسول وArtisan</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Editorial Lifecycle Funnel & Content Breakdown -->
-            <div class="section-card">
-              <div class="section-header">
-                <h3 class="section-title">مسار تدفق النشر والتحقيق (Editorial Lifecycle)</h3>
-                <span class="role-chip chip-studio">توزيع الكيانات</span>
-              </div>
-              <div class="funnel-container">
-                <div class="funnel-step">
-                  <div class="funnel-step-label">مسودة قيد الإدخال 🔒</div>
-                  <div class="funnel-step-num icon-refresh">${funnelDrafts}</div>
-                </div>
-                <div style="color: var(--text-dim); font-size: 1.25rem;">‹</div>
-                <div class="funnel-step">
-                  <div class="funnel-step-label">التحقيق والمقابلة ✍️</div>
-                  <div class="funnel-step-num" style="color: #38bdf8;">${funnelReviewed}</div>
-                </div>
-                <div style="color: var(--text-dim); font-size: 1.25rem;">‹</div>
-                <div class="funnel-step">
-                  <div class="funnel-step-label">الاعتماد والتحكيم 🎓</div>
-                  <div class="funnel-step-num" style="color: #a855f7;">${funnelScholarly}</div>
-                </div>
-                <div style="color: var(--text-dim); font-size: 1.25rem;">‹</div>
-                <div class="funnel-step">
-                  <div class="funnel-step-label">منشور للعامة 🌐</div>
-                  <div class="funnel-step-num" style="color: #10b981;">${funnelPublished}</div>
-                </div>
-              </div>
-            </div>
-          `;
-        }
-      },
-
-      // ========================================================
-      // 15. OPS VIEW (النظام -> العمليات)
-      // ========================================================
-      ops: {
-        title: 'العمليات',
-        group: 'النظام',
-        render: () => `
-          <div class="view-header-banner" style="border-color: rgba(239, 68, 68, 0.3);">
-            <div class="view-title-group">
-              <h2><span>⚡ العمليات</span></h2>
-              <p>حقيبة العمليات والصيانة الفورية وإدارة خوادم النظام وقاعدة البيانات</p>
-            </div>
-            <div class="header-actions">
-              <button class="btn-danger-small" onclick="alert('تم إرسال إشارة أمان لكافة الجلسات النشطة!')">إشارة أمان للجلسات 🔒</button>
-            </div>
-          </div>
-
-          <div class="section-card" style="display: flex; justify-content: space-between; align-items: center; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.03);">
-            <div>
-              <h4 style="font-size: 0.95rem; font-weight: 800; color: #fbbf24;">وضع الصيانة المؤسسي (Maintenance Mode)</h4>
-              <p style="font-size: 0.72rem; color: var(--text-dim);">إغلاق الوصول العام للزوار وعرض صفحة الصيانة مع السماح للمشرفين فقط بالدخول.</p>
-            </div>
-            <button class="btn-action-small btn-danger-small" onclick="alert('تم تبديل حالة وضع الصيانة بنجاح!')">تفعيل وضع الصيانة ⚠️</button>
-          </div>
-
-          <div class="section-card">
-            <div class="section-header">
-              <h3 class="section-title">أدوات الصيانة الفورية المباشرة</h3>
-              <span class="role-chip chip-admin">تنفيذ فوري</span>
-            </div>
-            <div class="catalog-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-              <div class="entity-card" style="cursor: pointer;" onclick="alert('بدء أخذ نسخة احتياطية فورية Snapshot بقاعدة PostgreSQL...')">
-                <div class="entity-title">💾 أخذ نسخة احتياطية فورية</div>
-                <p style="font-size: 0.72rem; color: var(--text-dim);">نسخ قاعدة PostgreSQL والملفات الرقمية للتخزين الآمن.</p>
-              </div>
-              <div class="entity-card" style="cursor: pointer;" onclick="triggerOpsCacheClear()">
-                <div class="entity-title">⚡ تفريغ الكاش ومزامنة السياسات</div>
-                <p style="font-size: 0.72rem; color: var(--text-dim);">تشغيل artisan cache:clear ومزامنة Spatie Roles.</p>
-              </div>
-              <div class="entity-card" style="cursor: pointer;" onclick="alert('جاري إعادة بناء فهارس البحث الأرشيفي...')">
-                <div class="entity-title">🔍 إعادة بناء فهارس البحث</div>
-                <p style="font-size: 0.72rem; color: var(--text-dim);">مزامنة فهارس التدميج الكامل Full-Text Search باللغة العربية.</p>
-              </div>
-              <div class="entity-card" style="cursor: pointer;" onclick="loadView('commands')">
-                <div class="entity-title" style="color: #c084fc;">💻 كونسول أوامر النظام</div>
-                <p style="font-size: 0.72rem; color: var(--text-dim);">فتح الطرفية التفاعلية لتشغيل أوامر Artisan المباشرة.</p>
-              </div>
-            </div>
-          </div>
-        `
-      },
-
-      // ========================================================
-      // ========================================================
-      // 16. USERS VIEW (النظام -> المستخدمون)
-      // ========================================================
-      users: {
-        title: 'المستخدمون',
-        group: 'النظام',
-      },
-
-      // ========================================================
-      // 17. ACTIVITIES VIEW (النظام -> النشاطات)
-      // ========================================================
-      activities: {
-        title: 'النشاطات',
-        group: 'النظام',
-      },
-
-      // ========================================================
-      // 18. DELETIONS VIEW (النظام -> المهملات)
-      // ========================================================
-      deletions: {
-        title: 'المهملات',
-        group: 'النظام',
-      },
-
-      // ========================================================
-      // 19. COMMANDS VIEW (النظام -> الأوامر)
-      // ========================================================
-      commands: {
-        title: 'الأوامر',
-        group: 'النظام',
-        render: () => `
-          <div class="view-header-banner" style="border-color: rgba(99, 102, 241, 0.3);">
-            <div class="view-title-group">
-              <h2><span>💻 الأوامر</span></h2>
-              <p>موجه أوامر النظام وتشغيل أوامر Artisan ومهام الصيانة المباشرة</p>
-            </div>
-            <div class="header-actions">
-              <a href="/system/commands" class="btn-indigo-small" style="text-decoration: none;">لوحة الأوامر الكاملة 🖥️</a>
-            </div>
-          </div>
-
-          <div class="section-card" style="margin-bottom: 1.25rem;">
-            <div class="section-header" style="margin-bottom: 0.85rem;">
-              <h3 class="section-title">⚡ أوامر المنظومة المخصصة (Console Commands)</h3>
-              <span class="role-chip chip-super">7 أوامر سيادية مخصصة</span>
-            </div>
-            <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1rem;">
-              أوامر Artisan مخصصة في <code>app/Console/Commands</code> لإدارة الأصول والمخطوطات ومزامنة التخزين وبذر البيانات وتحليل المعمارية. اضغط على أي أمر لتشغيله ومتابعة مخرجاته فورياً:
-            </p>
-            <div class="catalog-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">
-              
-              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('storage:sync')">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🗄️ مزامنة التخزين الرقمي</span>
-                    <span class="role-chip chip-admin" style="font-size: 0.65rem;">storage</span>
-                  </div>
-                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">storage:sync</code>
-                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">فحص مجلدات التخزين وربط الملفات المرفوعة وتحديث البيانات الوصفية للمصنفات.</p>
-                </div>
-                <div style="margin-top: 0.75rem; text-align: left;">
-                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('storage:sync')">تشغيل ⚡</button>
-                </div>
-              </div>
-
-              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('manuscript:sync')">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">📜 مزامنة صفحات المخطوطات</span>
-                    <span class="role-chip chip-editor" style="font-size: 0.65rem;">manuscripts</span>
-                  </div>
-                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">manuscript:sync</code>
-                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">استخراج ومعالجة صفحات المخطوطات تلقائياً من مستندات docx ومطابقتها.</p>
-                </div>
-                <div style="margin-top: 0.75rem; text-align: left;">
-                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('manuscript:sync')">تشغيل ⚡</button>
-                </div>
-              </div>
-
-              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('manuscriptsData:sync')">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">📑 استيراد بيانات المخطوطات</span>
-                    <span class="role-chip chip-editor" style="font-size: 0.65rem;">legacy-data</span>
-                  </div>
-                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">manuscriptsData:sync</code>
-                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">استيراد وتحديث بيانات المخطوطات التاريخية من ملفات CSV/Excel إلى المخطط الجديد.</p>
-                </div>
-                <div style="margin-top: 0.75rem; text-align: left;">
-                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('manuscriptsData:sync')">تشغيل ⚡</button>
-                </div>
-              </div>
-
-              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('media:import-transcripts')">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🎙️ استيراد التفريغات النصية</span>
-                    <span class="role-chip chip-user" style="font-size: 0.65rem;">media</span>
-                  </div>
-                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">media:import-transcripts</code>
-                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">معالجة واستيراد نصوص docx وتحويلها لقطع زمنية مرتبطة بالصوتيات والمرئيات.</p>
-                </div>
-                <div style="margin-top: 0.75rem; text-align: left;">
-                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('media:import-transcripts')">تشغيل ⚡</button>
-                </div>
-              </div>
-
-              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('project:seed-realistic')">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🌱 بذر البيانات الواقعية</span>
-                    <span class="role-chip chip-super" style="font-size: 0.65rem;">database</span>
-                  </div>
-                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">project:seed-realistic</code>
-                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">تغذية قاعدة البيانات ببيانات عربية متكاملة لجميع الكيانات لأغراض التطوير.</p>
-                </div>
-                <div style="margin-top: 0.75rem; text-align: left;">
-                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('project:seed-realistic')">تشغيل ⚡</button>
-                </div>
-              </div>
-
-              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('content:regenerate-slugs')">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🔗 إعادة توليد المعرفات النصية</span>
-                    <span class="role-chip chip-admin" style="font-size: 0.65rem;">slugs</span>
-                  </div>
-                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">content:regenerate-slugs</code>
-                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">إعادة توليد وتحديث الروابط اللطيفة (Slugs) لكافة العقد والمصنفات في PostgreSQL.</p>
-                </div>
-                <div style="margin-top: 0.75rem; text-align: left;">
-                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('content:regenerate-slugs')">تشغيل ⚡</button>
-                </div>
-              </div>
-
-              <div class="entity-card" style="cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.25);" onclick="runPresetCmd('analyze:architecture')">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-main);">🏗️ تحليل معمارية النظام</span>
-                    <span class="role-chip chip-super" style="font-size: 0.65rem;">architecture</span>
-                  </div>
-                  <code style="font-size: 0.72rem; color: #818cf8; display: block; margin-bottom: 0.35rem;">analyze:architecture</code>
-                  <p style="font-size: 0.72rem; color: var(--text-dim); line-height: 1.4;">تحليل معماري شامل واكتشاف التكرار البرمجي وإحصائيات ملفات ودوال النظام.</p>
-                </div>
-                <div style="margin-top: 0.75rem; text-align: left;">
-                  <button type="button" class="btn-primary-small" style="font-size: 0.7rem; padding: 0.25rem 0.65rem;" onclick="event.stopPropagation(); runPresetCmd('analyze:architecture')">تشغيل ⚡</button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <div style="background: #000; border-radius: 12px; padding: 1.25rem; font-family: monospace; font-size: 0.82rem; color: #34d399; height: 320px; overflow-y: auto;" id="terminalOutput">
-            <div>[System Core] Authenticated as Super Admin.</div>
-            <div>[System Core] Session secure via TLS • Database: PostgreSQL 16 Connected.</div>
-            <div style="color: #a1a1aa;">Ready for commands (e.g. 'cache:clear', 'backup:run', 'queue:work', 'migrate:status')...</div>
-          </div>
-          <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-            <input type="text" class="form-input" style="flex: 1; background: #121215; border: 1px solid var(--border-subtle); color: #fff; padding: 0.75rem 1rem; border-radius: 10px; font-family: monospace; font-size: 0.8rem;" id="cmdInput" placeholder="اكتب الأمر هنا (مثال: php artisan cache:clear)" onkeydown="if(event.key === 'Enter') runCmd()">
-            <button class="btn-primary-small" onclick="runCmd()">تنفيذ الأمر ⚡</button>
-          </div>
-        `
-      }
-    };
+  books: { title: 'الكتب', group: 'المكتبة' },
+  manuscripts: { title: 'المخطوطات', group: 'المكتبة' },
+  audios: { title: 'الصوتيات', group: 'المكتبة' },
+  videos: { title: 'المرئيات', group: 'المكتبة' },
+  authors: { title: 'المؤلفون', group: 'الأشخاص' },
+  publishers: { title: 'الناشرون', group: 'الأشخاص' },
+  categories: { title: 'التصنيفات', group: 'التنظيم' },
+  tags: { title: 'الأوسمة', group: 'التنظيم' },
+  collections: { title: 'المجموعات', group: 'التنظيم' },
+  series: { title: 'السلاسل', group: 'التنظيم' },
+  topics: { title: 'الموضوعات', group: 'التنظيم' },
+  'studio-books': { title: 'الكتب', group: 'الاستوديو' },
+  'studio-manuscripts': { title: 'المخطوطات', group: 'الاستوديو' },
+  'studio-audios': { title: 'الصوتيات', group: 'الاستوديو' },
+  'studio-videos': { title: 'المرئيات', group: 'الاستوديو' },
+  versions: { title: 'الإصدارات', group: 'الاستوديو' },
+  stats: { title: 'الإحصائيات', group: 'النظام' },
+  ops: { title: 'العمليات', group: 'النظام' },
+  users: { title: 'المستخدمون', group: 'النظام' },
+  activities: { title: 'النشاطات', group: 'النظام' },
+  deletions: { title: 'المهملات', group: 'النظام' },
+  commands: { title: 'الأوامر', group: 'النظام' },
+};
 
     function toggleNavGroup(groupId) {
       if (isSidebarCollapsed) return;
@@ -1735,7 +800,7 @@ const viewCatalog = {
         contentArea.style.transform = 'translateY(6px)';
         contentArea.style.transition = 'all 0.2s ease-out';
 
-        const vueComponentViews = ['books', 'manuscripts', 'audios', 'videos', 'authors', 'publishers', 'users', 'deletions', 'activities'];
+        const vueComponentViews = ['books', 'manuscripts', 'audios', 'videos', 'authors', 'publishers', 'users', 'deletions', 'activities', 'stats', 'commands', 'ops', 'collections', 'series', 'topics', 'tags', 'categories', 'studio-books', 'studio-manuscripts', 'studio-audios', 'studio-videos', 'versions'];
         setTimeout(() => {
           if (vueComponentViews.includes(viewKey)) {
             currentViewHtml.value = '';
@@ -2097,7 +1162,7 @@ onMounted(() => {
   initTheme();
   const initialView = (typeof window !== 'undefined' && (window.location.hash || "").replace("#", "")) || "stats";
   currentViewKey.value = initialView;
-  const vueComponentViews = ['books', 'manuscripts', 'audios', 'videos', 'authors', 'publishers', 'users', 'deletions', 'activities'];
+  const vueComponentViews = ['books', 'manuscripts', 'audios', 'videos', 'authors', 'publishers', 'users', 'deletions', 'activities', 'stats', 'commands', 'ops', 'collections', 'series', 'topics', 'tags', 'categories', 'studio-books', 'studio-manuscripts', 'studio-audios', 'studio-videos', 'versions'];
   if (!vueComponentViews.includes(initialView)) {
     currentViewHtml.value = typeof viewCatalog[initialView]?.render === 'function' ? viewCatalog[initialView].render() : '';
   }
@@ -4666,66 +3731,5 @@ onUnmounted(() => {
     }
     .columns-reset-btn:hover {
       text-decoration: underline;
-    }
-
-    /* Adaptive System Health Pills (Dark & Light Mode Harmony) */
-    .health-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.32rem 0.75rem;
-      border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #f4f4f5;
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      transition: all 0.2s ease;
-    }
-    body.light-mode .health-pill {
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      color: #047857;
-    }
-    .pulse-dot-green {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 8px #10b981;
-      animation: pulse 1.5s infinite;
-      display: inline-block;
-    }
-    .status-pill-db {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.32rem 0.75rem;
-      border-radius: 9999px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      color: #34d399;
-      font-size: 0.72rem;
-      font-weight: 800;
-      transition: all 0.2s ease;
-    }
-    body.light-mode .status-pill-db {
-      background: rgba(99, 102, 241, 0.08);
-      border: 1px solid rgba(99, 102, 241, 0.25);
-      color: #4338ca;
-    }
-    body.light-mode .status-pill-db .pulse-dot-emerald {
-      background: #6366f1;
-      box-shadow: 0 0 8px #6366f1;
-    }
-    .pulse-dot-emerald {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 8px #10b981;
-      animation: pulse 1.5s infinite;
-      display: inline-block;
     }
 </style>

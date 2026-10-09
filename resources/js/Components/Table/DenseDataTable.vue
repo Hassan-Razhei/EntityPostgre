@@ -566,3 +566,197 @@ const getColCellStyle = (col) => {
     </table>
   </div>
 </template>
+
+<style>
+/* ========================================================
+   DENSE DATA TABLE COMPONENT STYLES
+   ======================================================== */
+.dense-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.dense-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.dense-table thead th {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.75rem 0.85rem;
+  color: var(--text-dim, #71717a);
+  font-size: 0.74rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  user-select: none;
+}
+body.light-mode .dense-table thead th {
+  background: #f8fafc;
+  color: #475569;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dense-table thead th.sortable {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.dense-table thead th.sortable:hover {
+  color: var(--text-main, #f4f4f5);
+}
+
+.dense-table tbody td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  color: var(--text-main, #f4f4f5);
+  vertical-align: middle;
+  transition: background 0.15s ease;
+}
+body.light-mode .dense-table tbody td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+}
+
+.dense-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.035);
+}
+body.light-mode .dense-table tbody tr:hover td {
+  background: #f8fafc;
+}
+
+.dense-table tbody tr.row-selected td,
+.dense-table tbody tr.selected td {
+  background: rgba(99, 102, 241, 0.12) !important;
+}
+body.light-mode .dense-table tbody tr.row-selected td,
+body.light-mode .dense-table tbody tr.selected td {
+  background: rgba(99, 102, 241, 0.08) !important;
+}
+
+/* Description cell with smooth 2-line clamp & tooltip */
+.cell-desc {
+  max-width: 250px;
+  white-space: normal;
+  line-height: 1.35;
+  font-size: 0.72rem;
+  color: var(--text-dim, #71717a);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.book-title-link {
+  color: var(--text-main, #f4f4f5);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+body.light-mode .book-title-link {
+  color: #0f172a;
+}
+.book-title-link:hover {
+  color: var(--indigo, #6366f1);
+  text-decoration: underline;
+}
+
+.book-edition-sub {
+  font-size: 0.7rem;
+  color: var(--text-dim, #71717a);
+}
+
+.table-actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.table-btn-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted, #a1a1aa);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+body.light-mode .table-btn-icon {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #475569;
+}
+
+.table-btn-icon:hover {
+  background: var(--indigo, #6366f1);
+  color: #ffffff;
+  border-color: var(--indigo, #6366f1);
+  transform: translateY(-1px);
+}
+
+.table-btn-icon.btn-danger:hover {
+  background: var(--crimson, #ef4444);
+  border-color: var(--crimson, #ef4444);
+  color: #ffffff;
+}
+
+.btn-attach-taxonomy {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.25);
+  color: var(--indigo, #6366f1);
+}
+.btn-attach-taxonomy:hover {
+  background: var(--indigo, #6366f1);
+  color: #ffffff;
+}
+
+.btn-action-small {
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main, #f4f4f5);
+  transition: all 0.15s;
+}
+body.light-mode .btn-action-small {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+}
+.btn-action-small:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--indigo, #6366f1);
+}
+
+/* Role & Metadata Chips */
+.role-chip {
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+.chip-admin { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+.chip-studio { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+.chip-academic { background: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
+.chip-public { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+.chip-editor { background: rgba(99, 102, 241, 0.1); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.2); }
+
+body.light-mode .chip-admin { background: rgba(239, 68, 68, 0.12); color: #b91c1c; border-color: rgba(239, 68, 68, 0.3); }
+body.light-mode .chip-studio { background: rgba(16, 185, 129, 0.12); color: #047857; border-color: rgba(16, 185, 129, 0.3); }
+body.light-mode .chip-academic { background: rgba(168, 85, 247, 0.12); color: #7e22ce; border-color: rgba(168, 85, 247, 0.3); }
+body.light-mode .chip-public { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); }
+body.light-mode .chip-editor { background: rgba(99, 102, 241, 0.12); color: #4338ca; border-color: rgba(99, 102, 241, 0.3); }
+</style>
