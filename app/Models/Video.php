@@ -23,6 +23,7 @@ class Video extends Entity
         'title',
         'code',
         'slug',
+        'status',
         'duration',
         'format',
         'description',

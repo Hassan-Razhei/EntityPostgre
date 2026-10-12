@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import AssetTableView from '@/Components/Table/AssetTableView.vue';
 import {
   booksColumns, sampleBooksRows,
@@ -7,6 +7,7 @@ import {
   audiosColumns, sampleAudiosRows,
   videosColumns, sampleVideosRows
 } from '@/Config/assetTableConfigs';
+import { rowsOf, metaOf } from '@/Composables/useAdminCockpit';
 
 const props = defineProps({
   libraryType: {
@@ -22,11 +23,30 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  // ─── العقد مع الباك إند (المصدر الوحيد للحقيقة) ─────────────
+  statusMeta: {
+    type: Object,
+    default: () => ({}),
+  },
+  assetStatuses: {
+    type: Object,
+    default: () => ({}),
+  },
   createUrl: {
     type: String,
     default: '',
   },
+  // ─── التصنيفات الحقيقية (جدول categories + pivot categorizables) ──
+  // 10 تصنيفات، 400 ارتباط حقيقي. تُغذّي قائمة "التصنيف" في الشريط.
+  categories: {
+    type: Array,
+    default: () => [],
+  },
 });
+
+// statusCounts = stats نفسها (المفاتيح: books_draft, books_transcribed, ...)
+// الباك إند يُصدّرها في stats مباشرة — لا حاجة لإعادة بناء.
+const statusCounts = computed(() => props.stats || {});
 
 const currentConfig = computed(() => {
   switch (props.libraryType) {
@@ -37,12 +57,6 @@ const currentConfig = computed(() => {
         columns: manuscriptsColumns,
         defaultRows: sampleManuscriptsRows,
         createUrl: props.createUrl || '/manuscripts/create',
-        stats: {
-          total: props.stats?.manuscripts || (props.items?.length || 48920),
-          published: 32450,
-          scholarly: 11200,
-          draft: 5270,
-        },
       };
     case 'audios':
       return {
@@ -51,12 +65,6 @@ const currentConfig = computed(() => {
         columns: audiosColumns,
         defaultRows: sampleAudiosRows,
         createUrl: props.createUrl || '/audios/create',
-        stats: {
-          total: props.stats?.audios || (props.items?.length || 14680),
-          published: 11820,
-          scholarly: 2140,
-          draft: 720,
-        },
       };
     case 'videos':
       return {
@@ -65,12 +73,6 @@ const currentConfig = computed(() => {
         columns: videosColumns,
         defaultRows: sampleVideosRows,
         createUrl: props.createUrl || '/videos/create',
-        stats: {
-          total: props.stats?.videos || (props.items?.length || 8420),
-          published: 6150,
-          scholarly: 1820,
-          draft: 450,
-        },
       };
     case 'books':
     default:
@@ -80,25 +82,48 @@ const currentConfig = computed(() => {
         columns: booksColumns,
         defaultRows: sampleBooksRows,
         createUrl: props.createUrl || '/books/create',
-        stats: {
-          total: props.stats?.books || (props.items?.length || 248510),
-          published: 184200,
-          scholarly: 42150,
-          draft: 18630,
-        },
       };
   }
 });
 
+// حالة محلية للصفحات المُجلوبة من الخادم (ترقيم من جهة الخادم)
+// عندما ينقر المستخدم صفحة، AssetTableView يطلبها ويُرسل page-fetched،
+// فنخزّنها هنا ونُمرّرها لـ AssetTableView بدلاً من props.items الأصلية.
+const fetchedPage = ref(null);
+
+const handlePageFetched = ({ data, meta }) => {
+    fetchedPage.value = { data, meta };
+};
+
 const activeRows = computed(() => {
-  if (props.items && props.items.length > 0) {
-    return props.items;
-  }
-  return currentConfig.value.defaultRows;
+    // الصفحة المُجلوبة حديثاً لها الأولوية
+    if (fetchedPage.value) return fetchedPage.value.data;
+
+    const rows = rowsOf(props.items);
+    // إن لم يُمرّر الأب بيانات (أو مرّر مصفوفة فارغة)، نستخدم الصفوف النموذجية
+    // حتى لا تظهر الشاشة فارغة (سلوك ما قبل الترقيم من الخادم).
+    if (rows.length === 0) {
+        return currentConfig.value.defaultRows || [];
+    }
+    return rows;
 });
 
+// meta من الخادم: الصفحة المُجلوبة أولاً، ثم props.items الأصلية
+const activeMeta = computed(() => {
+    if (fetchedPage.value?.meta) return fetchedPage.value.meta;
+    const raw = props.items;
+    if (raw && !Array.isArray(raw) && raw.meta) return raw.meta;
+    return null;
+});
+
+// إعادة ضبط عند تبديل نوع المكتبة (props.libraryType)
+watch(
+    () => props.libraryType,
+    () => { fetchedPage.value = null; }
+);
+
 const totalCount = computed(() => {
-  return props.stats?.[props.libraryType] || activeRows.value.length;
+    return activeMeta.value?.total || activeRows.value.length;
 });
 </script>
 
@@ -107,11 +132,17 @@ const totalCount = computed(() => {
     <AssetTableView
       :asset-title="currentConfig.title"
       :asset-type="currentConfig.assetType"
-      :stats="currentConfig.stats"
+      :stats="stats"
       :columns="currentConfig.columns"
       :rows="activeRows"
       :total="totalCount"
+      :pagination-meta="activeMeta"
       :create-url="currentConfig.createUrl"
+      :status-meta="statusMeta"
+      :asset-statuses="assetStatuses"
+      :status-counts="statusCounts"
+      :filter-options="categories"
+      @page-fetched="handlePageFetched"
     />
   </div>
 </template>

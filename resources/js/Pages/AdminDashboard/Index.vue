@@ -28,8 +28,11 @@
       <DashboardLibraryView
         v-if="['books', 'manuscripts', 'audios', 'videos'].includes(currentViewKey)"
         :library-type="currentViewKey"
-        :items="getLibraryItems(currentViewKey)"
+        :items="getLibraryAsset(currentViewKey)"
         :stats="props.stats"
+        :status-meta="props.statusMeta"
+        :categories="props.categories"
+        :asset-statuses="props.assetStatuses"
         :create-url="`/${currentViewKey}/create`"
       />
       <!-- 2. People Sector: Authors & Publishers (Cycle 26 Modular Decoupling - Tables Preserved) -->
@@ -139,6 +142,21 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  // ─── العقد مع الباك إند (المصدر الوحيد للحقيقة) ─────────────
+  statusMeta: {
+    type: Object,
+    default: () => ({}),
+  },
+  assetStatuses: {
+    type: Object,
+    default: () => ({}),
+  },
+  // ─── التصنيفات الحقيقية (10 تصنيفات + 400 ارتباط في categorizables) ─
+  // تُغذّي قائمة "التصنيف" في شريط أدوات المكتبة.
+  categories: {
+    type: Array,
+    default: () => [],
+  },
   recentUsers: {
     type: Array,
     default: () => []
@@ -206,6 +224,7 @@ const {
   currentViewHtml,
   currentGroupTitle,
   currentViewTitle,
+  getLibraryAsset,
   getLibraryItems,
   getPeopleItems,
   getStudioItems,

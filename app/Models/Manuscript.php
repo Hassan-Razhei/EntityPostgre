@@ -30,6 +30,7 @@ class Manuscript extends Entity
         'original_title',
         'code',
         'slug',
+        'status',
         'catalog_number',
         'scribe',
         'copy_date',

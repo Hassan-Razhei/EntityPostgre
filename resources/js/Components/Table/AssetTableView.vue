@@ -5,6 +5,7 @@ import TableToolbar from './TableToolbar.vue';
 import BulkActionsStrip from './BulkActionsStrip.vue';
 import DenseDataTable from './DenseDataTable.vue';
 import TablePagination from './TablePagination.vue';
+import { rowsOf, metaOf } from '@/Composables/useAdminCockpit';
 
 const props = defineProps({
     assetTitle: {
@@ -38,6 +39,18 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    // ─── عقد الترقيم من الخادم (المصدر الوحيد للعدد الكلي) ────
+    // total prop يبقى للتوافق، لكن paginationMeta.total هو الحقيقة
+    // عندما يكون الترقيم من جهة الخادم.
+    paginationMeta: {
+        type: Object,
+        default: () => null,
+    },
+    // ─── حالة داخلية للترقيم والفلاتر (stateful) ───────────────
+    // الأب يُمرّر البيانات (rows) والعقد (statusMeta/assetStatuses/statusCounts)
+    // لكن الترقيم والفلترة حالة محلية — لا شيء يرجع للأب.
+    // السبب: 100k+ صف سيصلون من الباك إند مباشرة (لا server-side pagination
+    // مطلوب حتى نضطر له). الترقيم هنا يحمي من تدهور DOM.
     perPage: {
         type: Number,
         default: 25,
@@ -62,11 +75,25 @@ const props = defineProps({
         type: String,
         default: 'table',
     },
+    // ─── العقد مع الباك إند (المصدر الوحيد للحقيقة) ─────────────
+    statusMeta: {
+        type: Object,
+        default: () => ({}),
+    },
+    assetStatuses: {
+        type: Object,
+        default: () => ({}),
+    },
+    statusCounts: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 
 const emit = defineEmits([
     'update:currentPage',
     'update:perPage',
+    'page-fetched',
     'filter-status',
     'export-selected',
     'delete-selected',
@@ -75,6 +102,51 @@ const emit = defineEmits([
     'import',
     'refresh',
 ]);
+
+// ───────────────────────────────────────────────────────────────
+// حالة محلية: currentPage/perPage/filterOptions
+// (ليست props — حتى لا تكون حالة خارجية مطلوبة)
+//
+// نمط الترقيم:
+//   1. إن وُجد paginationMeta من الخادم ⇒ الترقيم من الخادم (server-side)
+//      الصفحات تُطلب من الأب، و rows هي صفوف الصفحة الحالية فقط.
+//   2. وإلا ⇒ الترقيم محلي (client-side) على rows المُمرَّرة.
+// ───────────────────────────────────────────────────────────────
+const isServerPaginated = computed(() => props.paginationMeta !== null);
+
+// الحالة المحلية تُعرَّف أولاً — ثم الـwatchers.
+// (ترتيب مهم: أي watch بـ immediate: true لا يجوز أن يسبق تعريف متغيّراته)
+const internalPerPage = ref(props.perPage || 25);
+const internalCurrentPage = ref(props.currentPage || 1);
+const internalFilterOptions = ref([...(props.filterOptions || [])]);
+
+// التزامن مع الخادم: per_page يُقرأ من meta (current_page لا —
+// لأن المستخدم قد يكون قد نقر صفحة أخرى قبل وصول الرد)
+watch(
+    () => props.paginationMeta,
+    (meta) => {
+        if (meta) {
+            if (meta.per_page) internalPerPage.value = meta.per_page;
+            // current_page يُحدَّث فقط من handlePageChange / page-fetched
+        }
+    },
+    { immediate: true, deep: true }
+);
+
+watch(
+    () => props.perPage,
+    (newVal) => { internalPerPage.value = newVal; }
+);
+
+watch(
+    () => props.currentPage,
+    (newVal) => { internalCurrentPage.value = newVal; }
+);
+
+watch(
+    () => props.filterOptions,
+    (newOptions) => { internalFilterOptions.value = [...(newOptions || [])]; }
+);
 
 const internalColumns = ref([...props.columns]);
 const searchQuery = ref('');
@@ -104,9 +176,74 @@ const handleResetAllColumns = () => {
     });
 };
 
+// ───────────────────────────────────────────────────────────────
+// الفلترة: النقر على بطاقة حالة واحدة يُصفّي على تلك الحالة فقط.
+// لا مجموعات — البطاقات منفصلة الآن (كل حالة بطاقة مستقلة).
+// القائمة المنسدلة (filterOptions) تُبنى من نفس المصدر (statusMeta)
+// حتى لا تتناقض مع البطاقات.
+// ───────────────────────────────────────────────────────────────
+
+// بناء القائمة المنسدلة من العقد (مرة واحدة عند التركيب)
+watch(
+    () => [props.statusMeta, props.assetStatuses, props.assetType],
+    () => {
+        // إن كان الأب يُمرّر filterOptions صراحةً، نُبقيها.
+        // وإلا نبنيها من statusMeta + assetStatuses.
+        if (props.filterOptions && props.filterOptions.length > 0) {
+            return;
+        }
+
+        const statuses = props.assetStatuses?.[props.assetType] || [];
+        const built = statuses.map(status => {
+            const meta = props.statusMeta?.[status];
+            const count = props.statusCounts?.[`${props.assetType}_${status}`] || 0;
+            return {
+                value: status,
+                label: meta?.label || status,
+                count: count,
+            };
+        });
+
+        internalFilterOptions.value = [
+            { value: 'all', label: 'الكل', count: built.reduce((s, o) => s + o.count, 0) },
+            ...built,
+        ];
+    },
+    { immediate: true, deep: true }
+);
+
+// ترتيب الصفوف (sortKey + sortDir)
+const sortKey = ref('');
+const sortDir = ref('asc');
+
+const handleSort = (key) => {
+    if (sortKey.value === key) {
+        sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortKey.value = key;
+        sortDir.value = 'asc';
+    }
+};
+
 const handleFilterStatus = (status) => {
-    activeStatus.value = status;
-    emit('filter-status', status);
+    if (activeStatus.value === status) {
+        activeStatus.value = 'all';
+    } else {
+        activeStatus.value = status;
+    }
+
+    if (isServerPaginated.value) {
+        // النمط الخادمي: نطلب الصفحة الأولى مُفلترة من الخادم
+        // (هو من يملك كل الصفوف — الفلترة المحلية تكذب)
+        internalCurrentPage.value = 1;
+        fetchPageFromServer(1);
+        emit('filter-status', activeStatus.value);
+        return;
+    }
+
+    // النمط المحلي: نُصفّي ونُعيد ضبط الصفحة
+    internalCurrentPage.value = 1;
+    emit('filter-status', activeStatus.value);
 };
 
 const handleClearSelection = () => {
@@ -121,9 +258,107 @@ const handleDeleteSelected = () => {
     emit('delete-selected', selectedIds.value);
 };
 
-// Filter rows client-side if not paginated server-side
+/**
+ * تغيير فلتر المؤلف من القائمة المنسدلة.
+ *
+ * ⚠️ تغيير جوهري: كانت هذه الدالة تحاول أيضاً تحويل القيمة إلى
+ * activeStatus (فلتر حالة). ذلك غير صحيح — القائمة الآن للمؤلفين
+ * فقط، والحالة تُدار عبر البطاقات في الأعلى (handleFilterStatus).
+ * خلطهما كان يجعل اختيار مؤلف يُظهر بطاقاتاً غير متوافقة.
+ */
+const handleFilterValueChange = (value) => {
+    filterValue.value = value;
+
+    // النمط الخادمي: فلترة author تُنفَّذ في SQL
+    if (isServerPaginated.value) {
+        internalCurrentPage.value = 1;
+        fetchPageFromServer(1);
+    }
+};
+
+/**
+ * تغيير الترتيب من القائمة المنسدلة في الشريط.
+ *
+ * الترتيب يُنفَّذ في SQL لا في JS: الصفحة المحمّلة 25 صفاً فقط، فأي
+ * ترتيب محلي يرتّب 25 لا 101 ويظهر "أبجدياً" خطأ.
+ *
+ * ملاحظة: sortKey (ترتيب بالنقر على رأس العمود) يعمل محلياً في
+ * النمط الاحتياطي فقط. في النمط الخادمي نتجاهله ونعتمد sortValue.
+ */
+const sortValue = ref('');
+
+/**
+ * خيارات فلتر التصنيف — قائمة حقيقية من قاعدة البيانات.
+ *
+ * البيانات موجودة فعلاً: جدول categories فيه 10 تصنيفات، وجدول
+ * categorizables (polymorphic pivot) فيه 400 ارتباط حقيقي. العلاقة
+ * معرَّفة في البنية الأصلية: Entity → HasPolymorphicRelations → categories().
+ * لم نُضف شيئاً — نستخدم ما هو مبني.
+ *
+ * القائمة السابقة ("الحديث/الأصول/العقيدة") كانت وهمية، واستبدالها
+ * بالمؤلفين كان تراجعاً عن المطلوب. الصواب: التصنيفات.
+ */
+const categoryOptions = computed(() => {
+    return (props.filterOptions || [])
+        .filter(opt => opt && (opt.name || opt.label))
+        .map(opt => ({
+            label: opt.name || opt.label,
+            value: opt.id || opt.value || opt.name || opt.label,
+            count: opt.books_count ?? null,
+        }));
+});
+
+const handleSortValueChange = (value) => {
+    sortValue.value = value;
+
+    if (isServerPaginated.value) {
+        internalCurrentPage.value = 1;
+        fetchPageFromServer(1);
+    }
+};
+
+// ───────────────────────────────────────────────────────────────
+// البحث: يُرسل للخادم (مع debounce) في النمط الخادمي
+//
+// السبب: props.rows = صفحة واحدة (25 صفاً). البحث المحلي يُصفّي
+// داخل هذه الصفحة ⇒ كتبة "البخاري" تُظهر فقط ما يوجد في الـ25
+// المحمّلة (كذب). الخادم يملك الـ 101 ⇒ هو من يبحث.
+//
+// debounce 400ms حتى لا نُغرق الخادم بطلب لكل ضغطة مفتاح.
+// ───────────────────────────────────────────────────────────────
+let searchDebounceTimer = null;
+
+watch(searchQuery, (newVal) => {
+    if (!isServerPaginated.value) return;   // النمط المحلي: filteredRows تكفي
+
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+        internalCurrentPage.value = 1;      // البحث ⇒ نعود للصفحة الأولى
+        fetchPageFromServer(1);
+    }, 400);
+});
+
+// ───────────────────────────────────────────────────────────────
+// الصفوف المُصفّاة (بحث + حالة + تصنيف + ترتيب)
+//
+// في النمط الخادمي: الخادم يُصفّي ويُرَقّم ⇒ filteredRows تُرجع
+// الصفوف كما وصلت (الفلترة تمّت في SQL). نُبقي المنطق المحلي
+// للنمط الاحتياطي (client-side) فقط.
+// ───────────────────────────────────────────────────────────────
 const filteredRows = computed(() => {
+    // النمط الخادمي: لا فلترة محلية — الخادم فعلها
+    if (isServerPaginated.value) {
+        return props.rows;
+    }
+
     let result = props.rows;
+
+    // 1. فلتر الحالة (بطاقة منفصلة → حالة واحدة)
+    if (activeStatus.value && activeStatus.value !== 'all') {
+        result = result.filter(row => row.status === activeStatus.value);
+    }
+
+    // 2. البحث الفوري
     if (searchQuery.value) {
         const q = searchQuery.value.toLowerCase();
         result = result.filter(row => {
@@ -132,6 +367,8 @@ const filteredRows = computed(() => {
             );
         });
     }
+
+    // 3. فلتر التصنيف
     if (filterValue.value) {
         const cat = filterValue.value.toLowerCase();
         result = result.filter(row => {
@@ -140,8 +377,199 @@ const filteredRows = computed(() => {
             );
         });
     }
+
+    // 4. الترتيب
+    if (sortKey.value) {
+        result = [...result].sort((a, b) => {
+            const av = a[sortKey.value];
+            const bv = b[sortKey.value];
+            const cmp = String(av || '').localeCompare(String(bv || ''), 'ar');
+            return sortDir.value === 'asc' ? cmp : -cmp;
+        });
+    }
+
     return result;
 });
+
+// ───────────────────────────────────────────────────────────────
+// الصفوف المعروضة + الترقيم
+//   1. server-side (paginationMeta موجود): rows هي صفحة كاملة جاهزة
+//      من الخادم ⇒ نُمرّرها كما هي، و TablePagination يقرأ total من meta.
+//   2. client-side: نقصّ rows محلياً حسب internalCurrentPage/perPage.
+// ───────────────────────────────────────────────────────────────
+const paginatedRows = computed(() => {
+    // نمط الخادم: rows هي صفحة كاملة من الخادم، لكن الفلترة
+    // (البحث + بطاقة الحالة) لا تزال تُطبَّق محلياً على هذه الصفحة.
+    // لا نقطع (slice) لأن الخادم هو من يقطع — لكن نُصفّي.
+    if (isServerPaginated.value) {
+        return filteredRows.value;
+    }
+
+    // نمط العميل: نقصّ rows محلياً حسب internalCurrentPage/perPage
+    const per = internalPerPage.value || 25;
+    const page = internalCurrentPage.value || 1;
+    const start = (page - 1) * per;
+    return filteredRows.value.slice(start, start + per);
+});
+
+// العدد الكلي الفعلي للترقيم (من الخادم إن وُجد، وإلا من الصفوف المحلية)
+const grandTotal = computed(() => {
+    if (isServerPaginated.value && props.paginationMeta) {
+        return props.paginationMeta.total || 0;
+    }
+    return filteredRows.value.length;
+});
+
+// عدد الصفحات الكلي (من الخادم إن وُجد)
+const totalPages = computed(() => {
+    if (isServerPaginated.value && props.paginationMeta) {
+        return props.paginationMeta.last_page || 1;
+    }
+    return Math.max(1, Math.ceil(filteredRows.value.length / (internalPerPage.value || 25)));
+});
+
+// ───────────────────────────────────────────────────────────────
+// جلب صفحة من الخادم (ترقيم من جهة الخادم)
+//
+// الداشبورد ليست Inertia (SPA يدوية بـ hash)، لذلك نستخدم
+// window.axios لجلب الصفحة المطلوبة. الرد من Inertia يأتي
+// على شكل { props: { books: {data, meta}, ... } } فنستخرج
+// الأصل المطلوب فقط (books أو manuscripts...) ونُرسله للأب.
+//
+// الأب (Index.vue) يملك الحالة، فإذا لم يستجب نبقي الحالة المحلية
+// حتى لا تتعطّل الواجهة (نكسر الصامتين).
+// ───────────────────────────────────────────────────────────────
+const isFetchingPage = ref(false);
+const pageFetchError = ref('');
+
+const fetchPageFromServer = async (page, perPage = null) => {
+    if (!isServerPaginated.value) return;
+
+    const per = perPage || internalPerPage.value;
+    const key = props.assetType;
+
+    // ── نُرسل الفلاتر للخادم ────────────────────────────────
+    // السبب: props.rows = صفحة واحدة (25 صفاً) فقط. أي فلترة محلية
+    // تُصفّي داخل هذه الصفحة ⇒ بطاقة "منشور 35" تُظهر 10 صفوف فقط
+    // (وهو كذب). الخادم يملك الـ 101 كاملة ⇒ هو من يفلتر ويُرَقّم.
+    const params = { page, per_page: per };
+    if (activeStatus.value && activeStatus.value !== 'all') {
+        params.status = activeStatus.value;
+    }
+    if (searchQuery.value.trim()) {
+        params.search = searchQuery.value.trim();
+    }
+    // الترتيب: يُنفَّذه SQL. نحن نُرسل مفتاح الخيار (مثل "الأحدث")
+    // والخادم يحوّله إلى عمود عبر whitelist.
+    if (sortValue.value) {
+        params.sort = sortValue.value;
+    }
+    // فلتر التصنيف: UUID تصنيف حقيقي من قاعدة البيانات
+    if (filterValue.value) {
+        params.category = filterValue.value;
+    }
+
+    isFetchingPage.value = true;
+    pageFetchError.value = '';
+
+    // ── axios: نستخدم window.axios إن وُجد (تُثبّته @inertiajs)،
+    // وإلا نُدرجه. بدونه كان النقر على أي بطاقة حالة يُنتج
+    // TypeError: Cannot read properties of undefined (reading 'get')
+    // ويظهر للمستخدم "فشل جلب الصفحة" بلا سبب واضح.
+    if (!window.axios) {
+        pageFetchError.value = 'تعذّر الاتصال بالخادم (axios غير متاح).';
+        isFetchingPage.value = false;
+        return;
+    }
+
+    try {
+        // ── هيدرات Inertia الإلزامية ──────────────────────────
+        // X-Inertia: true ⇒ يُرجع JSON بدل HTML
+        // X-Inertia-Version ⇒ بدونه يُرجع 409 (تعارض إصدار الأصول)
+        //   لأن Laravel يحسب hash للأصول المبنية ويطابقها.
+        // القيمة موجودة في <meta name="csrf-token"> المجاور لـ @inertia،
+        // والأدق قراءتها من عنصر data-page الذي يزرعه @inertia.
+        const pageEl = document.getElementById('app');
+        const dataPage = pageEl?.getAttribute('data-page');
+        const inertiaVersion = dataPage ? JSON.parse(dataPage).version : null;
+
+        const response = await window.axios.get('/superadmin/dashboard', {
+            params,
+            headers: {
+                'X-Inertia': 'true',
+                'X-Inertia-Version': inertiaVersion || '',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        // Inertia يُرجع: { component, props: { books: {data, meta}, ... } }
+        const assetPayload = response.data?.props?.[key];
+
+        if (assetPayload && Array.isArray(assetPayload.data)) {
+            // نُبلّغ الأب بالصفحة الجديدة (data + meta)
+            emit('page-fetched', {
+                asset: key,
+                data: assetPayload.data,
+                meta: assetPayload.meta,
+            });
+
+            internalCurrentPage.value = page;
+            if (perPage) internalPerPage.value = per;
+        } else {
+            pageFetchError.value = 'تعذّر جلب الصفحة من الخادم.';
+        }
+    } catch (e) {
+        // 409 ⇒ إصدار الأصول تغيّر (عادة بعد بناء جديد).
+        // Inertia يُرفق X-Inertia-Location لإعادة التحميل الكامل.
+        if (e.response?.status === 409) {
+            const location = e.response.headers['x-inertia-location'];
+            if (location && typeof window !== 'undefined') {
+                window.location.href = location;
+                return;
+            }
+        }
+        pageFetchError.value = 'تعذّر الاتصال بالخادم.';
+        console.error('[AssetTableView] فشل جلب الصفحة:', e);
+    } finally {
+        isFetchingPage.value = false;
+    }
+};
+
+// معالجات الترقيم
+const handlePageChange = (page) => {
+    // نمط الخادم: نطلب الصفحة فعلياً (لا نُحدّث محلياً فقط)
+    if (isServerPaginated.value) {
+        // تحديث متفائل: نُظهر الصفحة المطلوبة فوراً في الترقيم
+        // حتى لو تأخر الرد (المحتوى يتبع عند وصول page-fetched)
+        internalCurrentPage.value = page;
+        fetchPageFromServer(page);
+        return;
+    }
+    // نمط العميل: تقصيص محلي
+    internalCurrentPage.value = page;
+    emit('update:currentPage', page);
+};
+
+const handlePerPageChange = (per) => {
+    if (isServerPaginated.value) {
+        // تغيير الحجم ⇒ نطلب الصفحة الأولى بالحجم الجديد
+        fetchPageFromServer(1, per);
+        return;
+    }
+    internalPerPage.value = per;
+    internalCurrentPage.value = 1;
+    emit('update:perPage', per);
+};
+
+// تسمية الحالة من العقد (statusMeta) — المصدر الوحيد للحقيقة
+const getStatusLabel = (status) => {
+    return props.statusMeta?.[status]?.label || status;
+};
+
+// لون الحالة من العقد (statusMeta)
+const getStatusColor = (status) => {
+    return props.statusMeta?.[status]?.color || null;
+};
 
 // Polymorphic Taxonomy Attachment (Cycle 22)
 const showAttachModal = ref(false);
@@ -233,7 +661,11 @@ const submitAttach = async () => {
       :stats="stats"
       :active-status="activeStatus"
       :entity-name="assetTitle"
+      :asset-type="assetType"
       :create-url="createUrl"
+      :status-meta="statusMeta"
+      :asset-statuses="assetStatuses"
+      :status-counts="statusCounts"
       @filter-status="handleFilterStatus"
       @create="emit('create')"
       @export="emit('export')"
@@ -247,15 +679,18 @@ const submitAttach = async () => {
       <TableToolbar
         v-model:search-query="searchQuery"
         v-model:filter-value="filterValue"
+        v-model:sort-value="sortValue"
         v-model:view-mode="viewMode"
         :asset-title="assetTitle"
         :asset-type="assetType"
         :search-input-id="`${assetType}SearchInput`"
         :filter-placeholder="filterPlaceholder"
-        :filter-options="filterOptions"
+        :filter-options="categoryOptions"
         :columns="internalColumns"
         @toggle-column="handleToggleColumn"
         @reset-all-columns="handleResetAllColumns"
+        @update:filter-value="handleFilterValueChange"
+        @update:sort-value="handleSortValueChange"
       />
 
       <!-- 3. Bulk Actions Strip -->
@@ -272,7 +707,7 @@ const submitAttach = async () => {
           :table-id="`${assetType}DataTable`"
           :asset-type="assetType"
           :columns="internalColumns"
-          :rows="filteredRows"
+          :rows="paginatedRows"
           v-model:selected-ids="selectedIds"
           @attach-taxonomy="handleOpenAttachModal"
         >
@@ -299,7 +734,7 @@ const submitAttach = async () => {
         <!-- 1. Authors Cards -->
         <template v-if="assetType === 'authors'">
           <div
-            v-for="row in filteredRows"
+            v-for="row in paginatedRows"
             :key="row.id"
             class="entity-card"
           >
@@ -325,7 +760,7 @@ const submitAttach = async () => {
         <!-- 2. Publishers Cards -->
         <template v-else-if="assetType === 'publishers'">
           <div
-            v-for="row in filteredRows"
+            v-for="row in paginatedRows"
             :key="row.id"
             class="entity-card"
           >
@@ -350,7 +785,7 @@ const submitAttach = async () => {
         <!-- 3. Users Cards -->
         <template v-else-if="assetType === 'users'">
           <div
-            v-for="row in filteredRows"
+            v-for="row in paginatedRows"
             :key="row.id"
             class="entity-card"
           >
@@ -378,7 +813,7 @@ const submitAttach = async () => {
         <!-- 4. Deletions Cards -->
         <template v-else-if="assetType === 'deletions'">
           <div
-            v-for="row in filteredRows"
+            v-for="row in paginatedRows"
             :key="row.id"
             class="entity-card"
           >
@@ -405,12 +840,12 @@ const submitAttach = async () => {
         <!-- 5. Books, Manuscripts, Audios, Videos (Media & Assets) -->
         <template v-else>
           <div
-            v-for="row in filteredRows"
+            v-for="row in paginatedRows"
             :key="row.id"
             class="entity-card"
           >
             <div>
-              <span class="entity-tag tag-public">{{ row.format || row.status || 'منشور 🌐' }}</span>
+              <span class="entity-tag tag-public">{{ getStatusLabel(row.status) || row.format || 'منشور 🌐' }}</span>
               <h3 class="entity-title">
                 {{ row.title }}
               </h3>
@@ -473,13 +908,19 @@ const submitAttach = async () => {
       </div>
 
       <!-- 5. Advanced Pagination -->
+      <div v-if="isFetchingPage" style="padding: 0.5rem 1.25rem; font-size: 0.75rem; color: var(--text-dim); border-top: 1px solid var(--border-subtle);">
+        ⏳ جارِ جلب الصفحة {{ internalCurrentPage }}...
+      </div>
+      <div v-else-if="pageFetchError" style="padding: 0.5rem 1.25rem; font-size: 0.75rem; color: #f87171; border-top: 1px solid var(--border-subtle);">
+        ⚠️ {{ pageFetchError }}
+      </div>
       <TablePagination
-        :total="total || filteredRows.length"
-        :per-page="perPage"
-        :current-page="currentPage"
+        :total="grandTotal"
+        :per-page="internalPerPage"
+        :current-page="internalCurrentPage"
         :entity-label="assetTitle"
-        @update:current-page="emit('update:currentPage', $event)"
-        @update:per-page="emit('update:perPage', $event)"
+        @update:current-page="handlePageChange"
+        @update:per-page="handlePerPageChange"
       />
     </div>
 

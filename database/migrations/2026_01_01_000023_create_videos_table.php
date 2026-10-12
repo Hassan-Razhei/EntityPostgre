@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('title');
             $table->string('code')->nullable()->index();
             $table->string('slug')->unique()->index();
+            $table->enum('status', ['draft', 'transcribed', 'verified', 'revised', 'curriculum', 'published'])->default('draft')->index();
             $table->integer('duration')->default(0);
             $table->string('format')->default('mp4');
             $table->longText('description')->nullable();

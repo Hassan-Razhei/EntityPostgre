@@ -19,6 +19,24 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    /**
+     * المؤلفون المستخلصون من الصفوف الحالية.
+     *
+     * السبب: جدول books ليس فيه عمود تصنيف (تحقّقنا بـ
+     * Schema::getColumnListing). فلتر التصنيف السابق كان يعرض
+     * "الحديث/الأصول/العقيدة..." وهي تصنيفات غير موجودة في
+     * البيانات إطلاقاً — اختيار أيٍّ منها لا يُرجع أي صف
+     * (وهو كذب على المستخدم).
+     *
+     * البديل الصادق: فلترة بالمؤلف، وهو عمود حقيقي.
+     */
+    authorOptions: {
+        type: Array,
+        default: () => [],
+    },
+    /**
+     * قيمة فلتر التصنيف/المؤلف الحالية.
+     */
     filterValue: {
         type: String,
         default: '',
@@ -39,6 +57,14 @@ const props = defineProps({
             { label: 'الفقه', value: 'الفقه' },
             { label: 'المقاصد', value: 'المقاصد' },
         ],
+    },
+    /**
+     * قيمة فلتر الترتيب الحالية — تمرّرها الواجهة ليظل الـ select
+     * متوافقاً مع ما اختاره المستخدم (عند إعادة الجلب من الخادم).
+     */
+    sortValue: {
+        type: String,
+        default: '',
     },
     columns: {
         type: Array,
@@ -101,7 +127,7 @@ const computedCardsBtnId = computed(() => {
 
       <!-- Filters & View Switcher -->
       <div class="toolbar-filters">
-        <!-- فلتر التصنيف -->
+        <!-- فلتر التصنيف (المؤلف) -->
         <select
           class="toolbar-select"
           :id="computedFilterId"
@@ -109,6 +135,7 @@ const computedCardsBtnId = computed(() => {
           @change="emit('update:filterValue', $event.target.value)"
         >
           <option value="">{{ filterPlaceholder }}</option>
+          <option value="">كل المؤلفين</option>
           <option
             v-for="opt in filterOptions"
             :key="opt.value || opt"
@@ -119,12 +146,17 @@ const computedCardsBtnId = computed(() => {
         </select>
 
         <!-- فلتر الترتيب -->
-        <select class="toolbar-select">
-          <option>الترتيب</option>
-          <option>الأحدث</option>
-          <option>الأقدم</option>
-          <option>أبجدياً</option>
-          <option>الصفحات</option>
+        <select
+          class="toolbar-select"
+          :id="`${assetType}SortSelect`"
+          :value="sortValue"
+          @change="emit('update:sortValue', $event.target.value)"
+        >
+          <option value="">الترتيب</option>
+          <option value="الأحدث">الأحدث</option>
+          <option value="الأقدم">الأقدم</option>
+          <option value="أبجدياً">أبجدياً</option>
+          <option value="الصفحات">الصفحات</option>
         </select>
 
         <!-- زر وقائمة تحديد الأعمدة المعروضة -->

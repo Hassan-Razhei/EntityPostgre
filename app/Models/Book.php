@@ -27,6 +27,7 @@ class Book extends Entity
         'slug',
         'author',
         'isbn',
+        'status',
         'description',
         'cover_path',
         'file_path',

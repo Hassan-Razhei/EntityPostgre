@@ -16,11 +16,31 @@ describe('Enterprise Asset Tables Engine (Cycle 15 TDD)', () => {
             draft: 130,
         };
 
+        const mockStatusMeta = {
+            draft: { label: 'مسودات', color: '#f59e0b', weight: 0 },
+            scholarly: { label: 'محكّم', color: '#a855f7', weight: 50 },
+            published: { label: 'منشور', color: '#10b981', weight: 100 },
+        };
+
+        const mockAssetStatuses = {
+            books: ['draft', 'scholarly', 'published'],
+        };
+
+        const mockStatusCounts = {
+            books_draft: 130,
+            books_scholarly: 312,
+            books_published: 1040,
+        };
+
         it('renders 4 KPI status cards with correct counts and labels', () => {
             const wrapper = mount(AssetHeaderBanner, {
                 props: {
                     stats: mockStats,
                     entityName: 'الكتب',
+                    assetType: 'books',
+                    statusMeta: mockStatusMeta,
+                    assetStatuses: mockAssetStatuses,
+                    statusCounts: mockStatusCounts,
                 },
             });
 
@@ -39,6 +59,10 @@ describe('Enterprise Asset Tables Engine (Cycle 15 TDD)', () => {
                 props: {
                     stats: mockStats,
                     activeStatus: 'all',
+                    assetType: 'books',
+                    statusMeta: mockStatusMeta,
+                    assetStatuses: mockAssetStatuses,
+                    statusCounts: mockStatusCounts,
                 },
             });
 

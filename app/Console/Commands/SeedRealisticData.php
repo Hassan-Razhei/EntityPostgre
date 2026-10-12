@@ -377,6 +377,41 @@ class SeedRealisticData extends Command
                 if ($type === 'book') {
                     $attributes['author'] = $itemData['author'] ?? 'مجهول';
                     $attributes['isbn'] = '978-' . rand(100, 999) . '-' . rand(1000, 9999) . '-' . rand(0, 9);
+                    // توزيع واقعي لدورة حياة الكتاب (7 مراحل)
+                    $bookStatuses = [
+                        'published', 'published', 'published', 'published', 'published', 'published', 'published', // 35%
+                        'scholarly', 'scholarly', 'scholarly', 'scholarly',                                        // 20%
+                        'transcribed', 'transcribed', 'transcribed',                                               // 15%
+                        'verified', 'verified',                                                                    // 10%
+                        'revised', 'revised',                                                                      // 10%
+                        'curriculum',                                                                              // 5%
+                        'draft',                                                                                   // 5%
+                    ];
+                    $attributes['status'] = $bookStatuses[$i % count($bookStatuses)];
+                } elseif ($type === 'audio') {
+                    // توزيع واقعي لدورة حياة الصوتيات (6 مراحل)
+                    $audioStatuses = [
+                        'published', 'published', 'published', 'published', 'published',
+                        'published', 'published', 'published', 'published',                         // 45%
+                        'transcribed', 'transcribed', 'transcribed', 'transcribed',                 // 20%
+                        'verified', 'verified', 'verified', 'verified',                             // 20%
+                        'revised', 'revised',                                                       // 10%
+                        'curriculum',                                                               // 5%
+                        'draft',                                                                    // 5%
+                    ];
+                    $attributes['status'] = $audioStatuses[$i % count($audioStatuses)];
+                } elseif ($type === 'video') {
+                    // توزيع واقعي لدورة حياة المرئيات (6 مراحل)
+                    $videoStatuses = [
+                        'published', 'published', 'published', 'published',
+                        'published', 'published', 'published', 'published',                         // 40%
+                        'transcribed', 'transcribed', 'transcribed', 'transcribed', 'transcribed',  // 25%
+                        'verified', 'verified', 'verified',                                         // 15%
+                        'revised', 'revised',                                                       // 10%
+                        'curriculum',                                                               // 5%
+                        'draft',                                                                    // 5%
+                    ];
+                    $attributes['status'] = $videoStatuses[$i % count($videoStatuses)];
                 }
 
                 // Add versioning code (group every 3 items together)
@@ -391,6 +426,16 @@ class SeedRealisticData extends Command
                     $attributes['manuscript_century'] = (string) $centuryNum;
                     $attributes['manuscript_century_label'] = $centuryNum . ' هـ';
                     
+                    // توزيع واقعي لدورة حياة المخطوطة (5 مراحل)
+                    $msStatuses = [
+                        'published', 'published', 'published', 'published', 'published', // 25%
+                        'edited', 'edited', 'edited', 'edited', 'edited', 'edited',      // 30%
+                        'collated', 'collated', 'collated', 'collated',                  // 20%
+                        'typeset', 'typeset', 'typeset',                                 // 15%
+                        'draft', 'draft',                                                // 10%
+                    ];
+                    $attributes['status'] = $msStatuses[$i % count($msStatuses)];
+
                     // Metadata Helpers
                     $scribes = ['محمد بن أحمد الكاتب', 'علي بن عبدالله النساخ', 'أحمد الأنصاري', 'ابن البواب', 'مجهول'];
                     $scriptTypes = ['نسخ', 'كوفي', 'ديواني', 'رقعة', 'ثلث'];

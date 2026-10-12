@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->string('slug')->unique()->index();
             $table->string('author')->nullable()->index();
             $table->string('isbn')->unique()->nullable();
+            $table->enum('status', ['draft', 'transcribed', 'verified', 'revised', 'curriculum', 'scholarly', 'published'])->default('draft')->index();
             $table->longText('description')->nullable();
             $table->string('cover_path')->nullable();
             $table->string('file_path')->nullable();

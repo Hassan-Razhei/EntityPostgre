@@ -14,6 +14,7 @@ return new class extends Migration {
             // البيانات الأساسية
             $table->string('title');
             $table->string('slug')->unique()->index();
+            $table->enum('status', ['draft', 'typeset', 'collated', 'edited', 'published'])->default('draft')->index();
             $table->string('catalog_number')->nullable()->index();
             $table->string('parts')->nullable();
             $table->boolean('is_autograph')->default(false);

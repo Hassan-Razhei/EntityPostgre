@@ -1,5 +1,21 @@
 import { ref, computed, onMounted, onUnmounted, getCurrentInstance } from 'vue';
 
+// ─── قارئات بيانات الأصول (تصدير مستقل) ─────────────────────
+// العقد مع الباك إند: كل أصل يأتي كـ { data: [...], meta: {...} }
+// (ترقيم من جهة الخادم). هذه الدوال تُخرج الصفوف / meta فقط.
+// تدعم الشكلين (مصفوفة قديمة / كائن جديد) حتى لا ينكسر شيء أثناء الانتقال.
+export const rowsOf = (asset) => {
+    if (Array.isArray(asset)) return asset;
+    if (asset && Array.isArray(asset.data)) return asset.data;
+    return [];
+};
+
+// meta الترقيم لأصل معين (total/per_page/current_page/last_page)
+export const metaOf = (asset) => {
+    if (asset && !Array.isArray(asset) && asset.meta) return asset.meta;
+    return { total: Array.isArray(asset) ? asset.length : 0, per_page: 25, current_page: 1, last_page: 1 };
+};
+
 export const viewCatalog = {
   books: { title: 'الكتب', group: 'المكتبة' },
   manuscripts: { title: 'المخطوطات', group: 'المكتبة' },
@@ -35,31 +51,45 @@ export function useAdminCockpit(props = {}) {
   const isSidebarCollapsed = ref(false);
   const isDarkMode = ref(true);
 
-  // Sector Data Resolvers
+  // Sector Data Resolvers — تستخدم rowsOf المُصدَّرة أعلاه
+
+  // الأصل كاملاً (data + meta) — ضروري للترقيم من جهة الخادم.
+  // getLibraryItems تُرجع الصفوف فقط (تفقد meta) ⇒ لا تصلح
+  // لتمريرها لـ DashboardLibraryView التي تحتاج meta.total.
+  const getLibraryAsset = (key) => {
+    switch (key) {
+      case 'books': return props.books;
+      case 'manuscripts': return props.manuscripts;
+      case 'audios': return props.audios;
+      case 'videos': return props.videos;
+      default: return [];
+    }
+  };
+
   const getLibraryItems = (key) => {
     switch (key) {
-      case 'books': return props.books || [];
-      case 'manuscripts': return props.manuscripts || [];
-      case 'audios': return props.audios || [];
-      case 'videos': return props.videos || [];
+      case 'books': return rowsOf(props.books);
+      case 'manuscripts': return rowsOf(props.manuscripts);
+      case 'audios': return rowsOf(props.audios);
+      case 'videos': return rowsOf(props.videos);
       default: return [];
     }
   };
 
   const getPeopleItems = (key) => {
     switch (key) {
-      case 'authors': return props.authors || [];
-      case 'publishers': return props.publishers || [];
+      case 'authors': return rowsOf(props.authors);
+      case 'publishers': return rowsOf(props.publishers);
       default: return [];
     }
   };
 
   const getStudioItems = (viewKey) => {
     switch (viewKey) {
-      case 'studio-books': return props.studioBooks || props.books || [];
-      case 'studio-manuscripts': return props.manuscripts || [];
-      case 'studio-audios': return props.audios || [];
-      case 'studio-videos': return props.videos || [];
+      case 'studio-books': return rowsOf(props.studioBooks && props.studioBooks.length ? props.studioBooks : props.books);
+      case 'studio-manuscripts': return rowsOf(props.manuscripts);
+      case 'studio-audios': return rowsOf(props.audios);
+      case 'studio-videos': return rowsOf(props.videos);
       case 'versions': return props.versions || [];
       default: return [];
     }
@@ -348,6 +378,9 @@ export function useAdminCockpit(props = {}) {
     currentGroupTitle,
     currentViewTitle,
     viewCatalog,
+    rowsOf,
+    metaOf,
+    getLibraryAsset,
     getLibraryItems,
     getPeopleItems,
     getStudioItems,

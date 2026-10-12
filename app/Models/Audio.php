@@ -30,6 +30,7 @@ class Audio extends Entity
         'title',
         'code',
         'slug',
+        'status',
         'duration',
         'format',
         'bitrate',
