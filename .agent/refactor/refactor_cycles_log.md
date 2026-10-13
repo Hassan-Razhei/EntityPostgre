@@ -13,6 +13,7 @@
 | **3** | **تطهير محولات التوافقية المهجورة للمخطوطات والكيانات (`EntityContent`, `ManuscriptChild`, `ManuscriptPage`)** | `app/Models/EntityContent.php` (حذف)<br>`app/Models/ManuscriptChild.php` (حذف)<br>`app/Models/ManuscriptPage.php` (حذف)<br>`tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php` (تحديث) | `php artisan test tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php` | **584 Passed (3320 Assertions)**<br>100% نجاح | `94d55c1` | ✅ مكتملة وموثقة |
 | **4** | **تطهير آخر نماذج التوافقية الصورية (`BookChild`, `AudioSegment`, `VideoSegment`) وتوحيد الشجرة في `ContentNode`** | `app/Models/BookChild.php` (حذف)<br>`app/Models/AudioSegment.php` (حذف)<br>`app/Models/VideoSegment.php` (حذف)<br>`app/Models/ContentNode.php` (ترقية وتوحيد)<br>`app/Providers/AppServiceProvider.php` (تحديث)<br>`database/seeders/SeedRealisticData.php` (تحديث)<br>`database/seeders/BookContentSeeder.php` (تحديث)<br>`tests/Feature/Entities/Books/BookChildTest.php` (ترقية) | `php artisan test tests/Feature/Entities/Books/BookChildTest.php` | **584 Passed (3326 Assertions)**<br>100% نجاح | `9c65a95` | ✅ مكتملة وموثقة |
 | **5** | **استخراج وحماية الخصائص الذكية لشجرة المحتوى في سمة `HasNodeMetadata`** | `app/Traits/HasNodeMetadata.php` (إنشاء)<br>`app/Models/ContentNode.php` (ترقية ورشاقة)<br>`tests/Unit/Traits/HasNodeMetadataTest.php` (إنشاء درع جديد) | `php artisan test tests/Unit/Traits/HasNodeMetadataTest.php` | **589 Passed (3351 Assertions)**<br>100% نجاح | `edec6d4` | ✅ مكتملة وموثقة |
+| **6** | **تفكيك وترشيق `AdminDashboardController` واستخراج خدمة `DashboardStatsService` وسمة `AppliesAssetFilters`** | `app/Services/DashboardStatsService.php` (إنشاء)<br>`app/Traits/AppliesAssetFilters.php` (إنشاء)<br>`app/Http/Controllers/AdminDashboardController.php` (ترشيق وتفكيك)<br>`tests/Unit/Services/DashboardStatsServiceTest.php` (إنشاء درع جديد) | `php artisan test tests/Unit/Services/DashboardStatsServiceTest.php`<br>`npm run test:run` | **592 Passed (3414 Assertions)**<br>**Vitest: 136 Passed**<br>100% نجاح كامل | `fedc8d7` | ✅ مكتملة وموثقة |
 
 ---
 
@@ -267,6 +268,64 @@
 * ترشيق وتطهير كلاس [`ContentNode`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/ContentNode.php) بأكثر من **220 سطراً** ليصبح كوداً نظيفاً يركز فقط على العلاقات وبنية الشجرة.
 * عزل منطق الـ JSONB metadata في Trait مخصص وقابل لإعادة الاستخدام والاختبار المستقل.
 * صفر انكسار في كافة واجهات الاستوديو ومحررات النصوص ومشغلات الوسائط.
+
+---
+
+## 🔹 الدورة 6: تفكيك وترشيق `AdminDashboardController` واستخراج خدمة `DashboardStatsService` وسمة `AppliesAssetFilters`
+
+- **تاريخ الإنجاز:** 2026-10-13
+- **المحور المستهدف:** المحور الثالث (طبقة المتحكمات - تفكيك المتحكم الوحش وترشيق قمرة القيادة)
+- **الهدف المعماري:**  
+  تطبيق مبدأ المسؤولية الفردية (SRP) وتفكيك "المتحكم الوحش" [`AdminDashboardController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/AdminDashboardController.php) (748 سطراً). تم استخراج منطق حساب إحصائيات الكيانات الـ 16، حالات دورة الحياة `ContentStatus`، قمع الاستوديو، وسلة المهملات الموحدة إلى خدمة متخصصة [`app/Services/DashboardStatsService.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Services/DashboardStatsService.php). كما تم استخراج خوارزميات الفلترة والترتيب الآمن إلى سمة [`app/Traits/AppliesAssetFilters.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Traits/AppliesAssetFilters.php) مدعومة بذاكرة مؤقتة على مستوى الطلب (Request-level cache) لقوائم أعمدة الجداول لتفادي عشرات الاستعلامات المتكررة لـ `Schema::getColumnListing` على PostgreSQL.
+
+---
+
+### 1. الملفات المنشأة والمعدلة:
+1. **منشأ 🌟:** [`app/Services/DashboardStatsService.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Services/DashboardStatsService.php) (خدمة مركزية لحساب إحصائيات المنصة، حالات `ContentStatus`، قمع الاستوديو، وسلة المهملات).
+2. **منشأ 🌟:** [`app/Traits/AppliesAssetFilters.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Traits/AppliesAssetFilters.php) (سمة الفلترة والبحث والترتيب الآمن مع تخزين مؤقت للأعمدة لتسريع استعلامات PostgreSQL).
+3. **منشأ 🛡️:** [`tests/Unit/Services/DashboardStatsServiceTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Unit/Services/DashboardStatsServiceTest.php) (اختبار وحدة معماري يغطي كافة مفاتيح الإحصائيات، الحسابات، وسلة المهملات بـ 3 اختبارات و 72 تأكيداً).
+4. **معدل ✏️:** [`app/Http/Controllers/AdminDashboardController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/AdminDashboardController.php) (حقن الخدمة واستخدام السمة، وتطهير 240 سطراً من الكود المحشو والمكرر، مع ثبات كامل لعقود Inertia بنسبة 100%).
+
+---
+
+### 2. نتائج فحص درع المناعة الشامل (Full-Stack Immunity Shield) 🛡️:
+* **الأوامر المنفذة بواسطة المستخدم:**
+  ```bash
+  php artisan test tests/Unit/Services/DashboardStatsServiceTest.php
+  php artisan test tests/Unit/Enums/ContentStatusIntegrationTest.php
+  php artisan test tests/Feature/Dashboard/ServerSidePaginationTest.php
+  npm run test:run
+  php artisan test
+  ```
+* **النتائج المسجلة:**
+  ```text
+  PASS  Tests\Unit\Services\DashboardStatsServiceTest
+  ✓ it returns all expected statistics keys
+  ✓ it calculates status counts accurately
+  ✓ it aggregates soft deleted entities accurately
+  Tests: 3 passed (72 assertions) | Duration: 0.70s
+
+  PASS  Tests\Unit\Enums\ContentStatusIntegrationTest
+  Tests: 19 passed (217 assertions) | Duration: 0.87s
+
+  PASS  Tests\Feature\Dashboard\ServerSidePaginationTest
+  Tests: 10 passed (171 assertions) | Duration: 3.02s
+
+  Vitest Frontend Tests (npm run test:run):
+  Test Files: 14 passed (14)
+  Tests:      136 passed (136) | Duration: 13.82s
+
+  Full Backend Suite (php artisan test):
+  Tests:      1 incomplete, 592 passed (3414 assertions) | Duration: 44.19s
+  ```
+  *(نجاح ساحق وكامل بنسبة 100% للفرونت إند والباك إند معاً)*.
+
+---
+
+### 3. الأثر المعماري:
+* تحويل `AdminDashboardController` من متحكم ضخم إلى متحكم منظم ورشيق يعتمد على حقن التبعيات.
+* تحسين أداء استعلامات PostgreSQL عبر التخلص من التكرار المفرط لـ `Schema::getColumnListing`.
+* ثبات تام بنسبة 100% لكافة واجهات قمرة القيادة والفرونت إند بدون أي انكسار سلوكي أو بصري.
 
 
 

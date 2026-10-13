@@ -19,159 +19,26 @@ use App\Models\User;
 use App\Models\Version;
 use App\Models\Video;
 use App\Services\AssetPagination;
+use App\Services\DashboardStatsService;
+use App\Traits\AppliesAssetFilters;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AdminDashboardController extends Controller
 {
+    use AppliesAssetFilters;
+
+    public function __construct(
+        protected DashboardStatsService $statsService
+    ) {}
+
     /**
-     * حساب أعداد كل حالة تحريرية لأصل معين (من ContentStatus)
-     *
-     * يُرجع: ['books_draft' => 6, 'books_transcribed' => 15, ...]
-     * مصدر واحد للحقيقة — لا يمكن أن تتناقض البطاقة مع الجدول.
-     *
-     * @param  class-string  $modelClass
-     * @return array<string, int>
+     * حساب أعداد كل حالة تحريرية لأصل معين (مفوّض لخدمة الإحصائيات)
      */
     protected function statusCounts(string $modelClass, string $assetKey): array
     {
-        $statuses = ContentStatus::forAsset(rtrim($assetKey, 's'));
-        $result = [];
-
-        // ⚠️ بعض الأصول لا تملك عمود status إطلاقاً (authors, publishers,
-        // users, deletions). استعلام groupBy('status') عليها يُسقط الصفحة
-        // كلها بـ SQLSTATE[42703]. نفحص العمود أولاً ونُرجع أصفاراً.
-        $hasStatusColumn = in_array('status', \Illuminate\Support\Facades\Schema::getColumnListing((new $modelClass)->getTable()), true);
-
-        $counts = $hasStatusColumn
-            ? $modelClass::groupBy('status')
-                ->selectRaw('status, count(*) as count')
-                ->pluck('count', 'status')
-            : collect();
-
-        foreach ($statuses as $status) {
-            $result["{$assetKey}_{$status->value}"] = (int) ($counts[$status->value] ?? 0);
-        }
-
-        return $result;
-    }
-
-    /**
-     * تطبيق فلتر الحالة والبحث على استعلام أصل.
-     *
-     * السبب: الواجهة تستقبل صفحة واحدة فقط (25 صفاً). لو فلترت محلياً
-     * لظهرت بطاقة "منشور 35" مقابل 10 صفوف فقط (كذب). الخادم يملك
-     * كل الصفوف ⇒ هو من يفلتر ثم يُرقّم.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  Request  $request
-     * @param  array<int, string>  $searchableColumns  الأعمدة التي يبحث فيها
-     * @param  array<int, string>  $filterableColumns  الأعمدة التي تُفلتر بقيمتها
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    protected function applyAssetFilters($query, Request $request, array $searchableColumns = ['title'], array $filterableColumns = []): \Illuminate\Database\Eloquent\Builder
-    {
-        // فلتر الحالة: ?status=published
-        //
-        // ⚠️ فحص وجود العمود إلزامي: authors/publishers/users لا تملك
-        // عمود status. بدونه، أي ?status=... يُسقط الصفحة كلها
-        // بـ SQLSTATE[42703] بدل تجاهل الفلتر بهدوء.
-        $status = $request->query('status');
-        if ($status && $status !== 'all') {
-            $table = $query->getModel()->getTable();
-            if (in_array('status', \Illuminate\Support\Facades\Schema::getColumnListing($table), true)) {
-                $query->where('status', $status);
-            }
-        }
-
-        // البحث: ?search=نص
-        //
-        // ⚠️ فحص الأعمدة إلزامي: نفس الطلب يُبنى لستة أصول، وكل واحد
-        // يُمرّر أعمدة بحثه الخاصة. بدون الفحص، بحث "ا" يُسقط الصفحة
-        // كلها بـ QueryException (عمود غير موجود) بدل تجاهل العمود.
-        $search = $request->query('search');
-        if ($search) {
-            $table = $query->getModel()->getTable();
-            $existing = \Illuminate\Support\Facades\Schema::getColumnListing($table);
-
-            $query->where(function ($q) use ($search, $searchableColumns, $existing) {
-                foreach ($searchableColumns as $column) {
-                    if (in_array($column, $existing, true)) {
-                        $q->orWhere($column, 'ILIKE', '%' . $search . '%');
-                    }
-                }
-            });
-        }
-
-        // فلتر الأعمدة المباشرة: ?author=... إلخ (مع فحص وجود العمود)
-        foreach ($filterableColumns as $column) {
-            $value = $request->query($column);
-            if ($value && $value !== 'all') {
-                // العلاقات البوليمورفية تُفلتر بـ whereHas
-                // فلتر التصنيف/الوسوم: علاقة many-to-many عبر جدول وسيط.
-                // whereHas وليس where، لأن الرابط ليس عموداً في الأصل.
-                // نتحقق أن القيمة UUID صالح قبل إرسالها — PostgreSQL يرفض
-                // النص العادي في مقارنة uuid ويُسقط الصفحة كلها بـ QueryException.
-                if (in_array($column, ['category', 'tag'], true)) {
-                    if (!\Illuminate\Support\Str::isUuid($value)) {
-                        continue;   // قيمة غير صالحة ⇒ نتجاهلها بهدوء
-                    }
-
-                    $relation = $column === 'category' ? 'categories' : 'tags';
-                    $pivotTable = $column === 'category' ? 'categories' : 'tags';
-
-                    $query->whereHas($relation, fn ($q) => $q->where($pivotTable . '.id', $value));
-                } elseif (in_array($column, \Illuminate\Support\Facades\Schema::getColumnListing($query->getModel()->getTable()), true)) {
-                    $query->where($column, $value);
-                }
-                // عمود غير موجود ⇒ يُتجاهل بهدوء (لا استثناء يُسقط الصفحة)
-            }
-        }
-
-        return $query;
-    }
-
-    /**
-     * تطبيق الترتيب على استعلام أصل.
-     *
-     * الترتيب يجب أن يكون في SQL لا في JS، لأن الصفحة المحمّلة 25 صفاً
-     * فقط — أي ترتيب محلي يرتّب 25 لا 101 (فيظهر "أبجدياً" خطأ).
-     *
-     * الخيارات المسموحة (whitelist) حصراً — لا نقبل أي عمود من الطلب
-     * حتى لا يُستخدم الترتيب لاستعلامات ثقيلة أو أعمدة غير مفهرسة.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  Request  $request
-     * @param  array<string, string>  $sortMap  ['الأحدث' => 'created_at', ...]
-     * @param  array<string, string>  $defaultDirection  الاتجاه لكل خيار
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    protected function applySort($query, Request $request, array $sortMap, array $defaultDirection = []): \Illuminate\Database\Eloquent\Builder
-    {
-        $sort = $request->query('sort');
-
-        // لا ترتيب مطلوب ⇒ الأحدث أولاً (السلوك الافتراضي التاريخي،
-        // وكان يأتي من ->latest() قبل استبداله بالاستعلام المركّب).
-        if (!$sort || !isset($sortMap[$sort])) {
-            return $query->latest();
-        }
-
-        $column = $sortMap[$sort];
-
-        // فحص وجود العمود: نفس الطلب يُبنى لستة أصول بخريطة ترتيب
-        // موحّدة الاختيارات. عمود غير موجود ⇒ نتجاهل الترتيب بهدوء
-        // بدل QueryException يُسقط الصفحة كلها.
-        if (!in_array($column, \Illuminate\Support\Facades\Schema::getColumnListing($query->getModel()->getTable()), true)) {
-            return $query->latest();
-        }
-        // الاتجاه: direction من الطلب، وإلا الاتجاه الافتراضي للخيار
-        $direction = $request->query('direction');
-        if (!in_array($direction, ['asc', 'desc'], true)) {
-            $direction = $defaultDirection[$sort] ?? 'asc';
-        }
-
-        return $query->orderBy($column, $direction);
+        return $this->statsService->statusCounts($modelClass, $assetKey);
     }
 
     /**
@@ -183,52 +50,9 @@ class AdminDashboardController extends Controller
      */
     public function index(Request $request): Response
     {
-        // حساب إجمالي الكيانات المحذوفة ناعماً (Soft Deleted)
-        $deletionsCount = Book::onlyTrashed()->count()
-            + Manuscript::onlyTrashed()->count()
-            + Audio::onlyTrashed()->count()
-            + Video::onlyTrashed()->count()
-            + Author::onlyTrashed()->count();
+        // حساب إحصائيات قمرة القيادة الشاملة عبر الخدمة المخصصة
+        $stats = $this->statsService->getStats();
 
-        $stats = [
-            // ─── إجماليات الكيانات ───────────────────────────────────────────
-            'books'       => Book::count(),
-            'manuscripts' => Manuscript::count(),
-            'audios'      => Audio::count(),
-            'videos'      => Video::count(),
-            'authors'     => Author::count(),
-            'publishers'  => Publisher::count(),
-            'categories'  => Category::count(),
-            'tags'        => Tag::count(),
-            'users'       => User::count(),
-            'collections' => Collection::count(),
-            'series'      => Series::count(),
-            'topics'      => Topic::count(),
-            'comments'    => Comment::count(),
-            'activities'  => Activity::count(),
-            'versions'    => Version::count(),
-            'deletions'   => $deletionsCount,
-
-            // ─── إحصائيات دورة حياة الأصول (حالات منفصلة من ContentStatus) ──
-            // الكتب: 7 حالات (مع scholarly)
-            ...$this->statusCounts(Book::class, 'books'),
-            // المخطوطات: 5 حالات (typeset/collated/edited)
-            ...$this->statusCounts(Manuscript::class, 'manuscripts'),
-            // الصوتيات: 6 حالات
-            ...$this->statusCounts(Audio::class, 'audios'),
-            // المرئيات: 6 حالات
-            ...$this->statusCounts(Video::class, 'videos'),
-
-            // ─── الاستوديو والقمع (تُغذّي DashboardStatsView) ───────────────
-            'studio_books'       => Book::whereIn('status', ['draft', 'transcribed', 'verified', 'revised', 'curriculum'])->count(),
-            'studio_manuscripts' => Manuscript::whereIn('status', ['draft', 'typeset', 'collated', 'edited'])->count(),
-            'studio_audios'      => Audio::whereIn('status', ['draft', 'transcribed', 'verified', 'revised', 'curriculum'])->count(),
-            'studio_videos'      => Video::whereIn('status', ['draft', 'transcribed', 'verified', 'revised', 'curriculum'])->count(),
-            'funnel_drafts'      => Book::where('status', 'draft')->count(),
-            'funnel_reviewed'    => Book::whereIn('status', ['transcribed', 'verified'])->count(),
-            'funnel_scholarly'   => Book::whereIn('status', ['revised', 'curriculum', 'scholarly'])->count(),
-            'funnel_published'   => Book::where('status', 'published')->count(),
-        ];
 
         // جلب آخر النشاطات الحية من جدول النشاطات
         $recentActivities = Activity::with(['user', 'entity'])
@@ -529,72 +353,8 @@ class AdminDashboardController extends Controller
             ]
         );
 
-        // جلب المحذوفات الحية (Soft-deleted entities)
-        $deletedBooks = Book::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'title' => $item->title,
-                'type_label' => 'كتاب / Book',
-                'type_chip' => 'chip-studio',
-                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
-                'days_remaining' => 'باقي 29 يوماً',
-                'restore_url' => "/books/{$item->id}/restore",
-            ];
-        });
-
-        $deletedManuscripts = Manuscript::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'title' => $item->title,
-                'type_label' => 'مخطوط / Manuscript',
-                'type_chip' => 'chip-academic',
-                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
-                'days_remaining' => 'باقي 28 يوماً',
-                'restore_url' => "/manuscripts/{$item->id}/restore",
-            ];
-        });
-
-        $deletedAudios = Audio::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'title' => $item->title,
-                'type_label' => 'صوتي / Audio',
-                'type_chip' => 'chip-editor',
-                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
-                'days_remaining' => 'باقي 27 يوماً',
-                'restore_url' => "/audios/{$item->id}/restore",
-            ];
-        });
-
-        $deletedVideos = Video::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'title' => $item->title,
-                'type_label' => 'مرئي / Video',
-                'type_chip' => 'chip-public',
-                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
-                'days_remaining' => 'باقي 26 يوماً',
-                'restore_url' => "/videos/{$item->id}/restore",
-            ];
-        });
-
-        $deletedAuthors = Author::onlyTrashed()->latest('deleted_at')->limit(10)->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'title' => $item->name,
-                'type_label' => 'مؤلف / Author',
-                'type_chip' => 'chip-admin',
-                'deleted_at_human' => $item->deleted_at?->diffForHumans() ?? 'مؤخراً',
-                'days_remaining' => 'باقي 30 يوماً',
-                'restore_url' => "/authors/{$item->id}/restore",
-            ];
-        });
-
-        $deletions = $deletedBooks->concat($deletedManuscripts)
-            ->concat($deletedAudios)
-            ->concat($deletedVideos)
-            ->concat($deletedAuthors)
-            ->values();
+        // جلب المحذوفات الحية (Soft-deleted entities) عبر خدمة الإحصائيات
+        $deletions = $this->statsService->getSoftDeletions();
 
         // 10. التصنيفات الحية مع رصيد الكيانات (Categories)
         $categories = Category::withCount('books')
