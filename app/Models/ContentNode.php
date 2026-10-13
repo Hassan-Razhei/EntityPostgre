@@ -31,7 +31,7 @@ use Illuminate\Support\Str;
  */
 class ContentNode extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, \App\Traits\HasNodeMetadata;
 
     protected $table = 'content_nodes';
 
@@ -215,21 +215,6 @@ class ContentNode extends Model
     // ==================== Accessors & Mutators مساعدة للتوافق السلس ====================
 
     /**
-     * هل تم التعديل يدوياً من المحرر
-     */
-    public function getIsManuallyEditedAttribute(): bool
-    {
-        return (bool) ($this->metadata['is_manually_edited'] ?? false);
-    }
-
-    public function setIsManuallyEditedAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['is_manually_edited'] = (bool) $value;
-        $this->metadata = $meta;
-    }
-
-    /**
      * خاصية _id متوافقة مع الأنظمة السابقة
      */
     public function getIdAttribute(): ?string
@@ -312,168 +297,6 @@ class ContentNode extends Model
     {
         $this->content_json = $value;
     }
-
-    /**
-     * معرف آخر محرر
-     */
-    public function getLastEditorIdAttribute(): ?string
-    {
-        return $this->metadata['last_editor_id'] ?? null;
-    }
-
-    public function setLastEditorIdAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['last_editor_id'] = $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * وقت آخر تعديل
-     */
-    public function getLastUpdatedAttribute(): ?\Illuminate\Support\Carbon
-    {
-        return $this->updated_at;
-    }
-
-    public function setLastUpdatedAttribute($value): void
-    {
-        // Automatically handled by Eloquent timestamps
-    }
-
-    /**
-     * للصوتيات والمرئيات: بداية المقطع
-     */
-    public function getStartTimeAttribute(): ?float
-    {
-        return isset($this->metadata['start_time']) ? (float) $this->metadata['start_time'] : null;
-    }
-
-    public function setStartTimeAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['start_time'] = (float) $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * للصوتيات والمرئيات: نهاية المقطع
-     */
-    public function getEndTimeAttribute(): ?float
-    {
-        return isset($this->metadata['end_time']) ? (float) $this->metadata['end_time'] : null;
-    }
-
-    public function setEndTimeAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['end_time'] = (float) $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * مدة المقطع بالثواني
-     */
-    public function getDurationAttribute(): ?float
-    {
-        return isset($this->metadata['duration']) ? (float) $this->metadata['duration'] : null;
-    }
-
-    public function setDurationAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['duration'] = (float) $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * للمخطوطات: رقم اللوحة
-     */
-    public function getFolioNumberAttribute(): ?string
-    {
-        return $this->metadata['folio_number'] ?? null;
-    }
-
-    public function setFolioNumberAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['folio_number'] = $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * للمخطوطات: رابط صورة اللوحة
-     */
-    public function getImageUrlAttribute(): ?string
-    {
-        return $this->metadata['image_url'] ?? null;
-    }
-
-    public function setImageUrlAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['image_url'] = $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * الوصف للمشاهد أو المقاطع
-     */
-    public function getDescriptionAttribute(): ?string
-    {
-        return $this->metadata['description'] ?? null;
-    }
-
-    public function setDescriptionAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['description'] = $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * رابط المورد الخارجي
-     */
-    public function getResourceUrlAttribute(): ?string
-    {
-        return $this->metadata['resource_url'] ?? null;
-    }
-
-    public function setResourceUrlAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['resource_url'] = $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * حالة النسخ/التفريغ
-     */
-    public function getTranscriptionStatusAttribute(): ?string
-    {
-        return $this->metadata['transcription_status'] ?? null;
-    }
-
-    public function setTranscriptionStatusAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['transcription_status'] = $value;
-        $this->metadata = $meta;
-    }
-
-    /**
-     * رقم الصفحة
-     */
-    public function getPageNumberAttribute(): ?int
-    {
-        return isset($this->metadata['page_number']) ? (int) $this->metadata['page_number'] : null;
-    }
-
-    public function setPageNumberAttribute($value): void
-    {
-        $meta = $this->metadata ?? [];
-        $meta['page_number'] = (int) $value;
-        $this->metadata = $meta;
-    }
 }
+
 
