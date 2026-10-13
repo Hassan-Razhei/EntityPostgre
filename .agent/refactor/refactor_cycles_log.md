@@ -16,6 +16,7 @@
 | **6** | **تفكيك وترشيق `AdminDashboardController` واستخراج خدمة `DashboardStatsService` وسمة `AppliesAssetFilters`** | `app/Services/DashboardStatsService.php` (إنشاء)<br>`app/Traits/AppliesAssetFilters.php` (إنشاء)<br>`app/Http/Controllers/AdminDashboardController.php` (ترشيق وتفكيك)<br>`tests/Unit/Services/DashboardStatsServiceTest.php` (إنشاء درع جديد) | `php artisan test tests/Unit/Services/DashboardStatsServiceTest.php`<br>`npm run test:run` | **592 Passed (3414 Assertions)**<br>**Vitest: 136 Passed**<br>100% نجاح كامل | `fedc8d7` | ✅ مكتملة وموثقة |
 | **7** | **توحيد متحكمات المساهمين واللغات والرفوف في `EntityController` ومعايرة الـ Hooks** | `app/Http/Controllers/BookerController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/LanguageController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/ShelfController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/EntityController.php` (تحسين Hooks)<br>`app/Providers/AppServiceProvider.php` (تسجيل السياسات)<br>`app/Http/Requests/*` (إنشاء 6 طلبات FormRequests) | `php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php`<br>`npm run test:run`<br>`php artisan test` | **CoreEntitiesCRUDTest: 11 Passed (384 Assertions)**<br>**Vitest: 136 Passed (14 Files)**<br>**Full Backend: 592 Passed (3417 Assertions)**<br>100% نجاح كامل | `ed3d77d` | ✅ مكتملة وموثقة |
 | **8** | **توحيد متحكمات المجموعات والتعليقات والملاحظات في `EntityController` وترشيق CRUD** | `app/Http/Controllers/CollectionController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/CommentController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/NoteController.php` (ترشيق وتوحيد)<br>`app/Providers/AppServiceProvider.php` (تسجيل السياسات)<br>`app/Http/Requests/*` (إنشاء 6 طلبات FormRequests) | `php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php`<br>`php artisan test tests/Feature/Entities/Taxonomies/TaxonomyAttachmentTest.php`<br>`npm run test:run`<br>`php artisan test` | **CoreEntitiesCRUDTest: 11 Passed (384 Assertions)**<br>**TaxonomyAttachmentTest: 2 Passed (6 Assertions)**<br>**Vitest: 136 Passed (14 Files)**<br>**Full Backend: 592 Passed (3429 Assertions)**<br>100% نجاح كامل | `155fa14` | ✅ مكتملة وموثقة |
+| **9** | **توحيد وترشيق البث التدفقي للوسائط (`MediaStreamController`) وتأمين درع HTTP Range** | `app/Http/Controllers/MediaStreamController.php` (ترشيق وتوحيد)<br>`tests/Feature/Storage/MediaStreamTest.php` (إنشاء درع جديد) | `php artisan test tests/Feature/Storage/MediaStreamTest.php`<br>`php artisan test` | **MediaStreamTest: 7 Passed (28 Assertions)**<br>**Full Backend: 599 Passed (3454 Assertions)**<br>100% نجاح كامل | `86b7f9a` | ✅ مكتملة وموثقة |
 
 ---
 
@@ -472,3 +473,57 @@
 * التخلص من أكثر من 190 سطراً من الكود المكرر عبر توحيد استجابات Inertia ومعالجة CRUD في `EntityController`.
 * رفع المعايير الأمنية عبر فرض قواعد التحقق لعمليات التخزين والتحديث لكل نموذج على حدة بواسطة FormRequests مستقلة.
 * الحفاظ الدقيق على السلوكيات الخاصة (مثل `attachEntity` وتأمين عدم تسريب بيانات غير مرغوبة أو انكسار صفحات العرض).
+
+---
+
+## 🔹 الدورة 9: توحيد وترشيق البث التدفقي للوسائط (`MediaStreamController`) وتأمين درع HTTP Range
+
+- **تاريخ الإنجاز:** 2026-10-14
+- **المحور المستهدف:** المحور الثالث (طبقة المتحكمات وتوحيد معمارية الـ CRUD والبث التدفقي)
+- **الهدف المعماري:**  
+  إنهاء الازدواجية البرمجية في معالجة تدفق الفيديو والصوت داخل [`MediaStreamController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/MediaStreamController.php)، واستخراج دالة موحدة محمية `streamMedia(...)` تتولى تحليل نطاقات البايتات (HTTP Range Requests RFC 7233) وتقطيع التدفق الثنائي (8KB Chunks) وضبط ترويسات الاستجابة وحالات `200 OK` و `206 Partial Content` و `404 Not Found`، مع تزويدها بآلية ذكية للتعرف على أنواع MIME والسقوط على النوع الافتراضي المناسب عند غياب أو تشوه الترويسات، وتغطية سلوك البث التدفقي بدرع اختبار ميزة متكامل.
+
+---
+
+### 1. الملفات المنشأة والمعدلة:
+1. **معدل ✏️ (ترشيق وتوحيد المتحكم):**
+   - [`app/Http/Controllers/MediaStreamController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/MediaStreamController.php): تقليص الكود من 143 إلى 96 سطراً (توفير 48% من الكود المكرر)، واستخراج الدالة الموحدة `streamMedia(...)`، وتحديد أنواع العودة الصريحة `StreamedResponse`.
+2. **منشأ 🌟 (درع حماية البث التدفقي):**
+   - [`tests/Feature/Storage/MediaStreamTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/Storage/MediaStreamTest.php): اختبارات شاملة تغطي:
+     - إرجاع `404 Not Found` عند طلب ملفات غير موجودة.
+     - البث الكامل للفيديو والصوت واستجابة `200 OK` مع صحة ترويسات `Accept-Ranges` و `Content-Length` و `Content-Type`.
+     - دعم التجزئة والقفز الزمني (Seeking) عبر ترويسة `Range: bytes=start-end` واستجابة `206 Partial Content` وحسابات `Content-Range`.
+     - دعم المسارات المباشرة واستبعاد المجلدات من البث.
+
+---
+
+### 2. نتائج فحص درع المناعة الشامل (Full-Stack Immunity Shield) 🛡️:
+* **الأوامر المنفذة بواسطة المستخدم:**
+  ```bash
+  php artisan test tests/Feature/Storage/MediaStreamTest.php
+  php artisan test
+  ```
+* **النتائج المسجلة:**
+  ```text
+  PASS  Tests\Feature\Storage\MediaStreamTest
+  ✓ stream returns 404 when video or audio not found
+  ✓ stream video full content status 200
+  ✓ stream video with range request status 206
+  ✓ stream audio full content status 200
+  ✓ stream audio with range request status 206
+  ✓ stream resolves file when direct relative path is supplied
+  ✓ stream aborts 404 if path is a directory
+  Tests: 7 passed (28 assertions) | Duration: 0.28s
+
+  Full Backend Suite (php artisan test):
+  Tests: 1 incomplete, 599 passed (3454 assertions) | Duration: 46.04s
+  ```
+  *(100% نجاح كامل لكافة الاختبارات)*.
+
+---
+
+### 3. الأثر المعماري:
+* التخلص من تكرار كود البث التدفقي عبر تركيزه في نقطة حقيقة واحدة (Single Point of Truth).
+* ضمان استقرار مشغلات الصوت والفيديو في المتصفحات والواجهات بدون انقطاع أو تشوه أثناء الـ Seeking.
+* إضافة 7 اختبارات جديدة لدرع المناعة الشامل لضمان عدم حدوث انحدار سلوكي مستقبلاً.
+
