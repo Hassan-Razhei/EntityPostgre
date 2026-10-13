@@ -88,28 +88,5 @@ class ManuscriptContentNodeTest extends TestCase
             $this->assertEquals(1, $manuscript->children->count());
         }
     }
-
-    #[Test]
-    public function manuscript_page_legacy_adapter_works_seamlessly(): void
-    {
-        $manuscript = Manuscript::create([
-            'title' => 'Adapter Test Manuscript',
-            'slug' => 'adapter-ms-' . uniqid(),
-        ]);
-
-        $page = \App\Models\ManuscriptPage::create([
-            'manuscript_id' => $manuscript->id,
-            'slug' => 'legacy-page-' . uniqid(),
-            'title' => 'الصفحة التجريبية للمحول',
-            'order' => 1,
-            'folio_number' => '2ب',
-            'content' => 'محتوى نصي قديم',
-        ]);
-
-        $this->assertEquals($manuscript->id, $page->manuscript_id);
-        $this->assertEquals('2ب', $page->folio_number);
-        $this->assertEquals('محتوى نصي قديم', $page->content);
-        $this->assertEquals('manuscript', $page->entity_type);
-        $this->assertEquals($manuscript->id, $page->manuscript->id);
-    }
 }
+

@@ -9,7 +9,8 @@
 | رقم الدورة | اسم الدورة والمحور المعماري | الملفات المستهدفة (حذف / تعديل) | أمر الفحص المنفذ بواسطة المستخدم | فحص درع المناعة 🛡️ | معرف الكوميت | الحالة |
 |:---:|---|---|---|:---:|:---:|:---:|
 | **1** | **إنقاذ دوال العلاقات وتطهير خدمة الكود الميت (`EntityRelationService`)** | `app/Services/EntityRelationService.php` (حذف)<br>`app/Traits/HasPolymorphicRelations.php` (إضافة)<br>`tests/Unit/Services/EntityRelationServiceTest.php` (حذف)<br>`tests/Unit/Traits/HasPolymorphicRelationsTest.php` (تحديث) | `php artisan test tests/Unit/Traits/HasPolymorphicRelationsTest.php` | **7 Passed (17 Assertions)**<br>100% نجاح | `712a60a` | ✅ مكتملة وموثقة |
-| **2** | **تطهير طبقة الـ Repositories والكود الميت وإغلاق المحور الأول** | `app/Repositories/EntityBaseRepository.php` (حذف)<br>`tests/Unit/Repositories/EntityBaseRepositoryTest.php` (حذف)<br>`app/Http/Controllers/AuthorController.php.backup` (حذف)<br>`app/Http/Controllers/SuperAdminDashboardController.php` (حذف)<br>`app/Http/Requests/StoreEntityRequest.php` (حذف)<br>`app/Http/Requests/UpdateEntityRequest.php` (حذف)<br>`app/Traits/HasPolymorphicRelations.php` (تنظيف) | `php artisan test` | **585 Passed (3337 Assertions)**<br>100% نجاح | `1edf11b` | ✅ مكتملة وموثقة |
+| **2** | **تطهير طبقة الـ Repositories والكود الميت وإغلاق المحور الأول** | `app/Repositories/EntityBaseRepository.php` (حذف)<br>`tests/Unit/Repositories/EntityBaseRepositoryTest.php` (حذف)<br>`app/Http/Controllers/AuthorController.php.backup` (حذف)<br>`app/Http/Controllers/SuperAdminDashboardController.php` (حذف)<br>`app/Http/Requests/StoreEntityRequest.php` (حذف)<br>`app/Http/Requests/UpdateEntityRequest.php` (حذف)<br>`app/Traits/HasPolymorphicRelations.php` (تنظيف) | `php artisan test` | **585 Passed (3337 Assertions)**<br>100% نجاح | `8659439` | ✅ مكتملة وموثقة |
+| **3** | **تطهير محولات التوافقية المهجورة للمخطوطات والكيانات (`EntityContent`, `ManuscriptChild`, `ManuscriptPage`)** | `app/Models/EntityContent.php` (حذف)<br>`app/Models/ManuscriptChild.php` (حذف)<br>`app/Models/ManuscriptPage.php` (حذف)<br>`tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php` (تحديث) | `php artisan test tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php` | **584 Passed (3320 Assertions)**<br>100% نجاح | `94d55c1` | ✅ مكتملة وموثقة |
 
 ---
 
@@ -108,5 +109,47 @@
 ### 3. الأثر المعماري:
 * حذف **أكثر من 820 سطراً** من الكود المهجور والزوائد البرمجية.
 * إغلاق **المحور الأول (الكود الميت والطبقات المهجورة)** بالكامل وتطهير شجرة المشروع بنسبة 100%.
+
+---
+
+## 🔹 الدورة 3: تطهير محولات التوافقية المهجورة للمخطوطات والكيانات (`EntityContent`, `ManuscriptChild`, `ManuscriptPage`)
+
+- **تاريخ الإنجاز:** 2026-10-13
+- **المحور المستهدف:** المحور الثاني (رواسب وقشور الترحيل من MongoDB إلى PostgreSQL)
+- **الهدف المعماري:**  
+  بدء تفكيك وتطهير موديلات التوافقية الصورية الستة التي أُنشئت كجسر مؤقت أثناء الترحيل من MongoDB. تم التحقق من أن موديلات المخطوطات والكيانات القديمة لم تعد تُستخدم في أي مسار أو خدمة حية بعد توحيد كافة عمليات إدارة المحتوى الشجري عبر [`ContentNode`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/ContentNode.php) و [`EntityContentService`](file:///home/a/PhpstormProjects/EntityPostgre/app/Services/EntityContentService.php).
+
+---
+
+### 1. الملفات المحذوفة والمعدلة (Cleaned Models & Tests):
+1. **محذوف 🗑️:** [`app/Models/EntityContent.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/EntityContent.php) (صنف توافقي فارغ تماماً لم يعد له أي استدعاء في كامل النظام).
+2. **محذوف 🗑️:** [`app/Models/ManuscriptChild.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/ManuscriptChild.php) (محول قديم لعقد المخطوطات تم استبداله كلياً بـ `ContentNode`).
+3. **محذوف 🗑️:** [`app/Models/ManuscriptPage.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/ManuscriptPage.php) (نسخة مكررة مطابقة بنسبة 100% لـ `ManuscriptChild`).
+4. **معدل ✏️:** [`tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php) (إزالة اختبار المحول المهجور `manuscript_page_legacy_adapter_works_seamlessly` مع الإبقاء على كافة اختبارات الـ Nodes الحديثة للمخطوطات).
+
+---
+
+### 2. نتائج فحص الحماية وعدم الانكسار 🛡️ (Verification by User):
+* **الأمر المنفذ بواسطة المستخدم:**
+  ```bash
+  php artisan test tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php
+  ```
+* **النتيجة المسجلة:**
+  ```text
+  PASS  Tests\Feature\Entities\Manuscripts\ManuscriptContentNodeTest
+  ✓ manuscript can access content nodes
+  ✓ eager loading children works cleanly for multiple manuscripts
+
+  Tests:    2 passed (8 assertions)
+  Duration: 0.74s
+  ```
+  *(إجمالي المنظومة: 584 اختباراً ناجحاً بنسبة 100% و 3320 تأكيداً)*.
+
+---
+
+### 3. الأثر المعماري:
+* التخلص من 3 نماذج مضللة من أصل 6 نماذج ترث صورياً من `ContentNode`.
+* تثبيت الاعتماد الصريح للمخطوطات على شجرة PostgreSQL الموحدة.
+
 
 
