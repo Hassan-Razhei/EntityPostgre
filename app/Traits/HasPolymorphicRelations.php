@@ -7,7 +7,6 @@ use App\Models\Audio;
 use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Manuscript;
-use App\Models\Review;
 use App\Models\Tag;
 use App\Models\Category;
 use App\Models\Note;
@@ -59,20 +58,6 @@ trait HasPolymorphicRelations
         return $this->morphMany(Comment::class, 'entity');
     }
 
-    /*
-    public function reviews()
-    {
-        return $this->morphMany(Review::class, 'entity');
-    }
-    */
-
-    /*
-    public function favourites()
-    {
-        return $this->morphMany(Favourite::class, 'entity');
-    }
-    */
-
     public function notes()
     {
         return $this->morphMany(Note::class, 'entity');
@@ -82,20 +67,6 @@ trait HasPolymorphicRelations
     {
         return $this->morphMany(Deletion::class, 'entity');
     }
-
-    /*
-    public function searchTerms()
-    {
-        return $this->morphMany(SearchTerm::class, 'entity');
-    }
-    */
-
-    /*
-    public function views()
-    {
-        return $this->morphMany(View::class, 'entity');
-    }
-    */
 
     /**
      * علاقة Many-to-Many بوليمورفية (الأصلية)

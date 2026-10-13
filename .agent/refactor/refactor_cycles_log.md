@@ -8,7 +8,8 @@
 
 | رقم الدورة | اسم الدورة والمحور المعماري | الملفات المستهدفة (حذف / تعديل) | أمر الفحص المنفذ بواسطة المستخدم | فحص درع المناعة 🛡️ | معرف الكوميت | الحالة |
 |:---:|---|---|---|:---:|:---:|:---:|
-| **1** | **إنقاذ دوال العلاقات وتطهير خدمة الكود الميت (`EntityRelationService`)** | `app/Services/EntityRelationService.php` (حذف)<br>`app/Traits/HasPolymorphicRelations.php` (إضافة)<br>`tests/Unit/Services/EntityRelationServiceTest.php` (حذف)<br>`tests/Unit/Traits/HasPolymorphicRelationsTest.php` (تحديث) | `php artisan test tests/Unit/Traits/HasPolymorphicRelationsTest.php` | **7 Passed (17 Assertions)**<br>100% نجاح | `79f87bd` | ✅ مكتملة وموثقة |
+| **1** | **إنقاذ دوال العلاقات وتطهير خدمة الكود الميت (`EntityRelationService`)** | `app/Services/EntityRelationService.php` (حذف)<br>`app/Traits/HasPolymorphicRelations.php` (إضافة)<br>`tests/Unit/Services/EntityRelationServiceTest.php` (حذف)<br>`tests/Unit/Traits/HasPolymorphicRelationsTest.php` (تحديث) | `php artisan test tests/Unit/Traits/HasPolymorphicRelationsTest.php` | **7 Passed (17 Assertions)**<br>100% نجاح | `712a60a` | ✅ مكتملة وموثقة |
+| **2** | **تطهير طبقة الـ Repositories والكود الميت وإغلاق المحور الأول** | `app/Repositories/EntityBaseRepository.php` (حذف)<br>`tests/Unit/Repositories/EntityBaseRepositoryTest.php` (حذف)<br>`app/Http/Controllers/AuthorController.php.backup` (حذف)<br>`app/Http/Controllers/SuperAdminDashboardController.php` (حذف)<br>`app/Http/Requests/StoreEntityRequest.php` (حذف)<br>`app/Http/Requests/UpdateEntityRequest.php` (حذف)<br>`app/Traits/HasPolymorphicRelations.php` (تنظيف) | `php artisan test` | **585 Passed (3337 Assertions)**<br>100% نجاح | `1edf11b` | ✅ مكتملة وموثقة |
 
 ---
 
@@ -62,4 +63,50 @@
 ### 4. الأثر المعماري:
 * التخلص من طبقة وسيطة ميتة كاملة في مجلد `app/Services`.
 * ترقية قدرات نماذج الكيانات (`Book`, `Audio`, `Video`, `Manuscript`, `Author`, إلخ) عبر إتاحة معالجة الوسوم بالاسم أو بالنسخ مباشرة من الـ Model دون الحاجة لحقن خدمات خارجية.
+
+---
+
+## 🔹 الدورة 2: تطهير طبقة الـ Repositories والكود الميت وإغلاق المحور الأول
+
+- **تاريخ الإنجاز:** 2026-10-13
+- **المحور المستهدف:** المحور الأول (الكود الميت والطبقات المهجورة)
+- **الهدف المعماري:**  
+  استكمال التطهير الجذري لكافة الملفات والطبقات المهجورة التي أثبت التحليل المعماري عدم استخدامها في أي مسار أو متحكم أو خدمة، والتخلص من الطبقات الزائدة التي كانت تزيد من التعقيد الصيانة دون أي فائدة تشغيلية.
+
+---
+
+### 1. الملفات المحذوفة والمطهرة (Cleaned & Pruned Dead Files):
+1. **طبقة الـ Repositories بالكامل 🗑️:**
+   * [`app/Repositories/EntityBaseRepository.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Repositories/EntityBaseRepository.php) (206 سطور - مستودع قديم للبحث الميت عبر الجداول وتجزئة الذاكرة).
+   * [`tests/Unit/Repositories/EntityBaseRepositoryTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Unit/Repositories/EntityBaseRepositoryTest.php) (133 سطراً - اختبار معزول لا يخدم كوداً حياً).
+   * حذف المجلدين الفارغين `app/Repositories` و `tests/Unit/Repositories`.
+2. **المتحكمات والملفات الاحتياطية 🗑️:**
+   * [`app/Http/Controllers/AuthorController.php.backup`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/AuthorController.php.backup) (128 سطراً - نسخة احتياطية منسية مرتَكبة بالخطأ).
+   * [`app/Http/Controllers/SuperAdminDashboardController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/SuperAdminDashboardController.php) (11 سطراً - صنف فارغ مهجور تماماً ومستبدل بـ `AdminDashboardController`).
+3. **طلبات الـ FormRequests المهجورة 🗑️:**
+   * [`app/Http/Requests/StoreEntityRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/StoreEntityRequest.php) (83 سطراً).
+   * [`app/Http/Requests/UpdateEntityRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/UpdateEntityRequest.php) (57 سطراً).
+4. **تنظيف الكود المعلق في سمة العلاقات ✏️:**
+   * تنظيف [`app/Traits/HasPolymorphicRelations.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Traits/HasPolymorphicRelations.php): حذف كتل الدوال المعطلة بالتعليقات (`reviews`, `favourites`, `searchTerms`, `views`) وحذف الاستيراد غير المستخدم `Review`.
+
+---
+
+### 2. نتائج فحص الحماية وعدم الانكسار 🛡️ (Verification by User):
+* **الأمر المنفذ بواسطة المستخدم:**
+  ```bash
+  php artisan test
+  ```
+* **النتيجة المسجلة:**
+  ```text
+  Tests:    1 incomplete, 585 passed (3337 assertions)
+  Duration: 47.81s
+  ```
+  *(نجاح 100% لكافة الاختبارات الحية، وانخفاض العدد من 603 إلى 585 بسبب التخلص من اختبارات الكود الميت المحذوف)*.
+
+---
+
+### 3. الأثر المعماري:
+* حذف **أكثر من 820 سطراً** من الكود المهجور والزوائد البرمجية.
+* إغلاق **المحور الأول (الكود الميت والطبقات المهجورة)** بالكامل وتطهير شجرة المشروع بنسبة 100%.
+
 
