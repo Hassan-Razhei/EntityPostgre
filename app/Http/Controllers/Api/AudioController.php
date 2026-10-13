@@ -6,19 +6,16 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Audio;
 use App\Services\EntityManagerService;
-use App\Services\EntityQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class AudioController extends Controller
 {
     protected $manager;
-    protected $query;
 
-    public function __construct(EntityManagerService $manager, EntityQueryService $query)
+    public function __construct(EntityManagerService $manager)
     {
         $this->manager = $manager;
-        $this->query = $query;
     }
 
     /**
@@ -45,7 +42,7 @@ class AudioController extends Controller
         return response()->json([
             'message' => 'تم إنشاء الملف الصوتي بنجاح',
             'data' => $audio
-        ], 210);
+        ], 201);
     }
 
     /**

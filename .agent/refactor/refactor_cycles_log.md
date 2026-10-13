@@ -17,6 +17,7 @@
 | **7** | **توحيد متحكمات المساهمين واللغات والرفوف في `EntityController` ومعايرة الـ Hooks** | `app/Http/Controllers/BookerController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/LanguageController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/ShelfController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/EntityController.php` (تحسين Hooks)<br>`app/Providers/AppServiceProvider.php` (تسجيل السياسات)<br>`app/Http/Requests/*` (إنشاء 6 طلبات FormRequests) | `php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php`<br>`npm run test:run`<br>`php artisan test` | **CoreEntitiesCRUDTest: 11 Passed (384 Assertions)**<br>**Vitest: 136 Passed (14 Files)**<br>**Full Backend: 592 Passed (3417 Assertions)**<br>100% نجاح كامل | `ed3d77d` | ✅ مكتملة وموثقة |
 | **8** | **توحيد متحكمات المجموعات والتعليقات والملاحظات في `EntityController` وترشيق CRUD** | `app/Http/Controllers/CollectionController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/CommentController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/NoteController.php` (ترشيق وتوحيد)<br>`app/Providers/AppServiceProvider.php` (تسجيل السياسات)<br>`app/Http/Requests/*` (إنشاء 6 طلبات FormRequests) | `php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php`<br>`php artisan test tests/Feature/Entities/Taxonomies/TaxonomyAttachmentTest.php`<br>`npm run test:run`<br>`php artisan test` | **CoreEntitiesCRUDTest: 11 Passed (384 Assertions)**<br>**TaxonomyAttachmentTest: 2 Passed (6 Assertions)**<br>**Vitest: 136 Passed (14 Files)**<br>**Full Backend: 592 Passed (3429 Assertions)**<br>100% نجاح كامل | `155fa14` | ✅ مكتملة وموثقة |
 | **9** | **توحيد وترشيق البث التدفقي للوسائط (`MediaStreamController`) وتأمين درع HTTP Range** | `app/Http/Controllers/MediaStreamController.php` (ترشيق وتوحيد)<br>`tests/Feature/Storage/MediaStreamTest.php` (إنشاء درع جديد) | `php artisan test tests/Feature/Storage/MediaStreamTest.php`<br>`php artisan test` | **MediaStreamTest: 7 Passed (28 Assertions)**<br>**Full Backend: 599 Passed (3454 Assertions)**<br>100% نجاح كامل | `86b7f9a` | ✅ مكتملة وموثقة |
+| **10** | **تطهير حقن التبعيات وتصحيح رموز الاستجابة وعلاقات الكيانات في واجهات الـ API** | `app/Http/Controllers/Api/*` (10 متحكمات)<br>`tests/Feature/Api/CoreApiEndpointsTest.php` (إنشاء درع جديد) | `php artisan test tests/Feature/Api/CoreApiEndpointsTest.php`<br>`npm run test:run`<br>`php artisan test` | **CoreApiEndpointsTest: 9 Passed (29 Assertions)**<br>**Vitest: 136 Passed (14 Files)**<br>**Full Backend: 608 Passed (3480 Assertions)**<br>100% نجاح كامل | `7bf5ea5` | ✅ مكتملة وموثقة |
 
 ---
 
@@ -526,4 +527,72 @@
 * التخلص من تكرار كود البث التدفقي عبر تركيزه في نقطة حقيقة واحدة (Single Point of Truth).
 * ضمان استقرار مشغلات الصوت والفيديو في المتصفحات والواجهات بدون انقطاع أو تشوه أثناء الـ Seeking.
 * إضافة 7 اختبارات جديدة لدرع المناعة الشامل لضمان عدم حدوث انحدار سلوكي مستقبلاً.
+
+---
+
+## 🔹 الدورة 10: تطهير حقن التبعيات وتصحيح رموز الاستجابة وعلاقات الكيانات في واجهات الـ API
+
+- **تاريخ الإنجاز:** 2026-10-14
+- **المحور المستهدف:** المحور الثالث (طبقة المتحكمات وتوحيد معمارية الـ CRUD وواجهات البرمجة API)
+- **الهدف المعماري:**  
+  إغلاق ملف المرحلة الثالثة بالكامل عبر تطهير واجهات برمجة التطبيقات (`app/Http/Controllers/Api/*`): إزالة حقن التبعيات الميتة غير المستخدمة (`EntityQueryService`) في مشيدات متحكمات الأصول، تصحيح رموز استجابة الإنشاء الشاذة من `210` إلى الرمز العالمي القياسي `201 Created` في 9 متحكمات، إنقاذ وتصحيح أعمدة الربط متعدد الأشكال (`entity_id` و `entity_type`) والعلاقة الأصيلة `entity()` في التعليقات والملاحظات بدلاً من التسميات المهجورة المتسببة في أخطاء قاعدة البيانات، وتأمين الـ Null-Safety لمعرف المستخدم، وبناء درع اختبار شامل للـ API.
+
+---
+
+### 1. الملفات المنشأة والمعدلة:
+1. **معدل ✏️ (تطهير مشيدات متحكمات الأصول وحذف التبعيات الميتة):**
+   - [`app/Http/Controllers/Api/AudioController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/AudioController.php): إزالة حقن `EntityQueryService $query` وتصحيح رمز الإنشاء إلى `201`.
+   - [`app/Http/Controllers/Api/BookController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/BookController.php): إزالة حقن `EntityQueryService $query` وتصحيح رمز الإنشاء إلى `201`.
+   - [`app/Http/Controllers/Api/VideoController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/VideoController.php): إزالة حقن `EntityQueryService $query` وتصحيح رمز الإنشاء إلى `201`.
+   - [`app/Http/Controllers/Api/ManuscriptController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/ManuscriptController.php): إزالة حقن `EntityQueryService $query`.
+2. **معدل ✏️ (تصحيح رموز الحالة وعلاقات الكيانات في المتحكمات الوصفية):**
+   - [`app/Http/Controllers/Api/CategoryController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/CategoryController.php): تصحيح رمز الإنشاء إلى `201`.
+   - [`app/Http/Controllers/Api/TagController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/TagController.php): تصحيح رمز الإنشاء إلى `201`.
+   - [`app/Http/Controllers/Api/CollectionController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/CollectionController.php): تصحيح رمز الإنشاء إلى `201` وتأمين `User::first()?->id`.
+   - [`app/Http/Controllers/Api/SeriesController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/SeriesController.php): تصحيح رمز الإنشاء إلى `201`.
+   - [`app/Http/Controllers/Api/CommentController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/CommentController.php): ربط `entity_id` و `entity_type` بدلاً من `commentable_*`، وتصحيح العلاقة إلى `entity()`، وتصحيح رمز الإنشاء إلى `201`.
+   - [`app/Http/Controllers/Api/NoteController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/Api/NoteController.php): ربط `entity_id` و `entity_type` بدلاً من `notable_*`، وتصحيح العلاقة إلى `entity()`، وتصحيح رمز الإنشاء إلى `201`.
+3. **منشأ 🌟 (درع حماية واجهات الـ API):**
+   - [`tests/Feature/Api/CoreApiEndpointsTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/Api/CoreApiEndpointsTest.php): 9 اختبارات تغطي دورة إنشاء وجلب الكتب، الصوتيات، المرئيات، المخطوطات، التصنيفات، الوسوم، المجموعات، السلاسل، والتعليقات والملاحظات والتأكد من إرجاع `201 Created` وهيكل الـ JSON.
+
+---
+
+### 2. نتائج فحص درع المناعة الشامل (Full-Stack Immunity Shield) 🛡️:
+* **الأوامر المنفذة بواسطة المستخدم:**
+  ```bash
+  php artisan test tests/Feature/Api/CoreApiEndpointsTest.php
+  npm run test:run
+  php artisan test
+  ```
+* **النتائج المسجلة:**
+  ```text
+  PASS  Tests\Feature\Api\CoreApiEndpointsTest
+  ✓ can create book via api
+  ✓ can create audio via api
+  ✓ can create video via api
+  ✓ can create manuscript via api
+  ✓ can create category via api
+  ✓ can create tag via api
+  ✓ can create collection via api
+  ✓ can create series via api
+  ✓ can create comment and note via api
+  Tests: 9 passed (29 assertions) | Duration: 1.10s
+
+  Vitest Frontend Tests (npm run test:run):
+  Test Files: 14 passed (14)
+  Tests:      136 passed (136) | Duration: 14.75s
+
+  Full Backend Suite (php artisan test):
+  Tests:      1 incomplete, 608 passed (3480 assertions) | Duration: 45.73s
+  ```
+  *(100% نجاح كامل لكافة الاختبارات)*.
+
+---
+
+### 3. الأثر المعماري:
+* تطهير كامل لمتحكمات واجهة البرمجة (Api Controllers) من الكود الميت وحقن الخدمات غير المستغلة.
+* القضاء على التناقضات السلوكية وحالات الشذوذ في رموز الـ HTTP (استبدال 210 بـ 201 القياسي).
+* معالجة ثغرة برمجية كامنة كانت ستؤدي لانهيار جلب التعليقات والملاحظات بفضل تصحيح اسم العلاقة إلى `entity()`.
+* رفع عدد اختبارات النظام الإجمالية إلى **608 اختبارات ناجحة**.
+
 

@@ -6,19 +6,16 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Book;
 use App\Services\EntityManagerService;
-use App\Services\EntityQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class BookController extends Controller
 {
     protected $manager;
-    protected $query;
 
-    public function __construct(EntityManagerService $manager, EntityQueryService $query)
+    public function __construct(EntityManagerService $manager)
     {
         $this->manager = $manager;
-        $this->query = $query;
     }
 
     /**
@@ -45,7 +42,7 @@ class BookController extends Controller
         return response()->json([
             'message' => 'تم إنشاء الكتاب بنجاح',
             'data' => $book
-        ], 210);
+        ], 201);
     }
 
     /**

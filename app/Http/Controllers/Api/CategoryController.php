@@ -44,7 +44,7 @@ class CategoryController extends Controller
         return response()->json([
             'message' => 'تم إنشاء التصنيف بنجاح',
             'data' => $category
-        ], 210);
+        ], 201);
     }
 
     /**

@@ -15,7 +15,7 @@ class NoteController extends Controller
      */
     public function index(): JsonResponse
     {
-        $notes = Note::with(['user', 'notable'])->latest()->get();
+        $notes = Note::with(['user', 'entity'])->latest()->get();
 
         return response()->json($notes);
     }
@@ -27,21 +27,21 @@ class NoteController extends Controller
     {
         $request->validate([
             'content' => 'required|string',
-            'notable_id' => 'required|uuid',
-            'notable_type' => 'required|string',
+            'entity_id' => 'required_without:notable_id|uuid',
+            'entity_type' => 'required_without:notable_type|string',
         ]);
 
         $note = Note::create([
             'content' => $request->input('content'),
-            'user_id' => auth()->id() ?? \App\Models\User::first()->id,
-            'notable_id' => $request->input('notable_id'),
-            'notable_type' => $request->input('notable_type'),
+            'user_id' => auth()->id() ?? \App\Models\User::first()?->id,
+            'entity_id' => $request->input('entity_id') ?? $request->input('notable_id'),
+            'entity_type' => $request->input('entity_type') ?? $request->input('notable_type'),
         ]);
 
         return response()->json([
             'message' => 'تم إضافة الملاحظة بنجاح',
             'data' => $note
-        ], 210);
+        ], 201);
     }
 
     /**
@@ -49,7 +49,7 @@ class NoteController extends Controller
      */
     public function show(Note $note): JsonResponse
     {
-        return response()->json($note->load(['user', 'notable']));
+        return response()->json($note->load(['user', 'entity']));
     }
 
     /**

@@ -15,7 +15,7 @@ class CommentController extends Controller
      */
     public function index(): JsonResponse
     {
-        $comments = Comment::with(['user', 'commentable'])->latest()->get();
+        $comments = Comment::with(['user', 'entity'])->latest()->get();
 
         return response()->json($comments);
     }
@@ -27,21 +27,22 @@ class CommentController extends Controller
     {
         $request->validate([
             'content' => 'required|string',
-            'commentable_id' => 'required|uuid',
-            'commentable_type' => 'required|string', // e.g., 'book', 'video'
+            'entity_id' => 'required_without:commentable_id|uuid',
+            'entity_type' => 'required_without:commentable_type|string',
         ]);
 
         $comment = Comment::create([
             'content' => $request->input('content'),
-            'user_id' => auth()->id() ?? \App\Models\User::first()->id,
-            'commentable_id' => $request->input('commentable_id'),
-            'commentable_type' => $request->input('commentable_type'),
+            'user_id' => auth()->id() ?? \App\Models\User::first()?->id,
+            'entity_id' => $request->input('entity_id') ?? $request->input('commentable_id'),
+            'entity_type' => $request->input('entity_type') ?? $request->input('commentable_type'),
+            'parent_id' => $request->input('parent_id'),
         ]);
 
         return response()->json([
             'message' => 'تم إضافة التعليق بنجاح',
             'data' => $comment
-        ], 210);
+        ], 201);
     }
 
     /**
@@ -49,7 +50,7 @@ class CommentController extends Controller
      */
     public function show(Comment $comment): JsonResponse
     {
-        return response()->json($comment->load(['user', 'commentable']));
+        return response()->json($comment->load(['user', 'entity']));
     }
 
     /**

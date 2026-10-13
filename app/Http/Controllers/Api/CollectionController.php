@@ -37,13 +37,13 @@ class CollectionController extends Controller
             'name' => $request->input('name'),
             'description' => $request->input('description'),
             'is_public' => $request->input('is_public') ?? false,
-            'user_id' => auth()->id() ?? \App\Models\User::first()->id, // Fallback for dev
+            'user_id' => auth()->id() ?? \App\Models\User::first()?->id, // Fallback for dev
         ]);
 
         return response()->json([
             'message' => 'تم إنشاء المجموعة بنجاح',
             'data' => $collection
-        ], 210);
+        ], 201);
     }
 
     /**

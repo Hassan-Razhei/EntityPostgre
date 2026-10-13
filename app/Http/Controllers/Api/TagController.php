@@ -40,7 +40,7 @@ class TagController extends Controller
         return response()->json([
             'message' => 'تم إنشاء الـ Tag بنجاح',
             'data' => $tag
-        ], 210);
+        ], 201);
     }
 
     /**

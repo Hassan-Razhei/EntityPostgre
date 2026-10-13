@@ -36,7 +36,7 @@ class SeriesController extends Controller
         return response()->json([
             'message' => 'تم إنشاء السلسلة بنجاح',
             'data' => $series
-        ], 210);
+        ], 201);
     }
 
     /**
