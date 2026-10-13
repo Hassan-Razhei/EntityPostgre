@@ -169,10 +169,10 @@ class BookChildTest extends TestCase
     }
 
     #[Test]
-    public function legacy_model_adapters_can_create_and_query_by_parent_foreign_key(): void
+    public function content_nodes_support_parent_foreign_keys_and_relations(): void
     {
         $book = Book::factory()->create();
-        $bookChild = \App\Models\BookChild::create([
+        $bookChild = ContentNode::create([
             'book_id' => $book->id,
             'title' => 'Adapter Chapter',
             'slug' => 'adapter-chapter-' . uniqid(),
@@ -184,11 +184,8 @@ class BookChildTest extends TestCase
         $this->assertEquals('book', $bookChild->entity_type);
         $this->assertEquals($book->id, $bookChild->book->id);
 
-        $audio = \App\Models\Audio::create([
-            'title' => 'Adapter Audio',
-            'slug' => 'adapter-audio-' . uniqid(),
-        ]);
-        $segment = \App\Models\AudioSegment::create([
+        $audio = \App\Models\Audio::factory()->create();
+        $segment = ContentNode::create([
             'audio_id' => $audio->id,
             'title' => 'Adapter Audio Segment',
             'slug' => 'adapter-audio-seg-' . uniqid(),
@@ -201,11 +198,8 @@ class BookChildTest extends TestCase
         $this->assertEquals(10.5, $segment->start_time);
         $this->assertEquals($audio->id, $segment->audio->id);
 
-        $video = \App\Models\Video::create([
-            'title' => 'Adapter Video',
-            'slug' => 'adapter-video-' . uniqid(),
-        ]);
-        $vSegment = \App\Models\VideoSegment::create([
+        $video = \App\Models\Video::factory()->create();
+        $vSegment = ContentNode::create([
             'video_id' => $video->id,
             'title' => 'Adapter Video Segment',
             'slug' => 'adapter-video-seg-' . uniqid(),

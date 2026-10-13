@@ -5,13 +5,10 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Book;
-use App\Models\BookChild;
 use App\Models\Manuscript;
-use App\Models\ManuscriptPage;
 use App\Models\Audio;
-use App\Models\AudioSegment;
 use App\Models\Video;
-use App\Models\VideoSegment;
+use App\Models\ContentNode;
 use App\Enums\ContentNodeType;
 
 class SeedRealisticData extends Seeder
@@ -79,13 +76,13 @@ class SeedRealisticData extends Seeder
         ];
 
         foreach ($levels as $index => $level) {
-            BookChild::create([
-                'book_id' => $book->id,
+            $book->nodes()->create([
                 'title' => $level['title'],
                 'slug' => \Str::slug($level['title']),
                 'type' => $level['type'],
                 'order' => $index + 1,
-                'content' => "<p>Content for {$level['title']}</p>"
+                'content_html' => "<p>Content for {$level['title']}</p>",
+                'plain_text' => "Content for {$level['title']}",
             ]);
         }
     }
@@ -93,64 +90,61 @@ class SeedRealisticData extends Seeder
     private function createManuscriptHierarchy($manuscript)
     {
         // Hybrid Structure
-        ManuscriptPage::create([
-            'manuscript_id' => $manuscript->id,
+        $manuscript->nodes()->create([
             'title' => 'Introduction',
             'slug' => 'intro',
             'type' => 'part',
             'order' => 1,
-            'content' => '<p>Introductory text.</p>'
+            'content_html' => '<p>Introductory text.</p>',
+            'plain_text' => 'Introductory text.',
         ]);
 
         // Markers (Folios/Pages)
         for ($i = 1; $i <= 3; $i++) {
-            ManuscriptPage::create([
-                'manuscript_id' => $manuscript->id,
+            $manuscript->nodes()->create([
                 'title' => "Folio {$i}a",
                 'slug' => "folio-{$i}a",
                 'type' => 'folio',
                 'order' => $i + 1,
-                'content' => "<h4 class=\"structure-marker\" data-type=\"folio\" data-folio=\"{$i}\">Folio {$i}a:</h4><p>Text on folio {$i}a...</p>"
+                'content_html' => "<h4 class=\"structure-marker\" data-type=\"folio\" data-folio=\"{$i}\">Folio {$i}a:</h4><p>Text on folio {$i}a...</p>",
+                'plain_text' => "Folio {$i}a: Text on folio {$i}a...",
             ]);
         }
     }
 
     private function createAudioSegments($audio)
     {
-        AudioSegment::create([
-            'audio_id' => $audio->id,
+        $audio->nodes()->create([
             'title' => 'Opening Theme',
             'slug' => 'opening',
             'type' => 'track',
             'start_time' => 0,
             'end_time' => 60,
             'order' => 1,
-            'content' => '<h4 class="structure-marker" data-type="track" data-start-time="0">Opening Theme:</h4>'
+            'content_html' => '<h4 class="structure-marker" data-type="track" data-start-time="0">Opening Theme:</h4>',
         ]);
 
-        AudioSegment::create([
-            'audio_id' => $audio->id,
+        $audio->nodes()->create([
             'title' => 'Main Topic',
             'slug' => 'main-topic',
             'type' => 'segment',
             'start_time' => 60,
             'end_time' => 1200,
             'order' => 2,
-            'content' => '<h4 class="structure-marker" data-type="segment" data-start-time="60">Main Topic:</h4>'
+            'content_html' => '<h4 class="structure-marker" data-type="segment" data-start-time="60">Main Topic:</h4>',
         ]);
     }
 
     private function createVideoSegments($video)
     {
-        VideoSegment::create([
-            'video_id' => $video->id,
+        $video->nodes()->create([
             'title' => 'Scene 1: The Beginning',
             'slug' => 'scene-1',
             'type' => 'scene',
             'start_time' => 0,
             'end_time' => 300,
             'order' => 1,
-            'content' => '<h4 class="structure-marker" data-type="scene" data-start-time="0">Scene 1:</h4>'
+            'content_html' => '<h4 class="structure-marker" data-type="scene" data-start-time="0">Scene 1:</h4>',
         ]);
     }
 }

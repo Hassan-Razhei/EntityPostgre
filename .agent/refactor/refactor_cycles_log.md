@@ -11,6 +11,7 @@
 | **1** | **إنقاذ دوال العلاقات وتطهير خدمة الكود الميت (`EntityRelationService`)** | `app/Services/EntityRelationService.php` (حذف)<br>`app/Traits/HasPolymorphicRelations.php` (إضافة)<br>`tests/Unit/Services/EntityRelationServiceTest.php` (حذف)<br>`tests/Unit/Traits/HasPolymorphicRelationsTest.php` (تحديث) | `php artisan test tests/Unit/Traits/HasPolymorphicRelationsTest.php` | **7 Passed (17 Assertions)**<br>100% نجاح | `712a60a` | ✅ مكتملة وموثقة |
 | **2** | **تطهير طبقة الـ Repositories والكود الميت وإغلاق المحور الأول** | `app/Repositories/EntityBaseRepository.php` (حذف)<br>`tests/Unit/Repositories/EntityBaseRepositoryTest.php` (حذف)<br>`app/Http/Controllers/AuthorController.php.backup` (حذف)<br>`app/Http/Controllers/SuperAdminDashboardController.php` (حذف)<br>`app/Http/Requests/StoreEntityRequest.php` (حذف)<br>`app/Http/Requests/UpdateEntityRequest.php` (حذف)<br>`app/Traits/HasPolymorphicRelations.php` (تنظيف) | `php artisan test` | **585 Passed (3337 Assertions)**<br>100% نجاح | `8659439` | ✅ مكتملة وموثقة |
 | **3** | **تطهير محولات التوافقية المهجورة للمخطوطات والكيانات (`EntityContent`, `ManuscriptChild`, `ManuscriptPage`)** | `app/Models/EntityContent.php` (حذف)<br>`app/Models/ManuscriptChild.php` (حذف)<br>`app/Models/ManuscriptPage.php` (حذف)<br>`tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php` (تحديث) | `php artisan test tests/Feature/Entities/Manuscripts/ManuscriptContentNodeTest.php` | **584 Passed (3320 Assertions)**<br>100% نجاح | `94d55c1` | ✅ مكتملة وموثقة |
+| **4** | **تطهير آخر نماذج التوافقية الصورية (`BookChild`, `AudioSegment`, `VideoSegment`) وتوحيد الشجرة في `ContentNode`** | `app/Models/BookChild.php` (حذف)<br>`app/Models/AudioSegment.php` (حذف)<br>`app/Models/VideoSegment.php` (حذف)<br>`app/Models/ContentNode.php` (ترقية وتوحيد)<br>`app/Providers/AppServiceProvider.php` (تحديث)<br>`database/seeders/SeedRealisticData.php` (تحديث)<br>`database/seeders/BookContentSeeder.php` (تحديث)<br>`tests/Feature/Entities/Books/BookChildTest.php` (ترقية) | `php artisan test tests/Feature/Entities/Books/BookChildTest.php` | **584 Passed (3326 Assertions)**<br>100% نجاح | `9c65a95` | ✅ مكتملة وموثقة |
 
 ---
 
@@ -150,6 +151,60 @@
 ### 3. الأثر المعماري:
 * التخلص من 3 نماذج مضللة من أصل 6 نماذج ترث صورياً من `ContentNode`.
 * تثبيت الاعتماد الصريح للمخطوطات على شجرة PostgreSQL الموحدة.
+
+---
+
+## 🔹 الدورة 4: تطهير آخر نماذج التوافقية الصورية (`BookChild`, `AudioSegment`, `VideoSegment`) وتوحيد الشجرة في `ContentNode`
+
+- **تاريخ الإنجاز:** 2026-10-13
+- **المحور المستهدف:** المحور الثاني (موديلات ومحولات التوافقية الصورية - المرحلة النهائية)
+- **الهدف المعماري:**  
+  إكمال التخلص النهائي من بقايا التوافقية الصورية لـ MongoDB. كانت نماذج `BookChild`, `AudioSegment`, `VideoSegment` عبارة عن فئات فارغة ترث من `ContentNode` فقط لتوفر معالجات أسماء قديمة مثل `$child->book_id` أو العلاقات `$child->book`. تم ترقية النموذج الأصيل [`ContentNode`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/ContentNode.php) ليحتوي هذه العلاقات والمعالجات بشفافية كاملة، ثم حذف النماذج الثلاثة وتحديث ملفات الـ Seeders ومقدمي الخدمة بدون أي كسر خارجي.
+
+---
+
+### 1. الملفات المحذوفة والمعدلة:
+1. **محذوف 🗑️:** [`app/Models/BookChild.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/BookChild.php) (نموذج مهجور يرث صورياً من `ContentNode`).
+2. **محذوف 🗑️:** [`app/Models/AudioSegment.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/AudioSegment.php) (نموذج مهجور يرث صورياً من `ContentNode`).
+3. **محذوف 🗑️:** [`app/Models/VideoSegment.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/VideoSegment.php) (نموذج مهجور يرث صورياً من `ContentNode`).
+4. **معدل ✏️:** [`app/Models/ContentNode.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/ContentNode.php) (إضافة علاقات الكيان الأب `book()`, `audio()`, `video()`, `manuscript()` والمفاتيح الافتراضية `book_id`, `audio_id`, `video_id`, `manuscript_id`).
+5. **معدل ✏️:** [`app/Providers/AppServiceProvider.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Providers/AppServiceProvider.php) (تطهير ربط MorphMap القديم لـ `book_child`).
+6. **معدل ✏️:** [`database/seeders/SeedRealisticData.php`](file:///home/a/PhpstormProjects/EntityPostgre/database/seeders/SeedRealisticData.php) (الاعتماد المباشر على `ContentNode`).
+7. **معدل ✏️:** [`database/seeders/BookContentSeeder.php`](file:///home/a/PhpstormProjects/EntityPostgre/database/seeders/BookContentSeeder.php) (تطهير الاستيراد المهجور).
+8. **معدل ✏️:** [`tests/Feature/Entities/Books/BookChildTest.php`](file:///home/a/PhpstormProjects/EntityPostgre/tests/Feature/Entities/Books/BookChildTest.php) (ترقية الفحص ليتحقق من سلوك العقد عبر `ContentNode` مباشرة مع فحص المفاتيح والعلاقات الافتراضية).
+
+---
+
+### 2. نتائج فحص الحماية وعدم الانكسار 🛡️ (Verification by User):
+* **الأمر المنفذ بواسطة المستخدم:**
+  ```bash
+  php artisan test tests/Feature/Entities/Books/BookChildTest.php
+  php artisan test
+  ```
+* **النتيجة المسجلة:**
+  ```text
+  PASS  Tests\Feature\Entities\Books\BookChildTest
+  ✓ it can create a book child node in postgresql
+  ✓ it can update nested content blocks
+  ✓ a book can access its children nodes
+  ✓ book content service can manage hierarchy
+  ✓ it can add annotated blocks via service
+  ✓ deleting a book deletes its content nodes
+  ✓ content nodes support parent foreign keys and relations
+
+  Tests:    7 passed (29 assertions)
+  Duration: 0.88s
+
+  Tests:    1 incomplete, 584 passed (3326 assertions)
+  Duration: 52.37s
+  ```
+  *(نجاح كامل بنسبة 100% لكامل المنظومة)*.
+
+---
+
+### 3. الأثر المعماري:
+* إغلاق ملف المحور الثاني بالكامل: تم تطهير كافة نماذج التوافقية الصورية الستة (`EntityContent`, `ManuscriptChild`, `ManuscriptPage`, `BookChild`, `AudioSegment`, `VideoSegment`).
+* شجرة المحتوى الآن موحدة 100% تحت نموذج مركزي واحد هو [`ContentNode`](file:///home/a/PhpstormProjects/EntityPostgre/app/Models/ContentNode.php).
 
 
 

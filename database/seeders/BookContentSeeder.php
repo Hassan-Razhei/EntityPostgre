@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Book;
-use App\Models\BookChild;
 use App\Services\BookContentService;
 use Illuminate\Database\Seeder;
 

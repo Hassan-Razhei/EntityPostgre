@@ -104,6 +104,71 @@ class ContentNode extends Model
         return $this->morphTo();
     }
 
+    public function book()
+    {
+        return $this->belongsTo(Book::class, 'entity_id');
+    }
+
+    public function audio()
+    {
+        return $this->belongsTo(Audio::class, 'entity_id');
+    }
+
+    public function video()
+    {
+        return $this->belongsTo(Video::class, 'entity_id');
+    }
+
+    public function manuscript()
+    {
+        return $this->belongsTo(Manuscript::class, 'entity_id');
+    }
+
+    public function getBookIdAttribute(): ?string
+    {
+        return $this->entity_type === 'book' ? $this->entity_id : null;
+    }
+
+    public function setBookIdAttribute($value): void
+    {
+        $this->attributes['entity_id'] = $value;
+        $this->attributes['entity_type'] = 'book';
+    }
+
+    public function getAudioIdAttribute(): ?string
+    {
+        return $this->entity_type === 'audio' ? $this->entity_id : null;
+    }
+
+    public function setAudioIdAttribute($value): void
+    {
+        $this->attributes['entity_id'] = $value;
+        $this->attributes['entity_type'] = 'audio';
+    }
+
+    public function getVideoIdAttribute(): ?string
+    {
+        return $this->entity_type === 'video' ? $this->entity_id : null;
+    }
+
+    public function setVideoIdAttribute($value): void
+    {
+        $this->attributes['entity_id'] = $value;
+        $this->attributes['entity_type'] = 'video';
+    }
+
+    public function getManuscriptIdAttribute(): ?string
+    {
+        return $this->entity_type === 'manuscript' ? $this->entity_id : null;
+    }
+
+    public function setManuscriptIdAttribute($value): void
+    {
+        $this->attributes['entity_id'] = $value;
+        $this->attributes['entity_type'] = 'manuscript';
+    }
+
+
     /**
      * العقدة الأب
      */
@@ -410,51 +475,5 @@ class ContentNode extends Model
         $meta['page_number'] = (int) $value;
         $this->metadata = $meta;
     }
-
-    /**
-     * محولات المفاتيح الأجنبية القديمة للتوافق الشامل
-     */
-    public function getBookIdAttribute(): ?string
-    {
-        return $this->entity_type === 'book' ? $this->entity_id : null;
-    }
-
-    public function setBookIdAttribute($value): void
-    {
-        $this->attributes['entity_id'] = $value;
-        $this->attributes['entity_type'] = 'book';
-    }
-
-    public function getManuscriptIdAttribute(): ?string
-    {
-        return $this->entity_type === 'manuscript' ? $this->entity_id : null;
-    }
-
-    public function setManuscriptIdAttribute($value): void
-    {
-        $this->attributes['entity_id'] = $value;
-        $this->attributes['entity_type'] = 'manuscript';
-    }
-
-    public function getAudioIdAttribute(): ?string
-    {
-        return $this->entity_type === 'audio' ? $this->entity_id : null;
-    }
-
-    public function setAudioIdAttribute($value): void
-    {
-        $this->attributes['entity_id'] = $value;
-        $this->attributes['entity_type'] = 'audio';
-    }
-
-    public function getVideoIdAttribute(): ?string
-    {
-        return $this->entity_type === 'video' ? $this->entity_id : null;
-    }
-
-    public function setVideoIdAttribute($value): void
-    {
-        $this->attributes['entity_id'] = $value;
-        $this->attributes['entity_type'] = 'video';
-    }
 }
+
