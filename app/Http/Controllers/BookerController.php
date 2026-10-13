@@ -4,122 +4,46 @@ namespace App\Http\Controllers;
 
 use App\Models\Booker;
 use App\Helpers\SlugHelper;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
-class BookerController extends Controller
+/**
+ * BookerController - Refactored to inherit EntityController
+ */
+class BookerController extends EntityController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): Response
-    {
-        $query = Booker::query();
+    // Configuration
+    protected function getModelClass(): string { return Booker::class; }
+    protected function getViewPath(): string { return 'Bookers'; }
+    protected function getRouteName(): string { return 'bookers'; }
+    protected function getStoreRequestClass(): ?string { return \App\Http\Requests\StoreBookerRequest::class; }
+    protected function getUpdateRequestClass(): ?string { return \App\Http\Requests\UpdateBookerRequest::class; }
 
-        if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->input('search') . '%');
+    // Customization
+    protected function getRelations(): array { return ['books', 'videos', 'audios', 'manuscripts']; }
+    protected function getWithCount(): array { return ['books', 'videos', 'audios', 'manuscripts']; }
+    protected function getSearchFields(): array { return ['name']; }
+    protected function getPerPage(): int { return 12; }
+
+    protected function getCreateSuccessMessage(): string { return 'تم إضافة المساهم بنجاح'; }
+    protected function getUpdateSuccessMessage(): string { return 'تم تحديث بيانات المساهم بنجاح'; }
+    protected function getDeleteSuccessMessage(): string { return 'تم حذف المساهم بنجاح'; }
+
+    /**
+     * Persist Booker with automatic slug generation
+     */
+    protected function persistModel(Model $model, array $data, Request $request): void
+    {
+        if (isset($data['name']) && empty($data['slug'])) {
+            $data['slug'] = SlugHelper::generate($data['name']);
         }
-
-        $bookers = $query->withCount(['books', 'videos', 'audios', 'manuscripts'])
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
-
-        return Inertia::render('Bookers/Index', [
-            'bookers' => $bookers,
-            'filters' => $request->only(['search']),
-        ]);
+        $model->fill($data);
+        $model->save();
     }
 
-    /**
-     * Bulk destroy resource.
-     */
-    public function bulkDestroy(Request $request): RedirectResponse
+    protected function getUpdateRedirect(Model $model): \Illuminate\Http\RedirectResponse
     {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'required|exists:bookers,id',
-        ]);
-
-        Booker::whereIn('id', $request->ids)->delete();
-
-        return back()->with('success', 'تم حذف المساهمين بنجاح.');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('Bookers/Create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        Booker::create([
-            'name' => $validated['name'],
-            'slug' => SlugHelper::generate($validated['name']),
-        ]);
-
         return redirect()->route('bookers.index')
-            ->with('message', 'تم إضافة المساهم بنجاح');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Booker $booker): Response
-    {
-        return Inertia::render('Bookers/Show', [
-            'booker' => $booker->loadCount(['books', 'videos', 'audios', 'manuscripts']),
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Booker $booker): Response
-    {
-        return Inertia::render('Bookers/Edit', [
-            'booker' => $booker,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Booker $booker): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $booker->update([
-            'name' => $validated['name'],
-            'slug' => SlugHelper::generate($validated['name']),
-        ]);
-
-        return redirect()->route('bookers.index')
-            ->with('message', 'تم تحديث بيانات المساهم بنجاح');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Booker $booker): RedirectResponse
-    {
-        $booker->delete();
-
-        return redirect()->route('bookers.index')
-            ->with('message', 'تم حذف المساهم بنجاح');
+            ->with('message', $this->getUpdateSuccessMessage());
     }
 }

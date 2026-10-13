@@ -4,117 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Language;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
-class LanguageController extends Controller
+/**
+ * LanguageController - Refactored to inherit EntityController
+ */
+class LanguageController extends EntityController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): Response
+    // Configuration
+    protected function getModelClass(): string { return Language::class; }
+    protected function getViewPath(): string { return 'Languages'; }
+    protected function getRouteName(): string { return 'languages'; }
+    protected function getStoreRequestClass(): ?string { return \App\Http\Requests\StoreLanguageRequest::class; }
+    protected function getUpdateRequestClass(): ?string { return \App\Http\Requests\UpdateLanguageRequest::class; }
+
+    // Customization
+    protected function getRelations(): array { return []; }
+    protected function getWithCount(): array { return ['books', 'videos', 'audios', 'manuscripts']; }
+    protected function getSearchFields(): array { return ['name', 'code']; }
+    protected function getPerPage(): int { return 12; }
+
+    protected function getCreateSuccessMessage(): string { return 'تم إضافة اللغة بنجاح'; }
+    protected function getUpdateSuccessMessage(): string { return 'تم تحديث اللغة بنجاح'; }
+    protected function getDeleteSuccessMessage(): string { return 'تم حذف اللغة بنجاح'; }
+
+    protected function getUpdateRedirect(\Illuminate\Database\Eloquent\Model $model): \Illuminate\Http\RedirectResponse
     {
-        $filters = $request->only(['search']);
-
-        $languages = Language::withCount(['books', 'videos', 'audios', 'manuscripts'])
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
-
-        return Inertia::render('Languages/Index', [
-            'languages' => $languages,
-            'filters' => $filters,
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('Languages/Create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:languages,name',
-            'code' => 'required|string|max:10|unique:languages,code',
-        ]);
-
-        Language::create($request->only(['name', 'code']));
-
         return redirect()->route('languages.index')
-            ->with('message', 'تم إضافة اللغة بنجاح');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Language $language): Response
-    {
-        return Inertia::render('Languages/Show', [
-            'language' => $language->loadCount(['books', 'videos', 'audios', 'manuscripts']),
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Language $language): Response
-    {
-        return Inertia::render('Languages/Edit', [
-            'language' => $language,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Language $language): RedirectResponse
-    {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:languages,name,' . $language->id,
-            'code' => 'required|string|max:10|unique:languages,code,' . $language->id,
-        ]);
-
-        $language->update($request->only(['name', 'code']));
-
-        return redirect()->route('languages.index')
-            ->with('message', 'تم تحديث اللغة بنجاح');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Language $language): RedirectResponse
-    {
-        $language->delete();
-
-        return redirect()->route('languages.index')
-            ->with('message', 'تم حذف اللغة بنجاح');
-    }
-
-    /**
-     * Bulk destroy resource.
-     */
-    public function bulkDestroy(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'required|exists:languages,id',
-        ]);
-
-        Language::whereIn('id', $request->ids)->delete();
-
-        return back()->with('message', 'تم حذف اللغات المحددة بنجاح.');
+            ->with('message', $this->getUpdateSuccessMessage());
     }
 }

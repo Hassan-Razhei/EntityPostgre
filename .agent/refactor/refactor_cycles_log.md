@@ -14,6 +14,7 @@
 | **4** | **تطهير آخر نماذج التوافقية الصورية (`BookChild`, `AudioSegment`, `VideoSegment`) وتوحيد الشجرة في `ContentNode`** | `app/Models/BookChild.php` (حذف)<br>`app/Models/AudioSegment.php` (حذف)<br>`app/Models/VideoSegment.php` (حذف)<br>`app/Models/ContentNode.php` (ترقية وتوحيد)<br>`app/Providers/AppServiceProvider.php` (تحديث)<br>`database/seeders/SeedRealisticData.php` (تحديث)<br>`database/seeders/BookContentSeeder.php` (تحديث)<br>`tests/Feature/Entities/Books/BookChildTest.php` (ترقية) | `php artisan test tests/Feature/Entities/Books/BookChildTest.php` | **584 Passed (3326 Assertions)**<br>100% نجاح | `9c65a95` | ✅ مكتملة وموثقة |
 | **5** | **استخراج وحماية الخصائص الذكية لشجرة المحتوى في سمة `HasNodeMetadata`** | `app/Traits/HasNodeMetadata.php` (إنشاء)<br>`app/Models/ContentNode.php` (ترقية ورشاقة)<br>`tests/Unit/Traits/HasNodeMetadataTest.php` (إنشاء درع جديد) | `php artisan test tests/Unit/Traits/HasNodeMetadataTest.php` | **589 Passed (3351 Assertions)**<br>100% نجاح | `edec6d4` | ✅ مكتملة وموثقة |
 | **6** | **تفكيك وترشيق `AdminDashboardController` واستخراج خدمة `DashboardStatsService` وسمة `AppliesAssetFilters`** | `app/Services/DashboardStatsService.php` (إنشاء)<br>`app/Traits/AppliesAssetFilters.php` (إنشاء)<br>`app/Http/Controllers/AdminDashboardController.php` (ترشيق وتفكيك)<br>`tests/Unit/Services/DashboardStatsServiceTest.php` (إنشاء درع جديد) | `php artisan test tests/Unit/Services/DashboardStatsServiceTest.php`<br>`npm run test:run` | **592 Passed (3414 Assertions)**<br>**Vitest: 136 Passed**<br>100% نجاح كامل | `fedc8d7` | ✅ مكتملة وموثقة |
+| **7** | **توحيد متحكمات المساهمين واللغات والرفوف في `EntityController` ومعايرة الـ Hooks** | `app/Http/Controllers/BookerController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/LanguageController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/ShelfController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/EntityController.php` (تحسين Hooks)<br>`app/Providers/AppServiceProvider.php` (تسجيل السياسات)<br>`app/Http/Requests/*` (إنشاء 6 طلبات FormRequests) | `php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php`<br>`npm run test:run`<br>`php artisan test` | **CoreEntitiesCRUDTest: 11 Passed (384 Assertions)**<br>**Vitest: 136 Passed (14 Files)**<br>**Full Backend: 592 Passed (3417 Assertions)**<br>100% نجاح كامل | `ed3d77d` | ✅ مكتملة وموثقة |
 
 ---
 
@@ -326,6 +327,77 @@
 * تحويل `AdminDashboardController` من متحكم ضخم إلى متحكم منظم ورشيق يعتمد على حقن التبعيات.
 * تحسين أداء استعلامات PostgreSQL عبر التخلص من التكرار المفرط لـ `Schema::getColumnListing`.
 * ثبات تام بنسبة 100% لكافة واجهات قمرة القيادة والفرونت إند بدون أي انكسار سلوكي أو بصري.
+
+---
+
+## 🔹 الدورة 7: توحيد متحكمات المساهمين واللغات والرفوف في `EntityController` ومعايرة الـ Hooks
+
+- **تاريخ الإنجاز:** 2026-10-13
+- **المحور المستهدف:** المحور الثالث (طبقة المتحكمات وتوحيد معمارية الـ CRUD)
+- **الهدف المعماري:**  
+  إنهاء الازدواجية البرمجية في المتحكمات الوصفية الأساسية الثلاثة ([`BookerController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/BookerController.php), [`LanguageController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/LanguageController.php), [`ShelfController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/ShelfController.php)) وإخضاعها لوراثة الفئة الأم [`EntityController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/EntityController.php) بنمط Template Method، وإنشاء طلبات التحقق القياسية (`FormRequests`)، وربط سياسات الصلاحيات (`EntityPolicy`)، مع صيانة خطافات التوليد التلقائي للـ Slugs وإعادة التوجيه بعد التعديل وحصر النسخ الشقيقة (`siblings`) بالأصول الحقيقية حصراً.
+
+---
+
+### 1. الملفات المنشأة والمعدلة:
+1. **منشأ 🌟 (طبقة FormRequests القياسية):**
+   - [`app/Http/Requests/StoreBookerRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/StoreBookerRequest.php)
+   - [`app/Http/Requests/UpdateBookerRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/UpdateBookerRequest.php)
+   - [`app/Http/Requests/StoreLanguageRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/StoreLanguageRequest.php)
+   - [`app/Http/Requests/UpdateLanguageRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/UpdateLanguageRequest.php)
+   - [`app/Http/Requests/StoreShelfRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/StoreShelfRequest.php)
+   - [`app/Http/Requests/UpdateShelfRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/UpdateShelfRequest.php)
+2. **معدل ✏️ (تسجيل السياسات في مزود الخدمة):**
+   - [`app/Providers/AppServiceProvider.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Providers/AppServiceProvider.php): تسجيل بوابات الصلاحيات لـ `Booker` و `Language` و `Shelf` وربطها بـ `EntityPolicy`.
+3. **معدل ✏️ (ترقية الفئة الأم):**
+   - [`app/Http/Controllers/EntityController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/EntityController.php):
+     - حصر استعلام النسخ الشقيقة (`siblings`) بنماذج الأصول `Entity` الحقيقية لمنع انهيار الاستعلام في الجداول التي لا تملك عمود `title`.
+     - استخراج خطاف `getUpdateRedirect()` لإتاحة تخصيص وجهة التوجيه بعد التحديث.
+4. **معدل ✏️ (المتحكمات الموحدة والرشيقة):**
+   - [`app/Http/Controllers/BookerController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/BookerController.php): تقليص الكود من 126 إلى 50 سطراً مع الحفاظ على التوليد التلقائي للـ Slugs وإحصاء الأصول المشتركة.
+   - [`app/Http/Controllers/LanguageController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/LanguageController.php): تقليص الكود من 121 إلى 36 سطراً.
+   - [`app/Http/Controllers/ShelfController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/ShelfController.php): تقليص الكود من 120 إلى 36 سطراً.
+
+---
+
+### 2. نتائج فحص درع المناعة الشامل (Full-Stack Immunity Shield) 🛡️:
+* **الأوامر المنفذة بواسطة المستخدم:**
+  ```bash
+  php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php
+  npm run test:run
+  php artisan test
+  ```
+* **النتائج المسجلة:**
+  ```text
+  PASS  Tests\Feature\Entities\Common\CoreEntitiesCRUDTest
+  ✓ full crud lifecycle for books
+  ✓ full crud lifecycle for manuscripts
+  ✓ full crud lifecycle for audios
+  ✓ full crud lifecycle for videos
+  ✓ crud lifecycle for supporting entities
+  ✓ full crud lifecycle for bookers
+  ✓ full crud lifecycle for languages
+  ✓ full crud lifecycle for comments and notes
+  ✓ audit logs lifecycle for activities and deletions
+  ✓ crud lifecycle for content nodes and segments
+  ✓ lifecycle for versions and reading positions
+  Tests: 11 passed (384 assertions) | Duration: 1.48s
+
+  Vitest Frontend Tests (npm run test:run):
+  Test Files: 14 passed (14)
+  Tests:      136 passed (136) | Duration: 14.42s
+
+  Full Backend Suite (php artisan test):
+  Tests:      1 incomplete, 592 passed (3417 assertions) | Duration: 44.26s
+  ```
+  *(نجاح ساحق وكامل بنسبة 100% للفرونت إند والباك إند معاً)*.
+
+---
+
+### 3. الأثر المعماري:
+* التخلص من أكثر من 245 سطراً من الكود المكرر والازدواجية اليدوية في عمليات الـ CRUD.
+* إخضاع كافة عمليات الإدخال والتعديل لطبقة طلبات تحقق مستقلة (`FormRequests`) مما يرفع أمان واستقرار المدخلات.
+* توافق كامل مع بنية قمرة القيادة وواجهات Vue دون أي انكسار.
 
 
 

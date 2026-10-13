@@ -371,7 +371,7 @@ abstract class EntityController extends Controller
         }
 
         // Load siblings (Versions) if code exists
-        if (!empty($model->code)) {
+        if ($model instanceof \App\Models\Entity && !empty($model->code)) {
             $query = $model->where('code', $model->code)->where('id', '!=', $model->id);
             
             $siblingFields = ['id', 'title', 'slug', 'code'];
@@ -465,6 +465,14 @@ abstract class EntityController extends Controller
         // Handle relations
         $this->handleRelations($model, $request);
 
+        return $this->getUpdateRedirect($model);
+    }
+
+    /**
+     * Get redirect response after update operation
+     */
+    protected function getUpdateRedirect(Model $model): RedirectResponse
+    {
         $routeName = $this->getRouteName();
 
         return redirect()->route("{$routeName}.show", $model)
