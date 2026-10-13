@@ -285,4 +285,75 @@ trait HasPolymorphicRelations
     {
         return $this->nodes();
     }
+
+    /**
+     * إرفاق وسوم بالاسم (إنشاؤها تلقائياً إن لم تكن موجودة)
+     */
+    public function attachTagsByName(array $names): array
+    {
+        $ids = [];
+        foreach ($names as $name) {
+            $name = trim($name);
+            if ($name === '') {
+                continue;
+            }
+            $tag = Tag::firstOrCreate(['name' => $name]);
+            $ids[] = $tag->id;
+        }
+
+        if (!empty($ids)) {
+            $this->tags()->syncWithoutDetaching($ids);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * إرفاق تصنيفات بالاسم (إنشاؤها تلقائياً إن لم تكن موجودة)
+     */
+    public function attachCategoriesByName(array $names): array
+    {
+        $ids = [];
+        foreach ($names as $name) {
+            $name = trim($name);
+            if ($name === '') {
+                continue;
+            }
+            $category = Category::firstOrCreate(['name' => $name]);
+            $ids[] = $category->id;
+        }
+
+        if (!empty($ids)) {
+            $this->categories()->syncWithoutDetaching($ids);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * نسخ الوسوم من كيان آخر
+     */
+    public function copyTagsFrom($source, bool $replace = false): void
+    {
+        $sourceTagIds = $source->tags()->pluck('tags.id')->toArray();
+
+        if ($replace) {
+            $this->tags()->sync($sourceTagIds);
+        } else {
+            $this->tags()->syncWithoutDetaching($sourceTagIds);
+        }
+    }
+
+    /**
+     * استخراج الوسوم المشتركة مع كيان آخر
+     */
+    public function getCommonTagsWith($other): EloquentCollection
+    {
+        $myTagIds = $this->tags()->pluck('tags.id')->toArray();
+        $otherTagIds = $other->tags()->pluck('tags.id')->toArray();
+        $commonTagIds = array_intersect($myTagIds, $otherTagIds);
+
+        return Tag::whereIn('id', $commonTagIds)->get();
+    }
 }
+

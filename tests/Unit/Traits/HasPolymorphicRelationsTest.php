@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Traits\HasPolymorphicRelations;
 use App\Models\Tag;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Facades\Schema;
@@ -120,4 +121,73 @@ class HasPolymorphicRelationsTest extends TestCase
         $this->assertCount(1, $tag->entities);
         $this->assertInstanceOf(Book::class, $tag->entities->first());
     }
+
+    #[Test]
+    public function it_attaches_tags_by_name_and_creates_missing_ones()
+    {
+        $book = Book::create(['title' => 'Book Tag Name Test', 'author' => 'Author']);
+
+        $ids = $book->attachTagsByName(['Laravel', 'Architecture']);
+
+        $this->assertCount(2, $ids);
+        $this->assertCount(2, $book->fresh()->tags);
+        $this->assertEqualsCanonicalizing(
+            ['Laravel', 'Architecture'],
+            $book->fresh()->tags->pluck('name')->toArray()
+        );
+    }
+
+    #[Test]
+    public function it_attaches_categories_by_name_and_creates_missing_ones()
+    {
+        $book = Book::create(['title' => 'Book Category Name Test', 'author' => 'Author']);
+
+        $ids = $book->attachCategoriesByName(['Programming', 'Design Patterns']);
+
+        $this->assertCount(2, $ids);
+        $this->assertCount(2, $book->fresh()->categories);
+        $this->assertEqualsCanonicalizing(
+            ['Programming', 'Design Patterns'],
+            $book->fresh()->categories->pluck('name')->toArray()
+        );
+    }
+
+    #[Test]
+    public function it_copies_tags_from_another_entity()
+    {
+        $source = Book::create(['title' => 'Source Book', 'author' => 'Author']);
+        $target = Book::create(['title' => 'Target Book', 'author' => 'Author']);
+
+        $tag1 = Tag::create(['name' => 'PHP']);
+        $tag2 = Tag::create(['name' => 'PostgreSQL']);
+        $source->tags()->attach([$tag1->id, $tag2->id]);
+
+        $target->copyTagsFrom($source);
+
+        $this->assertCount(2, $target->fresh()->tags);
+        $this->assertEqualsCanonicalizing(
+            ['PHP', 'PostgreSQL'],
+            $target->fresh()->tags->pluck('name')->toArray()
+        );
+    }
+
+    #[Test]
+    public function it_finds_common_tags_with_another_entity()
+    {
+        $book1 = Book::create(['title' => 'Book 1', 'author' => 'Author']);
+        $book2 = Book::create(['title' => 'Book 2', 'author' => 'Author']);
+
+        $tagShared = Tag::create(['name' => 'Shared Tag']);
+        $tagOnly1 = Tag::create(['name' => 'Only Book 1']);
+        $tagOnly2 = Tag::create(['name' => 'Only Book 2']);
+
+        $book1->tags()->attach([$tagShared->id, $tagOnly1->id]);
+        $book2->tags()->attach([$tagShared->id, $tagOnly2->id]);
+
+        $common = $book1->getCommonTagsWith($book2);
+
+        $this->assertCount(1, $common);
+        $this->assertEquals('Shared Tag', $common->first()->name);
+    }
 }
+
