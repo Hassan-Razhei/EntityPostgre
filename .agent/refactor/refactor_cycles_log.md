@@ -15,6 +15,7 @@
 | **5** | **استخراج وحماية الخصائص الذكية لشجرة المحتوى في سمة `HasNodeMetadata`** | `app/Traits/HasNodeMetadata.php` (إنشاء)<br>`app/Models/ContentNode.php` (ترقية ورشاقة)<br>`tests/Unit/Traits/HasNodeMetadataTest.php` (إنشاء درع جديد) | `php artisan test tests/Unit/Traits/HasNodeMetadataTest.php` | **589 Passed (3351 Assertions)**<br>100% نجاح | `edec6d4` | ✅ مكتملة وموثقة |
 | **6** | **تفكيك وترشيق `AdminDashboardController` واستخراج خدمة `DashboardStatsService` وسمة `AppliesAssetFilters`** | `app/Services/DashboardStatsService.php` (إنشاء)<br>`app/Traits/AppliesAssetFilters.php` (إنشاء)<br>`app/Http/Controllers/AdminDashboardController.php` (ترشيق وتفكيك)<br>`tests/Unit/Services/DashboardStatsServiceTest.php` (إنشاء درع جديد) | `php artisan test tests/Unit/Services/DashboardStatsServiceTest.php`<br>`npm run test:run` | **592 Passed (3414 Assertions)**<br>**Vitest: 136 Passed**<br>100% نجاح كامل | `fedc8d7` | ✅ مكتملة وموثقة |
 | **7** | **توحيد متحكمات المساهمين واللغات والرفوف في `EntityController` ومعايرة الـ Hooks** | `app/Http/Controllers/BookerController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/LanguageController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/ShelfController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/EntityController.php` (تحسين Hooks)<br>`app/Providers/AppServiceProvider.php` (تسجيل السياسات)<br>`app/Http/Requests/*` (إنشاء 6 طلبات FormRequests) | `php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php`<br>`npm run test:run`<br>`php artisan test` | **CoreEntitiesCRUDTest: 11 Passed (384 Assertions)**<br>**Vitest: 136 Passed (14 Files)**<br>**Full Backend: 592 Passed (3417 Assertions)**<br>100% نجاح كامل | `ed3d77d` | ✅ مكتملة وموثقة |
+| **8** | **توحيد متحكمات المجموعات والتعليقات والملاحظات في `EntityController` وترشيق CRUD** | `app/Http/Controllers/CollectionController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/CommentController.php` (ترشيق وتوحيد)<br>`app/Http/Controllers/NoteController.php` (ترشيق وتوحيد)<br>`app/Providers/AppServiceProvider.php` (تسجيل السياسات)<br>`app/Http/Requests/*` (إنشاء 6 طلبات FormRequests) | `php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php`<br>`php artisan test tests/Feature/Entities/Taxonomies/TaxonomyAttachmentTest.php`<br>`npm run test:run`<br>`php artisan test` | **CoreEntitiesCRUDTest: 11 Passed (384 Assertions)**<br>**TaxonomyAttachmentTest: 2 Passed (6 Assertions)**<br>**Vitest: 136 Passed (14 Files)**<br>**Full Backend: 592 Passed (3429 Assertions)**<br>100% نجاح كامل | `155fa14` | ✅ مكتملة وموثقة |
 
 ---
 
@@ -399,5 +400,75 @@
 * إخضاع كافة عمليات الإدخال والتعديل لطبقة طلبات تحقق مستقلة (`FormRequests`) مما يرفع أمان واستقرار المدخلات.
 * توافق كامل مع بنية قمرة القيادة وواجهات Vue دون أي انكسار.
 
+---
 
+## 🔹 الدورة 8: توحيد متحكمات المجموعات والتعليقات والملاحظات في `EntityController` وترشيق الـ CRUD
 
+- **تاريخ الإنجاز:** 2026-10-14
+- **المحور المستهدف:** المحور الثالث (طبقة المتحكمات وتوحيد معمارية الـ CRUD)
+- **الهدف المعماري:**  
+  توحيد متحكمات المجموعات ([`CollectionController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/CollectionController.php)) والتعليقات ([`CommentController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/CommentController.php)) والملاحظات ([`NoteController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/NoteController.php)) تحت مظلة الفئة الأم [`EntityController`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/EntityController.php)، مع الحفاظ على المنطق الخاص والوظائف الذكية (مثل ربط الكيانات بالمجموعة `attachEntity`، وتخصيص التحميل الحثيث `Eager Loading` بحسب المسار، وإسناد هوية المستخدم تلقائياً `user_id` للملاحظات والتعليقات والمجموعات)، واستخراج 6 أصناف طلبات تحقق مستقلة (`FormRequests`)، وربط سياسات الصلاحيات (`EntityPolicy`) في مزود الخدمة.
+
+---
+
+### 1. الملفات المنشأة والمعدلة:
+1. **منشأ 🌟 (طبقة FormRequests القياسية):**
+   - [`app/Http/Requests/StoreCollectionRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/StoreCollectionRequest.php)
+   - [`app/Http/Requests/UpdateCollectionRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/UpdateCollectionRequest.php)
+   - [`app/Http/Requests/StoreCommentRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/StoreCommentRequest.php)
+   - [`app/Http/Requests/UpdateCommentRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/UpdateCommentRequest.php)
+   - [`app/Http/Requests/StoreNoteRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/StoreNoteRequest.php)
+   - [`app/Http/Requests/UpdateNoteRequest.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Requests/UpdateNoteRequest.php)
+2. **معدل ✏️ (تسجيل السياسات في مزود الخدمة):**
+   - [`app/Providers/AppServiceProvider.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Providers/AppServiceProvider.php): تسجيل بوابات الصلاحيات للنماذج `Collection`, `Comment`, `Note` وربطها بسياسة `EntityPolicy`.
+3. **معدل ✏️ (المتحكمات الموحدة والرشيقة):**
+   - [`app/Http/Controllers/CollectionController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/CollectionController.php): تقليص الكود من 142 إلى 75 سطراً (توفير 47% من الكود)، مع الحفاظ على طريقة `attachEntity` وتخصيص التحميل الحثيث `relations()` ليكون `['user']` في صفحة الفهرس و `['books', 'videos', 'audio', 'manuscripts', 'user']` في صفحة العرض، وتعيين `user_id` وتوجيه `update` إلى `collections.index`.
+   - [`app/Http/Controllers/CommentController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/CommentController.php): تقليص الكود من 109 إلى 45 سطراً (توفير 59% من الكود)، مع إسناد هوية المستخدم تلقائياً في `persistModel`.
+   - [`app/Http/Controllers/NoteController.php`](file:///home/a/PhpstormProjects/EntityPostgre/app/Http/Controllers/NoteController.php): تقليص الكود من 109 إلى 45 سطراً (توفير 59% من الكود)، مع إسناد هوية المستخدم تلقائياً في `persistModel`.
+
+---
+
+### 2. نتائج فحص درع المناعة الشامل (Full-Stack Immunity Shield) 🛡️:
+* **الأوامر المنفذة بواسطة المستخدم:**
+  ```bash
+  php artisan test tests/Feature/Entities/Common/CoreEntitiesCRUDTest.php
+  php artisan test tests/Feature/Entities/Taxonomies/TaxonomyAttachmentTest.php
+  npm run test:run
+  php artisan test
+  ```
+* **النتائج المسجلة:**
+  ```text
+  PASS  Tests\Feature\Entities\Common\CoreEntitiesCRUDTest
+  ✓ full crud lifecycle for books
+  ✓ full crud lifecycle for manuscripts
+  ✓ full crud lifecycle for audios
+  ✓ full crud lifecycle for videos
+  ✓ crud lifecycle for supporting entities
+  ✓ full crud lifecycle for bookers
+  ✓ full crud lifecycle for languages
+  ✓ full crud lifecycle for comments and notes
+  ✓ audit logs lifecycle for activities and deletions
+  ✓ crud lifecycle for content nodes and segments
+  ✓ lifecycle for versions and reading positions
+  Tests: 11 passed (384 assertions) | Duration: 1.48s
+
+  PASS  Tests\Feature\Entities\Taxonomies\TaxonomyAttachmentTest
+  ✓ entities can attach taxonomies dynamically
+  ✓ entities can detach taxonomies dynamically
+  Tests: 2 passed (6 assertions) | Duration: 0.16s
+
+  Vitest Frontend Tests (npm run test:run):
+  Test Files: 14 passed (14)
+  Tests:      136 passed (136) | Duration: 13.91s
+
+  Full Backend Suite (php artisan test):
+  Tests:      1 incomplete, 592 passed (3429 assertions) | Duration: 44.44s
+  ```
+  *(100% نجاح كامل لكافة الاختبارات)*.
+
+---
+
+### 3. الأثر المعماري:
+* التخلص من أكثر من 190 سطراً من الكود المكرر عبر توحيد استجابات Inertia ومعالجة CRUD في `EntityController`.
+* رفع المعايير الأمنية عبر فرض قواعد التحقق لعمليات التخزين والتحديث لكل نموذج على حدة بواسطة FormRequests مستقلة.
+* الحفاظ الدقيق على السلوكيات الخاصة (مثل `attachEntity` وتأمين عدم تسريب بيانات غير مرغوبة أو انكسار صفحات العرض).

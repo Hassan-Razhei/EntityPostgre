@@ -2,114 +2,62 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
 
-class CollectionController extends Controller
+/**
+ * CollectionController - Refactored to inherit EntityController
+ */
+class CollectionController extends EntityController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): Response
-    {
-        $filters = $request->only(['search']);
-        
-        $collections = Collection::withCount(['books', 'videos', 'audio', 'manuscripts'])
-            ->with('user')
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+    // Configuration
+    protected function getModelClass(): string { return Collection::class; }
+    protected function getViewPath(): string { return 'Collections'; }
+    protected function getRouteName(): string { return 'collections'; }
+    protected function getStoreRequestClass(): ?string { return \App\Http\Requests\StoreCollectionRequest::class; }
+    protected function getUpdateRequestClass(): ?string { return \App\Http\Requests\UpdateCollectionRequest::class; }
 
-        return Inertia::render('Collections/Index', [
-            'collections' => $collections,
-            'filters' => $filters,
-        ]);
+    // Customization
+    protected function getRelations(): array
+    {
+        if (request()->routeIs('collections.index')) {
+            return ['user'];
+        }
+        return ['books', 'videos', 'audio', 'manuscripts', 'user'];
+    }
+
+    protected function getWithCount(): array { return ['books', 'videos', 'audio', 'manuscripts']; }
+    protected function getSearchFields(): array { return ['name', 'description']; }
+    protected function getPerPage(): int { return 15; }
+
+    protected function getCreateSuccessMessage(): string { return 'تم إنشاء المجموعة بنجاح'; }
+    protected function getUpdateSuccessMessage(): string { return 'تم تحديث المجموعة بنجاح'; }
+    protected function getDeleteSuccessMessage(): string { return 'تم حذف المجموعة بنجاح'; }
+
+    /**
+     * Persist Collection with user ownership
+     */
+    protected function persistModel(Model $model, array $data, Request $request): void
+    {
+        if (!$model->exists && empty($data['user_id'])) {
+            $data['user_id'] = auth()->id() ?? \App\Models\User::first()?->id;
+        }
+        if (!isset($data['is_public'])) {
+            $data['is_public'] = false;
+        }
+        $model->fill($data);
+        $model->save();
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Redirect to collections.index after update
      */
-    public function create(): Response
+    protected function getUpdateRedirect(Model $model): RedirectResponse
     {
-        return Inertia::render('Collections/Create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'is_public' => 'boolean'
-        ]);
-
-        Collection::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'is_public' => $request->is_public ?? false,
-            'user_id' => auth()->id() ?? \App\Models\User::first()->id, // Fallback for dev
-        ]);
-
         return redirect()->route('collections.index')
-            ->with('message', 'تم إنشاء المجموعة بنجاح');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Collection $collection): Response
-    {
-        return Inertia::render('Collections/Show', [
-            'collection' => $collection->load(['books', 'videos', 'audio', 'manuscripts', 'user']),
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Collection $collection): Response
-    {
-        return Inertia::render('Collections/Edit', [
-            'collection' => $collection,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Collection $collection): RedirectResponse
-    {
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'is_public' => 'boolean'
-        ]);
-
-        $collection->update($request->only(['name', 'description', 'is_public']));
-
-        return redirect()->route('collections.index')
-            ->with('message', 'تم تحديث المجموعة بنجاح');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Collection $collection): RedirectResponse
-    {
-        $collection->delete();
-
-        return redirect()->route('collections.index')
-            ->with('message', 'تم حذف المجموعة بنجاح');
+            ->with('message', $this->getUpdateSuccessMessage());
     }
 
     /**

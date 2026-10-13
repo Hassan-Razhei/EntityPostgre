@@ -68,6 +68,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\Booker::class, EntityPolicy::class);
         Gate::policy(\App\Models\Language::class, EntityPolicy::class);
         Gate::policy(\App\Models\Shelf::class, EntityPolicy::class);
+        Gate::policy(\App\Models\Collection::class, EntityPolicy::class);
+        Gate::policy(\App\Models\Comment::class, EntityPolicy::class);
+        Gate::policy(\App\Models\Note::class, EntityPolicy::class);
 
         Book::flushEventListeners();
         Video::flushEventListeners();

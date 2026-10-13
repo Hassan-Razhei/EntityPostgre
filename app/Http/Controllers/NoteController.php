@@ -2,107 +2,40 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Note;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
-class NoteController extends Controller
+/**
+ * NoteController - Refactored to inherit EntityController
+ */
+class NoteController extends EntityController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): Response
-    {
-        $notes = Note::with(['user', 'entity'])
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where('content', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate($request->get('per_page', 10))
-            ->withQueryString();
+    // Configuration
+    protected function getModelClass(): string { return Note::class; }
+    protected function getViewPath(): string { return 'Notes'; }
+    protected function getRouteName(): string { return 'notes'; }
+    protected function getStoreRequestClass(): ?string { return \App\Http\Requests\StoreNoteRequest::class; }
+    protected function getUpdateRequestClass(): ?string { return \App\Http\Requests\UpdateNoteRequest::class; }
 
-        return Inertia::render('Notes/Index', [
-            'notes' => $notes,
-            'filters' => $request->only(['search']),
-        ]);
-    }
+    // Customization
+    protected function getRelations(): array { return ['user', 'entity']; }
+    protected function getSearchFields(): array { return ['content']; }
+    protected function getPerPage(): int { return 10; }
+
+    protected function getCreateSuccessMessage(): string { return 'تم إضافة الملاحظة بنجاح'; }
+    protected function getUpdateSuccessMessage(): string { return 'تم تحديث الملاحظة بنجاح'; }
+    protected function getDeleteSuccessMessage(): string { return 'تم حذف الملاحظة بنجاح'; }
 
     /**
-     * Show the form for creating a new resource.
+     * Persist Note with user ownership
      */
-    public function create(): Response
+    protected function persistModel(Model $model, array $data, Request $request): void
     {
-        return Inertia::render('Notes/Create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'content' => 'required|string',
-            'entity_id' => 'required|uuid',
-            'entity_type' => 'required|string',
-        ]);
-
-        Note::create([
-            'content' => $request->content,
-            'user_id' => auth()->id(),
-            'entity_id' => $request->entity_id,
-            'entity_type' => $request->entity_type,
-        ]);
-
-        return redirect()->route('notes.index')
-            ->with('message', 'تم إضافة الملاحظة بنجاح');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Note $note): Response
-    {
-        return Inertia::render('Notes/Show', [
-            'note' => $note->load(['user', 'entity']),
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Note $note): Response
-    {
-        return Inertia::render('Notes/Edit', [
-            'note' => $note,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Note $note): RedirectResponse
-    {
-        $request->validate([
-            'content' => 'required|string'
-        ]);
-
-        $note->update($request->only('content'));
-
-        return redirect()->route('notes.show', $note)
-            ->with('message', 'تم تحديث الملاحظة بنجاح');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Note $note): RedirectResponse
-    {
-        $note->delete();
-
-        return redirect()->route('notes.index')
-            ->with('message', 'تم حذف الملاحظة بنجاح');
+        if (!$model->exists && empty($data['user_id'])) {
+            $data['user_id'] = auth()->id() ?? \App\Models\User::first()?->id;
+        }
+        $model->fill($data);
+        $model->save();
     }
 }

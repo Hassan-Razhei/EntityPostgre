@@ -2,107 +2,40 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Comment;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
-class CommentController extends Controller
+/**
+ * CommentController - Refactored to inherit EntityController
+ */
+class CommentController extends EntityController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): Response
-    {
-        $comments = Comment::with(['user', 'entity'])
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where('content', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate($request->get('per_page', 10))
-            ->withQueryString();
+    // Configuration
+    protected function getModelClass(): string { return Comment::class; }
+    protected function getViewPath(): string { return 'Comments'; }
+    protected function getRouteName(): string { return 'comments'; }
+    protected function getStoreRequestClass(): ?string { return \App\Http\Requests\StoreCommentRequest::class; }
+    protected function getUpdateRequestClass(): ?string { return \App\Http\Requests\UpdateCommentRequest::class; }
 
-        return Inertia::render('Comments/Index', [
-            'comments' => $comments,
-            'filters' => $request->only(['search']),
-        ]);
-    }
+    // Customization
+    protected function getRelations(): array { return ['user', 'entity']; }
+    protected function getSearchFields(): array { return ['content']; }
+    protected function getPerPage(): int { return 10; }
+
+    protected function getCreateSuccessMessage(): string { return 'تم إضافة التعليق بنجاح'; }
+    protected function getUpdateSuccessMessage(): string { return 'تم تحديث التعليق بنجاح'; }
+    protected function getDeleteSuccessMessage(): string { return 'تم حذف التعليق بنجاح'; }
 
     /**
-     * Show the form for creating a new resource.
+     * Persist Comment with user ownership
      */
-    public function create(): Response
+    protected function persistModel(Model $model, array $data, Request $request): void
     {
-        return Inertia::render('Comments/Create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'content' => 'required|string',
-            'entity_id' => 'required|uuid',
-            'entity_type' => 'required|string',
-        ]);
-
-        Comment::create([
-            'content' => $request->content,
-            'user_id' => auth()->id(),
-            'entity_id' => $request->entity_id,
-            'entity_type' => $request->entity_type,
-        ]);
-
-        return redirect()->route('comments.index')
-            ->with('message', 'تم إضافة التعليق بنجاح');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Comment $comment): Response
-    {
-        return Inertia::render('Comments/Show', [
-            'comment' => $comment->load(['user', 'entity']),
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Comment $comment): Response
-    {
-        return Inertia::render('Comments/Edit', [
-            'comment' => $comment,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Comment $comment): RedirectResponse
-    {
-        $request->validate([
-            'content' => 'required|string'
-        ]);
-
-        $comment->update($request->only('content'));
-
-        return redirect()->route('comments.show', $comment)
-            ->with('message', 'تم تحديث التعليق بنجاح');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Comment $comment): RedirectResponse
-    {
-        $comment->delete();
-
-        return redirect()->route('comments.index')
-            ->with('message', 'تم حذف التعليق بنجاح');
+        if (!$model->exists && empty($data['user_id'])) {
+            $data['user_id'] = auth()->id() ?? \App\Models\User::first()?->id;
+        }
+        $model->fill($data);
+        $model->save();
     }
 }
